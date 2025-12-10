@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Copias de Seguridad - SENA{% endblock %}
+{% block page_title %}Copias de Seguridad{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-shield-check me-2"></i>Gestión de Copias de Seguridad
+                    </h5>
+                    <a href="{% url 'sistema:crear_backup' %}" class="btn btn-light btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i>Nueva Copia
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-4">
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <h3 class="text-primary mb-0">{{ db_size }} MB</h3>
+                            <small class="text-muted">Tamaño BD Actual</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <h3 class="text-success mb-0">{{ total_tablas }}</h3>
+                            <small class="text-muted">Total Tablas</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <h3 class="text-info mb-0">{{ total_registros }}</h3>
+                            <small class="text-muted">Total Registros</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <h3 class="text-warning mb-0">{{ backups.count }}</h3>
+                            <small class="text-muted">Copias Creadas</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Ubicación de la Base de Datos:</strong> {{ db_path }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Historial de Copias</h6>
+            </div>
+            <div class="card-body">
+                {% if backups %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Tamaño</th>
+                                    <th>Registros</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Creado Por</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for backup in backups %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ backup.nombre }}</strong>
+                                        {% if backup.descripcion %}
+                                            <br><small class="text-muted">{{ backup.descripcion|truncatewords:10 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ backup.get_tipo_display }}</span>
+                                    </td>
+                                    <td>
+                                        {% if backup.estado == 'completado' %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> {{ backup.get_estado_display }}
+                                            </span>
+                                        {% elif backup.estado == 'error' %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle"></i> {{ backup.get_estado_display }}
+                                            </span>
+                                        {% elif backup.estado == 'restaurado' %}
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-arrow-repeat"></i> {{ backup.get_estado_display }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-hourglass-split"></i> {{ backup.get_estado_display }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ backup.tamaño_mb }} MB</td>
+                                    <td>{{ backup.total_registros|default:"-" }}</td>
+                                    <td>{{ backup.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ backup.creado_por.nombre_completo|default:"Sistema" }}</td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'sistema:detalle_backup' backup.id %}"
+                                               class="btn btn-sm btn-outline-info"
+                                               title="Ver detalles">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            {% if backup.puede_restaurar %}
+                                                <a href="{% url 'sistema:descargar_backup' backup.id %}"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Descargar">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                                <a href="{% url 'sistema:restaurar_backup' backup.id %}"
+                                                   class="btn btn-sm btn-outline-warning"
+                                                   title="Restaurar">
+                                                    <i class="bi bi-arrow-repeat"></i>
+                                                </a>
+                                            {% endif %}
+                                            <a href="{% url 'sistema:eliminar_backup' backup.id %}"
+                                               class="btn btn-sm btn-outline-danger"
+                                               title="Eliminar">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                        <p class="text-muted">No hay copias de seguridad registradas</p>
+                        <a href="{% url 'sistema:crear_backup' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Crear Primera Copia
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <h6><i class="bi bi-exclamation-triangle me-2"></i>Recomendaciones Importantes:</h6>
+            <ul class="mb-0">
+                <li>Se recomienda crear copias de seguridad periódicamente</li>
+                <li>Almacene las copias en ubicaciones externas para mayor seguridad</li>
+                <li>Antes de restaurar, se creará automáticamente una copia de seguridad adicional</li>
+                <li>Solo usuarios administradores pueden gestionar las copias de seguridad</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportes - SENA{% endblock %}
+{% block page_title %}Reportes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Stats Cards -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Reportes Generados</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_reportes|default:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-file-earmark-text fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Este Mes</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ reportes_mes|default:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-calendar-month fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Tipos Disponibles</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ tipos_disponibles|default:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-collection fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pendientes</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ reportes_pendientes|default:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-clock-history fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">Acciones Rápidas</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-primary w-100">
+                    <i class="bi bi-plus-circle me-2"></i>Nuevo Reporte
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros y Lista de Reportes -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">Todos los Reportes</h6>
+    </div>
+    <div class="card-body">
+        <!-- Filtros -->
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="text" name="busqueda" class="form-control" placeholder="Buscar..." value="{{ busqueda }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="tipo" class="form-select">
+                        <option value="">Todos los tipos</option>
+                        {% for tipo in tipos_reporte %}
+                            <option value="{{ tipo.id }}" {% if tipo_filtro == tipo.id|stringformat:"s" %}selected{% endif %}>
+                                {{ tipo.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        {% for estado_key, estado_label in estados %}
+                            <option value="{{ estado_key }}" {% if estado_filtro == estado_key %}selected{% endif %}>
+                                {{ estado_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-2"></i>Filtrar
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Tabla de Reportes -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Título</th>
+                        <th>Solicitado por</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Formato</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if reportes %}
+                        {% for reporte in reportes %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ reporte.tipo_reporte.nombre }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'reportes:detalle_reporte' reporte.id %}" class="text-decoration-none">
+                                    {{ reporte.titulo }}
+                                </a>
+                            </td>
+                            <td>{{ reporte.usuario_solicitante.nombre_completo }}</td>
+                            <td>{{ reporte.fecha_solicitud|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if reporte.estado == 'completado' %}
+                                    <span class="badge bg-success">Completado</span>
+                                {% elif reporte.estado == 'generando' %}
+                                    <span class="badge bg-warning">Generando</span>
+                                {% elif reporte.estado == 'pendiente' %}
+                                    <span class="badge bg-secondary">Pendiente</span>
+                                {% elif reporte.estado == 'error' %}
+                                    <span class="badge bg-danger">Error</span>
+                                {% else %}
+                                    <span class="badge bg-dark">{{ reporte.get_estado_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-secondary">{{ reporte.formato|upper }}</span></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'reportes:detalle_reporte' reporte.id %}"
+                                       class="btn btn-outline-primary"
+                                       title="Ver detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if reporte.estado == 'completado' and reporte.archivo_resultado %}
+                                        <a href="{% url 'reportes:descargar_reporte' reporte.id %}"
+                                           class="btn btn-outline-success"
+                                           title="Descargar">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-file-earmark-text fs-1 mb-3 d-block"></i>
+                                    <h5>No hay reportes</h5>
+                                    <p>Genera tu primer reporte para comenzar</p>
+                                    <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-primary mt-3">
+                                        <i class="bi bi-plus-circle me-2"></i>Generar Reporte
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if reportes.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if reportes.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Primera</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reportes.previous_page_number }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Anterior</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">
+                        Página {{ reportes.number }} de {{ reportes.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if reportes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reportes.next_page_number }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Siguiente</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reportes.paginator.num_pages }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Última</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .border-left-primary { border-left: 0.25rem solid var(--sena-primary) !important; }
+    .border-left-success { border-left: 0.25rem solid #28a745 !important; }
+    .border-left-info { border-left: 0.25rem solid #17a2b8 !important; }
+    .border-left-warning { border-left: 0.25rem solid #ffc107 !important; }
+
+    .report-card {
+        transition: transform 0.2s ease-in-out;
+        cursor: pointer;
+    }
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+    .table tbody tr:hover {
+        background-color: rgba(57, 169, 0, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Scripts adicionales si se necesitan
+</script>
+{% endblock %}

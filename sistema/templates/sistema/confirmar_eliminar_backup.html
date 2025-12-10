@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Backup - SENA{% endblock %}
+{% block page_title %}Confirmar Eliminación{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 offset-lg-3">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-trash me-2"></i>Confirmar Eliminación
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Advertencia:</strong> Esta acción no se puede deshacer.
+                </div>
+
+                <p>¿Está seguro que desea eliminar la siguiente copia de seguridad?</p>
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ backup.nombre }}</h6>
+                        <p class="card-text text-muted">{{ backup.descripcion|default:"Sin descripción" }}</p>
+                        <dl class="row mb-0 small">
+                            <dt class="col-sm-4">Fecha:</dt>
+                            <dd class="col-sm-8">{{ backup.fecha_creacion|date:"d/m/Y H:i" }}</dd>
+                            <dt class="col-sm-4">Tamaño:</dt>
+                            <dd class="col-sm-8">{{ backup.tamaño_mb }} MB</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'sistema:gestionar_backups' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>Eliminar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

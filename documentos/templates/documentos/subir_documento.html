@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subir Documento - SENA{% endblock %}
+{% block page_title %}Subir Documento{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-cloud-upload me-2"></i>Subir Nuevo Documento
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+
+                    <!-- Información Básica -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-info-circle me-2"></i>Información Básica
+                        </h6>
+
+                        <div class="mb-3">
+                            <label for="{{ form.titulo.id_for_label }}" class="form-label">
+                                Título <span class="text-danger">*</span>
+                            </label>
+                            {{ form.titulo }}
+                            {% if form.titulo.errors %}
+                                <div class="invalid-feedback d-block">{{ form.titulo.errors.0 }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Nombre descriptivo del documento</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                                Descripción
+                            </label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                                <div class="invalid-feedback d-block">{{ form.descripcion.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.tipo_documento.id_for_label }}" class="form-label">
+                                    Tipo de Documento <span class="text-danger">*</span>
+                                </label>
+                                {{ form.tipo_documento }}
+                                {% if form.tipo_documento.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.tipo_documento.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.categoria.id_for_label }}" class="form-label">
+                                    Categoría <span class="text-danger">*</span>
+                                </label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.categoria.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Archivo -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-file-earmark me-2"></i>Archivo
+                        </h6>
+
+                        <div class="mb-3">
+                            <label for="{{ form.archivo.id_for_label }}" class="form-label">
+                                Seleccionar Archivo <span class="text-danger">*</span>
+                            </label>
+                            <div class="upload-zone" id="uploadZone">
+                                <div class="text-center py-4">
+                                    <i class="bi bi-cloud-upload fs-1 text-primary mb-3"></i>
+                                    <p class="mb-2">Arrastra el archivo aquí o haz clic para seleccionar</p>
+                                    <small class="text-muted">
+                                        Formatos permitidos: PDF, DOC, DOCX, TXT, XLS, XLSX, PPT, PPTX<br>
+                                        Tamaño máximo: 100MB
+                                    </small>
+                                </div>
+                                {{ form.archivo }}
+                            </div>
+                            {% if form.archivo.errors %}
+                                <div class="invalid-feedback d-block">{{ form.archivo.errors.0 }}</div>
+                            {% endif %}
+                            <div id="fileInfo" class="mt-2" style="display: none;">
+                                <div class="alert alert-info mb-0">
+                                    <i class="bi bi-file-earmark-check me-2"></i>
+                                    <strong>Archivo seleccionado:</strong> <span id="fileName"></span>
+                                    <br>
+                                    <small><strong>Tamaño:</strong> <span id="fileSize"></span></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Relaciones -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-link-45deg me-2"></i>Relaciones
+                        </h6>
+
+                        <div class="mb-3">
+                            <label for="{{ form.maquina_relacionada.id_for_label }}" class="form-label">
+                                Máquina Relacionada
+                            </label>
+                            {{ form.maquina_relacionada }}
+                            {% if form.maquina_relacionada.errors %}
+                                <div class="invalid-feedback d-block">{{ form.maquina_relacionada.errors.0 }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Si este documento pertenece a una máquina específica</small>
+                        </div>
+                    </div>
+
+                    <!-- Metadatos -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-tags me-2"></i>Metadatos
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.version.id_for_label }}" class="form-label">
+                                    Versión
+                                </label>
+                                {{ form.version }}
+                                {% if form.version.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.version.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.autor_original.id_for_label }}" class="form-label">
+                                    Autor Original
+                                </label>
+                                {{ form.autor_original }}
+                                {% if form.autor_original.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.autor_original.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.fecha_vencimiento.id_for_label }}" class="form-label">
+                                Fecha de Vencimiento
+                            </label>
+                            {{ form.fecha_vencimiento }}
+                            {% if form.fecha_vencimiento.errors %}
+                                <div class="invalid-feedback d-block">{{ form.fecha_vencimiento.errors.0 }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Fecha en que este documento se vuelve obsoleto</small>
+                        </div>
+                    </div>
+
+                    <!-- Control de Acceso -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-shield-lock me-2"></i>Control de Acceso
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nivel_acceso.id_for_label }}" class="form-label">
+                                    Nivel de Acceso
+                                </label>
+                                {{ form.nivel_acceso }}
+                                {% if form.nivel_acceso.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.nivel_acceso.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.estado.id_for_label }}" class="form-label">
+                                    Estado
+                                </label>
+                                {{ form.estado }}
+                                {% if form.estado.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.estado.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vista Previa del Documento -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-eye me-2"></i>Vista Previa del Documento
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div><strong>Título:</strong> <span id="preview-doc-titulo">-</span></div>
+                                    <div><strong>Tipo:</strong> <span id="preview-doc-tipo">-</span></div>
+                                    <div><strong>Categoría:</strong> <span id="preview-doc-categoria">-</span></div>
+                                    <div><strong>Archivo:</strong> <span id="preview-doc-archivo">-</span></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div><strong>Nivel de Acceso:</strong> <span id="preview-doc-acceso">-</span></div>
+                                    <div><strong>Estado:</strong> <span id="preview-doc-estado">-</span></div>
+                                    <div><strong>Máquina:</strong> <span id="preview-doc-maquina">-</span></div>
+                                    <div><strong>Versión:</strong> <span id="preview-doc-version">-</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{% url 'documentos:repositorio' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancelar
+                        </a>
+                        <button type="button" class="btn btn-outline-primary" onclick="updateDocPreview()">
+                            <i class="bi bi-eye me-2"></i>Vista Previa
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="bi bi-cloud-upload me-2"></i>Subir Documento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-zone {
+        border: 2px dashed #007bff;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-zone:hover {
+        border-color: #0056b3;
+        background-color: #e9ecef;
+    }
+
+    .upload-zone.dragover {
+        border-color: #0056b3;
+        background-color: #e3f2fd;
+        transform: scale(1.02);
+    }
+
+    #id_archivo {
+        display: none;
+    }
+
+    #id_titulo, #id_descripcion, #id_tipo_documento, #id_categoria,
+    #id_maquina_relacionada, #id_version, #id_autor_original,
+    #id_fecha_vencimiento, #id_nivel_acceso, #id_estado {
+        width: 100%;
+    }
+
+    #id_titulo, #id_version, #id_autor_original, #id_fecha_vencimiento {
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        font-size: 1rem;
+    }
+
+    #id_descripcion {
+        min-height: 100px;
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        font-size: 1rem;
+    }
+
+    select {
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        background-color: white;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('id_archivo');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+
+    // Click en zona de upload
+    uploadZone.addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    // Drag and drop
+    uploadZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileInfo(files[0]);
+        }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            updateFileInfo(this.files[0]);
+        }
+    });
+
+    function updateFileInfo(file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.style.display = 'block';
+
+        // Validar archivo
+        validateFile(file);
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    function validateFile(file) {
+        const allowedExtensions = ['pdf', 'doc', 'docx', 'txt', 'xlsx', 'xls', 'ppt', 'pptx'];
+        const maxSize = 100 * 1024 * 1024; // 100MB
+
+        const extension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(extension)) {
+            alert('Tipo de archivo no permitido. Solo se permiten: ' + allowedExtensions.join(', '));
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            return false;
+        }
+
+        if (file.size > maxSize) {
+            alert('El archivo es muy grande. El tamaño máximo es 100MB.');
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            return false;
+        }
+
+        return true;
+    }
+
+    // Form submission
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Subiendo...';
+    });
+
+    // Actualizar vista previa en tiempo real
+    const formFields = document.querySelectorAll('#uploadForm input, #uploadForm select, #uploadForm textarea');
+    formFields.forEach(field => {
+        field.addEventListener('change', updateDocPreview);
+        field.addEventListener('input', updateDocPreview);
+    });
+});
+
+function updateDocPreview() {
+    // Título
+    const titulo = document.getElementById('id_titulo')?.value || '-';
+    document.getElementById('preview-doc-titulo').textContent = titulo;
+
+    // Tipo
+    const tipoSelect = document.getElementById('id_tipo_documento');
+    const tipo = tipoSelect?.selectedOptions[0]?.textContent || '-';
+    document.getElementById('preview-doc-tipo').textContent = tipo;
+
+    // Categoría
+    const categoriaSelect = document.getElementById('id_categoria');
+    const categoria = categoriaSelect?.selectedOptions[0]?.textContent || '-';
+    document.getElementById('preview-doc-categoria').textContent = categoria;
+
+    // Archivo
+    const archivoInput = document.getElementById('id_archivo');
+    const archivo = archivoInput?.files[0]?.name || '-';
+    document.getElementById('preview-doc-archivo').textContent = archivo;
+
+    // Nivel de acceso
+    const accesoSelect = document.getElementById('id_nivel_acceso');
+    const acceso = accesoSelect?.selectedOptions[0]?.textContent || '-';
+    document.getElementById('preview-doc-acceso').textContent = acceso;
+
+    // Estado
+    const estadoSelect = document.getElementById('id_estado');
+    const estado = estadoSelect?.selectedOptions[0]?.textContent || '-';
+    document.getElementById('preview-doc-estado').textContent = estado;
+
+    // Máquina relacionada
+    const maquinaSelect = document.getElementById('id_maquina_relacionada');
+    const maquina = maquinaSelect?.selectedOptions[0]?.textContent || 'Ninguna';
+    document.getElementById('preview-doc-maquina').textContent = maquina;
+
+    // Versión
+    const version = document.getElementById('id_version')?.value || '-';
+    document.getElementById('preview-doc-version').textContent = version;
+}
+</script>
+{% endblock %}

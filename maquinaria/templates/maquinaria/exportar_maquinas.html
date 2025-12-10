@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+
+{% block title %}Exportar Máquinas - SENA{% endblock %}
+{% block page_title %}Exportar Máquinas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-download me-2"></i>Exportar Inventario de Máquinas
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:lista_maquinas' %}">Máquinas</a></li>
+                        <li class="breadcrumb-item active">Exportar</li>
+                    </ol>
+                </nav>
+
+                <form id="exportForm">
+                    <div class="row">
+                        <!-- Export Format -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Formato de Exportación</h6>
+
+                            <div class="mb-3">
+                                <label class="form-label">Seleccionar Formato *</label>
+                                <div class="row">
+                                    <div class="col-12 mb-2">
+                                        <input type="radio" class="btn-check" name="formato" id="formato_excel" value="excel" checked>
+                                        <label class="btn btn-outline-success w-100 p-3" for="formato_excel">
+                                            <i class="bi bi-file-earmark-excel fs-3"></i>
+                                            <div class="mt-2">
+                                                <strong>Microsoft Excel</strong>
+                                                <div class="small text-muted">Archivo .xlsx con hojas múltiples</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="col-12 mb-2">
+                                        <input type="radio" class="btn-check" name="formato" id="formato_csv" value="csv">
+                                        <label class="btn btn-outline-info w-100 p-3" for="formato_csv">
+                                            <i class="bi bi-filetype-csv fs-3"></i>
+                                            <div class="mt-2">
+                                                <strong>CSV (Comma Separated)</strong>
+                                                <div class="small text-muted">Compatible con cualquier aplicación</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="col-12 mb-2">
+                                        <input type="radio" class="btn-check" name="formato" id="formato_pdf" value="pdf">
+                                        <label class="btn btn-outline-danger w-100 p-3" for="formato_pdf">
+                                            <i class="bi bi-file-earmark-pdf fs-3"></i>
+                                            <div class="mt-2">
+                                                <strong>PDF Report</strong>
+                                                <div class="small text-muted">Reporte formateado para impresión</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Options -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Opciones de Exportación</h6>
+
+                            <!-- Data Selection -->
+                            <div class="mb-3">
+                                <label class="form-label">Datos a Incluir</label>
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="incluir_basicos" name="campos" value="basicos" checked>
+                                            <label class="form-check-label" for="incluir_basicos">
+                                                <strong>Datos Básicos</strong> (Código, Nombre, Marca, Modelo)
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="incluir_tecnicos" name="campos" value="tecnicos" checked>
+                                            <label class="form-check-label" for="incluir_tecnicos">
+                                                <strong>Especificaciones Técnicas</strong> (Potencia, Peso, Capacidad)
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="incluir_operacion" name="campos" value="operacion">
+                                            <label class="form-check-label" for="incluir_operacion">
+                                                <strong>Datos Operacionales</strong> (Horas, Estado, Ubicación)
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="incluir_mantenimiento" name="campos" value="mantenimiento">
+                                            <label class="form-check-label" for="incluir_mantenimiento">
+                                                <strong>Historial de Mantenimiento</strong> (Último, Próximo)
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="incluir_financiero" name="campos" value="financiero">
+                                            <label class="form-check-label" for="incluir_financiero">
+                                                <strong>Información Financiera</strong> (Costo, Depreciación)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="incluir_documentos" name="campos" value="documentos">
+                                            <label class="form-check-label" for="incluir_documentos">
+                                                <strong>Documentos Adjuntos</strong> (Enlaces a archivos)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Format Specific Options -->
+                            <div id="excel_options" class="format-options">
+                                <div class="mb-3">
+                                    <label class="form-label">Opciones Excel</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="excel_multiple_sheets" checked>
+                                        <label class="form-check-label" for="excel_multiple_sheets">
+                                            Crear hojas separadas por categoría
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="excel_charts" checked>
+                                        <label class="form-check-label" for="excel_charts">
+                                            Incluir gráficos estadísticos
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="pdf_options" class="format-options d-none">
+                                <div class="mb-3">
+                                    <label class="form-label">Opciones PDF</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="pdf_photos" checked>
+                                        <label class="form-check-label" for="pdf_photos">
+                                            Incluir fotos de máquinas
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="pdf_qr_codes">
+                                        <label class="form-check-label" for="pdf_qr_codes">
+                                            Incluir códigos QR
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">Filtros de Exportación</h6>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="filtro_categoria" class="form-label">Categoría</label>
+                                <select class="form-select" id="filtro_categoria" name="filtro_categoria">
+                                    <option value="">Todas las categorías</option>
+                                    <option value="excavadora">Excavadoras</option>
+                                    <option value="bulldozer">Bulldozers</option>
+                                    <option value="grua">Grúas</option>
+                                    <option value="cargadora">Cargadoras</option>
+                                    <option value="compactadora">Compactadoras</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="filtro_estado" class="form-label">Estado</label>
+                                <select class="form-select" id="filtro_estado" name="filtro_estado">
+                                    <option value="">Todos los estados</option>
+                                    <option value="operativa">Operativas</option>
+                                    <option value="mantenimiento">En Mantenimiento</option>
+                                    <option value="fuera_servicio">Fuera de Servicio</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="filtro_ubicacion" class="form-label">Ubicación</label>
+                                <select class="form-select" id="filtro_ubicacion" name="filtro_ubicacion">
+                                    <option value="">Todas las ubicaciones</option>
+                                    <option value="sede_principal">Sede Principal</option>
+                                    <option value="sede_norte">Sede Norte</option>
+                                    <option value="taller_externo">Taller Externo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="filtro_fecha_desde" class="form-label">Adquisición Desde</label>
+                                <input type="date" class="form-control" id="filtro_fecha_desde" name="filtro_fecha_desde">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="filtro_fecha_hasta" class="form-label">Adquisición Hasta</label>
+                                <input type="date" class="form-control" id="filtro_fecha_hasta" name="filtro_fecha_hasta">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-eye me-2"></i>Vista Previa de Exportación
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div><strong>Formato:</strong> <span id="preview_formato">Microsoft Excel</span></div>
+                                    <div><strong>Máquinas a exportar:</strong> <span id="preview_cantidad">15</span></div>
+                                    <div><strong>Campos incluidos:</strong> <span id="preview_campos">2</span></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div><strong>Tamaño estimado:</strong> <span id="preview_tamano">~2.3 MB</span></div>
+                                    <div><strong>Tiempo estimado:</strong> <span id="preview_tiempo">~30 segundos</span></div>
+                                    <div><strong>Filtros aplicados:</strong> <span id="preview_filtros">0</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Progress -->
+                    <div class="d-none mb-4" id="exportProgress">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="spinner-border spinner-border-sm me-2"></div>
+                            <span id="exportStatus">Preparando exportación...</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" id="exportProgressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-primary me-2" onclick="previewExport()">
+                                <i class="bi bi-eye me-2"></i>Vista Previa
+                            </button>
+                            <button type="submit" class="btn btn-success" id="exportBtn">
+                                <i class="bi bi-download me-2"></i>Exportar Archivo
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vista Previa de Exportación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Marca</th>
+                                <th>Estado</th>
+                                <th>Ubicación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>EXC-001</td>
+                                <td>Excavadora Caterpillar 320</td>
+                                <td>Excavadora</td>
+                                <td>Caterpillar</td>
+                                <td><span class="badge bg-success">Operativa</span></td>
+                                <td>Sede Principal</td>
+                            </tr>
+                            <tr>
+                                <td>BUL-002</td>
+                                <td>Bulldozer Komatsu D65</td>
+                                <td>Bulldozer</td>
+                                <td>Komatsu</td>
+                                <td><span class="badge bg-warning text-dark">Mantenimiento</span></td>
+                                <td>Taller Norte</td>
+                            </tr>
+                            <tr>
+                                <td>GRU-003</td>
+                                <td>Grúa Liebherr LTM 1095</td>
+                                <td>Grúa</td>
+                                <td>Liebherr</td>
+                                <td><span class="badge bg-success">Operativa</span></td>
+                                <td>Sede Principal</td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="bi bi-three-dots"></i> Y 12 registros más...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <strong>Nota:</strong> Esta es una vista previa limitada. El archivo final contendrá todos los registros y campos seleccionados.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" onclick="executeExport()">
+                    <i class="bi bi-download me-2"></i>Proceder con Exportación
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-check:checked + .btn-outline-success {
+        background-color: #198754;
+        border-color: #198754;
+        color: white;
+    }
+
+    .btn-check:checked + .btn-outline-info {
+        background-color: #0dcaf0;
+        border-color: #0dcaf0;
+        color: black;
+    }
+
+    .btn-check:checked + .btn-outline-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .format-options {
+        transition: all 0.3s ease;
+    }
+
+    .progress {
+        height: 8px;
+    }
+
+    .card.bg-light {
+        border: 1px solid #dee2e6;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+    }
+
+    .table-sm th,
+    .table-sm td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Format change handler
+    const formatRadios = document.querySelectorAll('input[name="formato"]');
+    formatRadios.forEach(radio => {
+        radio.addEventListener('change', handleFormatChange);
+    });
+
+    // Update preview when any field changes
+    const formElements = document.querySelectorAll('input, select');
+    formElements.forEach(element => {
+        element.addEventListener('change', updatePreview);
+    });
+
+    // Initial preview update
+    updatePreview();
+});
+
+function handleFormatChange() {
+    const format = document.querySelector('input[name="formato"]:checked').value;
+
+    // Hide all format options
+    document.querySelectorAll('.format-options').forEach(el => {
+        el.classList.add('d-none');
+    });
+
+    // Show relevant options
+    if (format === 'excel') {
+        document.getElementById('excel_options').classList.remove('d-none');
+    } else if (format === 'pdf') {
+        document.getElementById('pdf_options').classList.remove('d-none');
+    }
+
+    updatePreview();
+}
+
+function updatePreview() {
+    // Update format
+    const formatInput = document.querySelector('input[name="formato"]:checked');
+    const formatNames = {
+        'excel': 'Microsoft Excel',
+        'csv': 'CSV (Comma Separated)',
+        'pdf': 'PDF Report'
+    };
+    document.getElementById('preview_formato').textContent = formatNames[formatInput.value] || 'No seleccionado';
+
+    // Count selected fields
+    const selectedFields = document.querySelectorAll('input[name="campos"]:checked').length;
+    document.getElementById('preview_campos').textContent = selectedFields;
+
+    // Count active filters
+    let activeFilters = 0;
+    const filterSelects = ['filtro_categoria', 'filtro_estado', 'filtro_ubicacion'];
+    filterSelects.forEach(id => {
+        if (document.getElementById(id).value) activeFilters++;
+    });
+
+    const dateFrom = document.getElementById('filtro_fecha_desde').value;
+    const dateTo = document.getElementById('filtro_fecha_hasta').value;
+    if (dateFrom || dateTo) activeFilters++;
+
+    document.getElementById('preview_filtros').textContent = activeFilters;
+
+    // Estimate file size and time based on format and fields
+    let estimatedSize = '~2.3 MB';
+    let estimatedTime = '~30 segundos';
+
+    if (formatInput.value === 'pdf') {
+        estimatedSize = '~8.5 MB';
+        estimatedTime = '~60 segundos';
+    } else if (formatInput.value === 'csv') {
+        estimatedSize = '~1.2 MB';
+        estimatedTime = '~15 segundos';
+    }
+
+    document.getElementById('preview_tamano').textContent = estimatedSize;
+    document.getElementById('preview_tiempo').textContent = estimatedTime;
+}
+
+function previewExport() {
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    modal.show();
+}
+
+function executeExport() {
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('previewModal')).hide();
+
+    // Start export
+    startExport();
+}
+
+function startExport() {
+    const exportBtn = document.getElementById('exportBtn');
+    const exportProgress = document.getElementById('exportProgress');
+    const exportStatus = document.getElementById('exportStatus');
+    const exportProgressBar = document.getElementById('exportProgressBar');
+
+    exportBtn.disabled = true;
+    exportProgress.classList.remove('d-none');
+
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        exportProgressBar.style.width = progress + '%';
+
+        if (progress <= 20) {
+            exportStatus.textContent = 'Preparando exportación...';
+        } else if (progress <= 40) {
+            exportStatus.textContent = 'Recopilando datos...';
+        } else if (progress <= 60) {
+            exportStatus.textContent = 'Aplicando filtros...';
+        } else if (progress <= 80) {
+            exportStatus.textContent = 'Generando archivo...';
+        } else if (progress < 100) {
+            exportStatus.textContent = 'Finalizando...';
+        }
+
+        if (progress >= 100) {
+            clearInterval(interval);
+            exportStatus.textContent = 'Exportación completada';
+
+            setTimeout(() => {
+                const format = document.querySelector('input[name="formato"]:checked').value;
+                const fileName = `inventario_maquinas_${new Date().toISOString().split('T')[0]}`;
+                const extension = format === 'excel' ? 'xlsx' : (format === 'csv' ? 'csv' : 'pdf');
+
+                // Simulate file download
+                alert(`¡Exportación completada! El archivo "${fileName}.${extension}" se ha descargado.`);
+
+                exportProgress.classList.add('d-none');
+                exportBtn.disabled = false;
+                exportProgressBar.style.width = '0%';
+            }, 1000);
+        }
+    }, 200);
+}
+
+// Form submission
+document.getElementById('exportForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    startExport();
+});
+</script>
+{% endblock %}

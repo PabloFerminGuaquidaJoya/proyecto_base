@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Restauración - SENA{% endblock %}
+{% block page_title %}Confirmar Restauración{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Restauración de Base de Datos
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5 class="alert-heading"><i class="bi bi-shield-exclamation me-2"></i>Advertencia Importante</h5>
+                    <p>Está a punto de restaurar la base de datos. Esta acción:</p>
+                    <ul class="mb-0">
+                        <li><strong>Reemplazará todos los datos actuales</strong> con los del backup seleccionado</li>
+                        <li><strong>Todos los cambios realizados después de este backup se perderán</strong></li>
+                        <li>Se creará automáticamente un backup de seguridad antes de restaurar</li>
+                        <li>Este proceso es <strong>irreversible</strong> (salvo por el backup automático)</li>
+                    </ul>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">Información del Backup</h6>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-3">Nombre:</dt>
+                            <dd class="col-sm-9">{{ backup.nombre }}</dd>
+
+                            <dt class="col-sm-3">Descripción:</dt>
+                            <dd class="col-sm-9">{{ backup.descripcion|default:"Sin descripción" }}</dd>
+
+                            <dt class="col-sm-3">Fecha Creación:</dt>
+                            <dd class="col-sm-9">{{ backup.fecha_creacion|date:"d/m/Y H:i:s" }}</dd>
+
+                            <dt class="col-sm-3">Creado Por:</dt>
+                            <dd class="col-sm-9">{{ backup.creado_por.nombre_completo|default:"Sistema" }}</dd>
+
+                            <dt class="col-sm-3">Tamaño:</dt>
+                            <dd class="col-sm-9">{{ backup.tamaño_mb }} MB</dd>
+
+                            <dt class="col-sm-3">Total Registros:</dt>
+                            <dd class="col-sm-9">{{ backup.total_registros|default:"-" }}</dd>
+
+                            <dt class="col-sm-3">Total Tablas:</dt>
+                            <dd class="col-sm-9">{{ backup.total_tablas|default:"-" }}</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="notas" class="form-label">
+                            <i class="bi bi-file-text me-1"></i>Notas de Restauración (Opcional)
+                        </label>
+                        <textarea class="form-control"
+                                  id="notas"
+                                  name="notas"
+                                  rows="3"
+                                  placeholder="Describe el motivo de esta restauración..."></textarea>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="confirmacion"
+                               required>
+                        <label class="form-check-label" for="confirmacion">
+                            <strong>Confirmo que entiendo los riesgos y deseo restaurar la base de datos</strong>
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'sistema:gestionar_backups' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-warning" id="btnRestaurar">
+                            <i class="bi bi-arrow-repeat me-1"></i>Restaurar Base de Datos
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3 border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Proceso de Restauración</h6>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    <li>Se creará automáticamente un backup de seguridad de la base de datos actual</li>
+                    <li>Se cerrará la conexión actual con la base de datos</li>
+                    <li>Se copiará el archivo de backup sobre la base de datos actual</li>
+                    <li>Se restablecerá la conexión con la base de datos restaurada</li>
+                    <li>Se registrará esta acción en el log del sistema</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    const btn = document.getElementById('btnRestaurar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Restaurando...';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1421 @@
+<!-- templates/documentos/modern_repositorio.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Repositorio Digital - SENA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .documents-hero {
+        background: linear-gradient(135deg, #39a900 0%, #2d8500 100%);
+        color: white;
+        padding: 3rem 0;
+        margin: -1.5rem -1.5rem 2rem;
+        border-radius: 0 0 20px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .documents-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+        animation: float 20s infinite linear;
+        opacity: 0.1;
+    }
+    
+    @keyframes float {
+        0% { transform: translateX(-50px) translateY(-50px); }
+        100% { transform: translateX(0) translateY(0); }
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .hero-search {
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .hero-search-input {
+        width: 100%;
+        padding: 1rem 1.5rem 1rem 4rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    
+    .hero-search-input:focus {
+        outline: none;
+        transform: scale(1.02);
+        box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+    }
+    
+    .hero-search-icon {
+        position: absolute;
+        left: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.3rem;
+        color: #6c757d;
+    }
+    
+    .hero-search-voice {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: #39a900;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+    }
+
+    .hero-search-voice:hover {
+        background: rgba(57,169,0,0.1);
+    }
+    
+    .quick-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+    }
+    
+    .documents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .document-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #f0f0f0;
+        position: relative;
+    }
+    
+    .document-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        border-color: #007bff;
+    }
+    
+    .document-preview {
+        height: 180px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .document-preview.has-thumbnail {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    .document-icon {
+        font-size: 3rem;
+        color: #007bff;
+        opacity: 0.7;
+    }
+    
+    .document-type-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: rgba(0,123,255,0.9);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .document-content {
+        padding: 1.5rem;
+    }
+    
+    .document-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    
+    .document-machine {
+        color: #007bff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .document-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .document-date {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .document-stats {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .document-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .document-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .document-btn {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        border: 1px solid #e9ecef;
+        background: white;
+        color: #6c757d;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .document-btn:hover {
+        border-color: #007bff;
+        color: #007bff;
+        background: rgba(0,123,255,0.05);
+        text-decoration: none;
+    }
+    
+    .document-btn.primary {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+    
+    .document-btn.primary:hover {
+        background: #0056b3;
+        border-color: #0056b3;
+    }
+    
+    .ai-processing-badge {
+        position: absolute;
+        bottom: 0.75rem;
+        left: 0.75rem;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .ai-processing-badge.processing {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        animation: pulse 2s infinite;
+    }
+    
+    .filter-sidebar {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        height: fit-content;
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .filter-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #212529;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .filter-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-group:last-child {
+        margin-bottom: 0;
+    }
+    
+    .filter-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.9rem;
+    }
+    
+    .filter-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-option {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    
+    .filter-option:hover {
+        background: #f8f9fa;
+    }
+    
+    .filter-option.active {
+        background: rgba(0,123,255,0.1);
+        color: #007bff;
+        font-weight: 500;
+    }
+    
+    .filter-checkbox {
+        margin-right: 0.75rem;
+        cursor: pointer;
+    }
+    
+    .upload-zone {
+        background: white;
+        border: 2px dashed #007bff;
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .upload-zone:hover {
+        border-color: #0056b3;
+        background: rgba(0,123,255,0.02);
+        transform: scale(1.02);
+    }
+    
+    .upload-zone.dragover {
+        border-color: #0056b3;
+        background: rgba(0,123,255,0.05);
+        transform: scale(1.02);
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    .upload-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+    
+    .upload-hint {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-suggestions {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .suggestion-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+        transition: background 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .suggestion-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .suggestion-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #007bff;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+    
+    .suggestion-text {
+        flex: 1;
+    }
+    
+    .suggestion-title {
+        font-weight: 500;
+        color: #212529;
+        margin-bottom: 0.25rem;
+    }
+    
+    .suggestion-subtitle {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+    
+    .no-results-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .documents-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filter-sidebar {
+            position: relative;
+            top: 0;
+            margin-bottom: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="documents-hero">
+    <div class="container-fluid">
+        <div class="hero-content">
+            <h1 class="hero-title">📚 Documentos</h1>
+            <p class="hero-subtitle">Acceso inteligente a toda la documentación técnica</p>
+            
+            <div class="hero-search">
+                <div class="position-relative">
+                    <i class="bi bi-search hero-search-icon"></i>
+                    <input type="text" class="hero-search-input" 
+                           placeholder="Buscar manuales, procedimientos, documentos..." 
+                           id="heroSearchInput">
+                    <button class="hero-search-voice" onclick="startVoiceSearch()" title="Búsqueda por voz">
+                        <i class="bi bi-mic"></i>
+                    </button>
+                </div>
+                <div class="search-suggestions" id="searchSuggestions" style="display: none;">
+                    <!-- Dynamic suggestions will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="quick-stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+            <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div class="stat-number">{{ total_documentos|default:0 }}</div>
+        <div class="stat-label">Total Documentos</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
+            <i class="bi bi-calendar-month"></i>
+        </div>
+        <div class="stat-number">{{ stats.documentos_mes|default:0 }}</div>
+        <div class="stat-label">Este Mes</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b8, #138496);">
+            <i class="bi bi-folder"></i>
+        </div>
+        <div class="stat-number">{{ stats.categorias_activas|default:0 }}</div>
+        <div class="stat-label">Categorías</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+            <i class="bi bi-tags"></i>
+        </div>
+        <div class="stat-number">{{ stats.tipos_activos|default:0 }}</div>
+        <div class="stat-label">Tipos de Documentos</div>
+    </div>
+</div>
+
+<!-- Upload Zone -->
+<div class="upload-zone" onclick="document.getElementById('fileInput').click()" id="uploadZone">
+    <div class="upload-icon">
+        <i class="bi bi-cloud-upload"></i>
+    </div>
+    <div class="upload-text">Arrastra tus documentos aquí</div>
+    <div class="upload-hint">o haz clic para seleccionar archivos</div>
+    <div class="upload-hint">Soporta: PDF, DOC, DOCX, TXT (máx. 50MB)</div>
+    <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt" style="display: none;">
+    <a href="{% url 'documentos:subir_documento' %}" class="btn btn-primary mt-2">
+        <i class="bi bi-plus-lg me-2"></i>Subir Documento
+    </a>
+</div>
+
+<!-- Main Content -->
+<div class="row">
+    <!-- Filters Sidebar -->
+    <div class="col-lg-3 mb-4">
+        <div class="filter-sidebar">
+            <h6 class="filter-title">
+                <i class="bi bi-funnel"></i>
+                Filtros
+            </h6>
+            
+            <div class="filter-group">
+                <label class="filter-label">Tipo de Documento</label>
+                <div class="filter-options">
+                    <div class="filter-option active" data-filter="all">
+                        <input type="checkbox" class="filter-checkbox" checked>
+                        Todos los tipos
+                    </div>
+                    <div class="filter-option" data-filter="manual">
+                        <input type="checkbox" class="filter-checkbox">
+                        Manuales de Operación
+                    </div>
+                    <div class="filter-option" data-filter="maintenance">
+                        <input type="checkbox" class="filter-checkbox">
+                        Manuales de Mantenimiento
+                    </div>
+                    <div class="filter-option" data-filter="technical">
+                        <input type="checkbox" class="filter-checkbox">
+                        Documentos Técnicos
+                    </div>
+                    <div class="filter-option" data-filter="procedures">
+                        <input type="checkbox" class="filter-checkbox">
+                        Procedimientos
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Categoría de Máquina</label>
+                <div class="filter-options">
+                    {% for categoria in categorias %}
+                    <div class="filter-option" data-category="{{ categoria.id }}">
+                        <input type="checkbox" class="filter-checkbox">
+                        {{ categoria.nombre }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Estado</label>
+                <div class="filter-options">
+                    <div class="filter-option active" data-status="active">
+                        <input type="checkbox" class="filter-checkbox" checked>
+                        Activos
+                    </div>
+                    <div class="filter-option" data-status="ai-processed">
+                        <input type="checkbox" class="filter-checkbox">
+                        Procesados con IA
+                    </div>
+                    <div class="filter-option" data-status="recent">
+                        <input type="checkbox" class="filter-checkbox">
+                        Subidos recientemente
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Idioma</label>
+                <div class="filter-options">
+                    <div class="filter-option active" data-language="es">
+                        <input type="checkbox" class="filter-checkbox" checked>
+                        Español
+                    </div>
+                    <div class="filter-option" data-language="en">
+                        <input type="checkbox" class="filter-checkbox">
+                        Inglés
+                    </div>
+                    <div class="filter-option" data-language="fr">
+                        <input type="checkbox" class="filter-checkbox">
+                        Francés
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <button class="btn btn-outline-primary btn-sm w-100" onclick="clearFilters()">
+                    <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Documents Grid -->
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <span id="resultsCount">{{ total_documentos|default:0 }}</span> documentos encontrados
+            </h5>
+            <div class="d-flex gap-2">
+                <select class="form-select form-select-sm" id="sortSelect">
+                    <option value="recent">Más recientes</option>
+                    <option value="popular">Más descargados</option>
+                    <option value="title">Título A-Z</option>
+                    <option value="machine">Por máquina</option>
+                </select>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary active" data-view="grid">
+                        <i class="bi bi-grid"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" data-view="list">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="documents-grid" id="documentsGrid">
+            {% for manual in documentos %}
+            <div class="document-card" data-type="{{ manual.tipo_documento.nombre|lower }}"
+                 data-machine="{% if manual.maquina_relacionada %}{{ manual.maquina_relacionada.categoria.nombre|lower }}{% endif %}">
+                <div class="document-preview">
+                    <div class="document-icon">
+                        {% if manual.extension == '.pdf' %}
+                            <i class="bi bi-file-earmark-pdf text-danger"></i>
+                        {% elif manual.extension in '.doc,.docx' %}
+                            <i class="bi bi-file-earmark-word text-primary"></i>
+                        {% elif manual.extension in '.xls,.xlsx' %}
+                            <i class="bi bi-file-earmark-excel text-success"></i>
+                        {% else %}
+                            <i class="bi bi-file-earmark-text"></i>
+                        {% endif %}
+                    </div>
+                    <div class="document-type-badge">{{ manual.tipo_documento.nombre }}</div>
+                </div>
+
+                <div class="document-content">
+                    <h6 class="document-title">{{ manual.titulo }}</h6>
+                    {% if manual.maquina_relacionada %}
+                    <div class="document-machine">
+                        <i class="bi bi-gear"></i>
+                        {{ manual.maquina_relacionada.codigo_inventario }} - {{ manual.maquina_relacionada.nombre|truncatechars:30 }}
+                    </div>
+                    {% endif %}
+
+                    <div class="document-meta">
+                        <div class="document-date">
+                            <i class="bi bi-calendar3"></i>
+                            {{ manual.fecha_creacion|date:"d/m/Y" }}
+                        </div>
+                        <div class="document-stats">
+                            <div class="document-stat">
+                                <i class="bi bi-download"></i>
+                                {{ manual.total_descargas }}
+                            </div>
+                            <div class="document-stat">
+                                <i class="bi bi-eye"></i>
+                                {{ manual.total_visualizaciones }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if manual.descripcion %}
+                    <p class="text-muted small mb-3">{{ manual.descripcion|truncatechars:100 }}</p>
+                    {% endif %}
+                    
+                    <div class="document-actions">
+                        <a href="{% url 'documentos:detalle_documento' manual.pk %}" class="document-btn">
+                            <i class="bi bi-eye"></i>
+                            Ver
+                        </a>
+                        <a href="{% url 'documentos:descargar_documento' manual.pk %}" class="document-btn">
+                            <i class="bi bi-download"></i>
+                            Descargar
+                        </a>
+                        {% if manual.procesado_ia %}
+                        <button class="document-btn primary" onclick="askAI('{{ manual.pk }}', '{{ manual.titulo }}')">
+                            <i class="bi bi-robot"></i>
+                            Consultar IA
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="no-results">
+                    <div class="no-results-icon">
+                        <i class="bi bi-inbox"></i>
+                    </div>
+                    <h5>No se encontraron documentos</h5>
+                    <p>Intenta ajustar los filtros o sube el primer documento</p>
+                    <a href="{% url 'documentos:subir_documento' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>Subir Documento
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Load More Button -->
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-primary" id="loadMoreBtn" onclick="loadMoreDocuments()">
+                <i class="bi bi-arrow-down-circle me-2"></i>Cargar Más Documentos
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick AI Chat Modal -->
+<div class="modal fade" id="quickAIModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-robot me-2"></i>Consulta Rápida con IA
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Pregunta específicamente sobre: <strong id="aiDocumentTitle"></strong>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tu pregunta:</label>
+                    <textarea class="form-control" id="aiQuestion" rows="3" 
+                              placeholder="Ej: ¿Cómo realizar el mantenimiento preventivo de esta máquina?"></textarea>
+                </div>
+                <div id="aiResponse" style="display: none;">
+                    <label class="form-label">Respuesta de la IA:</label>
+                    <div class="border rounded p-3 bg-light" id="aiResponseContent"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="submitAIQuestion()">
+                    <i class="bi bi-send me-2"></i>Preguntar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentDocumentId = null;
+let searchTimeout = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDocumentInterface();
+    setupSearchFunctionality();
+    setupFilters();
+    setupUploadZone();
+    setupViewToggle();
+});
+
+function initializeDocumentInterface() {
+    // Setup drag and drop
+    const uploadZone = document.getElementById('uploadZone');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, unhighlight, false);
+    });
+    
+    uploadZone.addEventListener('drop', handleDrop, false);
+    
+    // Setup file input change
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+    
+    // Setup sort functionality
+    document.getElementById('sortSelect').addEventListener('change', function(e) {
+        sortDocuments(e.target.value);
+    });
+}
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function highlight() {
+    document.getElementById('uploadZone').classList.add('dragover');
+}
+
+function unhighlight() {
+    document.getElementById('uploadZone').classList.remove('dragover');
+}
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFiles(files);
+}
+
+function handleFiles(files) {
+    [...files].forEach(uploadFile);
+}
+
+function uploadFile(file) {
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'application/msword', 
+                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                         'text/plain'];
+    
+    if (!allowedTypes.includes(file.type)) {
+        if (typeof showError !== 'undefined') {
+            showError('Archivo no soportado', `El archivo ${file.name} no es un tipo válido`);
+        }
+        return;
+    }
+    
+    // Validate file size (50MB)
+    if (file.size > 50 * 1024 * 1024) {
+        if (typeof showError !== 'undefined') {
+            showError('Archivo muy grande', `El archivo ${file.name} supera los 50MB`);
+        }
+        return;
+    }
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('csrfmiddlewaretoken', 
+                    document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    // Show upload progress
+    showUploadProgress(file.name);
+    
+    // Upload file
+    fetch('/documentos/upload-quick/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof showSuccess !== 'undefined') {
+                showSuccess('Archivo subido', `${file.name} se subió correctamente`);
+            }
+            // Refresh documents list
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            if (typeof showError !== 'undefined') {
+                showError('Error de subida', data.error || 'Error desconocido');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Upload error:', error);
+        if (typeof showError !== 'undefined') {
+            showError('Error de conexión', 'No se pudo subir el archivo');
+        }
+    })
+    .finally(() => {
+        hideUploadProgress();
+    });
+}
+
+function showUploadProgress(filename) {
+    const uploadZone = document.getElementById('uploadZone');
+    uploadZone.innerHTML = `
+        <div class="upload-icon">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="upload-text">Subiendo ${filename}...</div>
+        <div class="progress mt-2">
+            <div class="progress-bar progress-bar-animated" 
+                 style="width: 100%" role="progressbar"></div>
+        </div>
+    `;
+}
+
+function hideUploadProgress() {
+    const uploadZone = document.getElementById('uploadZone');
+    uploadZone.innerHTML = `
+        <div class="upload-icon">
+            <i class="bi bi-cloud-upload"></i>
+        </div>
+        <div class="upload-text">Arrastra tus documentos aquí</div>
+        <div class="upload-hint">o haz clic para seleccionar archivos</div>
+        <div class="upload-hint">Soporta: PDF, DOC, DOCX, TXT (máx. 50MB)</div>
+        <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt" style="display: none;">
+        <a href="/documentos/subir/" class="btn btn-primary mt-2">
+            <i class="bi bi-plus-lg me-2"></i>Subir Documento
+        </a>
+    `;
+    
+    // Re-setup event listeners
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+}
+
+function setupSearchFunctionality() {
+    const searchInput = document.getElementById('heroSearchInput');
+    const suggestionsContainer = document.getElementById('searchSuggestions');
+    
+    searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.trim();
+        
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 2) {
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            showSearchSuggestions(query);
+        }, 300);
+    });
+    
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performSearch(e.target.value);
+        }
+    });
+    
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.hero-search')) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+}
+
+function showSearchSuggestions(query) {
+    const suggestionsContainer = document.getElementById('searchSuggestions');
+    
+    // Mock suggestions - replace with actual API call
+    const suggestions = [
+        {
+            title: `Buscar "${query}" en manuales`,
+            subtitle: 'Buscar en todos los documentos',
+            icon: 'bi-search',
+            action: () => performSearch(query)
+        },
+        {
+            title: 'Manual de Torno CNC',
+            subtitle: 'Siemens 840D - Operación',
+            icon: 'bi-file-text',
+            action: () => openDocument(1)
+        },
+        {
+            title: 'Pregunta a la IA',
+            subtitle: `"${query}"`,
+            icon: 'bi-robot',
+            action: () => askAIGeneral(query)
+        }
+    ];
+    
+    suggestionsContainer.innerHTML = suggestions.map(suggestion => `
+        <div class="suggestion-item" onclick="${suggestion.action.toString().slice(6, -1)}">
+            <div class="suggestion-icon">
+                <i class="${suggestion.icon}"></i>
+            </div>
+            <div class="suggestion-text">
+                <div class="suggestion-title">${suggestion.title}</div>
+                <div class="suggestion-subtitle">${suggestion.subtitle}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    suggestionsContainer.style.display = 'block';
+}
+
+function performSearch(query) {
+    window.location.href = `/documentos/buscar/?q=${encodeURIComponent(query)}`;
+}
+
+function setupFilters() {
+    const filterOptions = document.querySelectorAll('.filter-option');
+    
+    filterOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const checkbox = this.querySelector('.filter-checkbox');
+            
+            // Handle exclusive filters for "all" options
+            if (this.dataset.filter === 'all') {
+                // If clicking "all", uncheck others in this group
+                const group = this.closest('.filter-group');
+                group.querySelectorAll('.filter-option').forEach(opt => {
+                    if (opt !== this) {
+                        opt.classList.remove('active');
+                        opt.querySelector('.filter-checkbox').checked = false;
+                    }
+                });
+            } else {
+                // If clicking specific option, uncheck "all"
+                const group = this.closest('.filter-group');
+                const allOption = group.querySelector('[data-filter="all"]');
+                if (allOption) {
+                    allOption.classList.remove('active');
+                    allOption.querySelector('.filter-checkbox').checked = false;
+                }
+            }
+            
+            // Toggle current option
+            this.classList.toggle('active');
+            checkbox.checked = !checkbox.checked;
+            
+            // Apply filters
+            applyFilters();
+        });
+    });
+}
+
+function applyFilters() {
+    const documentCards = document.querySelectorAll('.document-card');
+    const activeFilters = {
+        types: [],
+        categories: [],
+        status: [],
+        languages: []
+    };
+    
+    // Collect active filters
+    document.querySelectorAll('.filter-option.active').forEach(option => {
+        if (option.dataset.filter && option.dataset.filter !== 'all') {
+            activeFilters.types.push(option.dataset.filter);
+        }
+        if (option.dataset.category) {
+            activeFilters.categories.push(option.dataset.category);
+        }
+        if (option.dataset.status && option.dataset.status !== 'active') {
+            activeFilters.status.push(option.dataset.status);
+        }
+        if (option.dataset.language) {
+            activeFilters.languages.push(option.dataset.language);
+        }
+    });
+    
+    // Apply filters to documents
+    let visibleCount = 0;
+    documentCards.forEach(card => {
+        let visible = true;
+        
+        // Apply type filter
+        if (activeFilters.types.length > 0) {
+            const cardType = card.dataset.type;
+            if (!activeFilters.types.includes(cardType)) {
+                visible = false;
+            }
+        }
+        
+        // Apply category filter
+        if (activeFilters.categories.length > 0) {
+            const cardMachine = card.dataset.machine;
+            if (!activeFilters.categories.some(cat => cardMachine.includes(cat))) {
+                visible = false;
+            }
+        }
+        
+        // Show/hide card
+        if (visible) {
+            card.style.display = 'block';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Update results count
+    document.getElementById('resultsCount').textContent = visibleCount;
+}
+
+function clearFilters() {
+    document.querySelectorAll('.filter-option').forEach(option => {
+        option.classList.remove('active');
+        option.querySelector('.filter-checkbox').checked = false;
+    });
+    
+    // Activate "all" options
+    document.querySelectorAll('[data-filter="all"], [data-status="active"]').forEach(option => {
+        option.classList.add('active');
+        option.querySelector('.filter-checkbox').checked = true;
+    });
+    
+    applyFilters();
+}
+
+function setupViewToggle() {
+    const viewButtons = document.querySelectorAll('[data-view]');
+    const documentsGrid = document.getElementById('documentsGrid');
+    
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            viewButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const view = this.dataset.view;
+            
+            if (view === 'list') {
+                documentsGrid.style.display = 'block';
+                documentsGrid.classList.remove('documents-grid');
+                // Convert to list view
+                const cards = documentsGrid.querySelectorAll('.document-card');
+                cards.forEach(card => {
+                    card.style.display = 'flex';
+                    card.style.marginBottom = '1rem';
+                });
+            } else {
+                documentsGrid.classList.add('documents-grid');
+                // Reset to grid view
+                const cards = documentsGrid.querySelectorAll('.document-card');
+                cards.forEach(card => {
+                    card.style.display = 'block';
+                });
+            }
+        });
+    });
+}
+
+function sortDocuments(criteria) {
+    const grid = document.getElementById('documentsGrid');
+    const cards = Array.from(grid.querySelectorAll('.document-card'));
+    
+    cards.sort((a, b) => {
+        switch(criteria) {
+            case 'title':
+                const titleA = a.querySelector('.document-title').textContent;
+                const titleB = b.querySelector('.document-title').textContent;
+                return titleA.localeCompare(titleB);
+            case 'machine':
+                const machineA = a.querySelector('.document-machine').textContent;
+                const machineB = b.querySelector('.document-machine').textContent;
+                return machineA.localeCompare(machineB);
+            case 'popular':
+                const downloadsA = parseInt(a.querySelector('.bi-download').nextSibling.textContent) || 0;
+                const downloadsB = parseInt(b.querySelector('.bi-download').nextSibling.textContent) || 0;
+                return downloadsB - downloadsA;
+            default: // recent
+                return 0; // Keep original order (assumed to be recent)
+        }
+    });
+    
+    // Re-append sorted cards
+    cards.forEach(card => grid.appendChild(card));
+}
+
+function askAI(documentId, documentTitle) {
+    currentDocumentId = documentId;
+    document.getElementById('aiDocumentTitle').textContent = documentTitle;
+    document.getElementById('aiQuestion').value = '';
+    document.getElementById('aiResponse').style.display = 'none';
+    
+    const modal = new bootstrap.Modal(document.getElementById('quickAIModal'));
+    modal.show();
+}
+
+function submitAIQuestion() {
+    const question = document.getElementById('aiQuestion').value.trim();
+    if (!question) {
+        alert('Por favor escribe una pregunta');
+        return;
+    }
+    
+    const responseDiv = document.getElementById('aiResponse');
+    const responseContent = document.getElementById('aiResponseContent');
+    
+    responseContent.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando pregunta...';
+    responseDiv.style.display = 'block';
+    
+    // Make API call to IA
+    fetch('/ia/api/consulta/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            pregunta: question,
+            documento_id: currentDocumentId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.respuesta) {
+            responseContent.innerHTML = data.respuesta.replace(/\n/g, '<br>');
+        } else {
+            responseContent.innerHTML = 'No se pudo procesar la pregunta. Intenta de nuevo.';
+        }
+    })
+    .catch(error => {
+        console.error('AI Error:', error);
+        responseContent.innerHTML = 'Error de conexión. Por favor intenta nuevamente.';
+    });
+}
+
+function askAIGeneral(query) {
+    window.location.href = `/ia/chat/?q=${encodeURIComponent(query)}`;
+}
+
+function openDocument(documentId) {
+    window.location.href = `/documentos/manuales/${documentId}/`;
+}
+
+function startVoiceSearch() {
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'es-ES';
+        
+        const voiceButton = document.querySelector('.hero-search-voice');
+        const originalIcon = voiceButton.innerHTML;
+        
+        voiceButton.innerHTML = '<i class="bi bi-mic-fill text-danger"></i>';
+        voiceButton.title = 'Escuchando...';
+        
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('heroSearchInput').value = transcript;
+            performSearch(transcript);
+        };
+        
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            if (typeof showError !== 'undefined') {
+                showError('Error de reconocimiento', 'No se pudo procesar el audio');
+            }
+        };
+        
+        recognition.onend = function() {
+            voiceButton.innerHTML = originalIcon;
+            voiceButton.title = 'Búsqueda por voz';
+        };
+        
+        recognition.start();
+    } else {
+        alert('Tu navegador no soporta reconocimiento de voz');
+    }
+}
+
+function loadMoreDocuments() {
+    const button = document.getElementById('loadMoreBtn');
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Cargando...';
+    button.disabled = true;
+    
+    // Simulate loading more documents
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        
+        // Hide button if no more documents
+        // button.style.display = 'none';
+    }, 2000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+            case 'k':
+                e.preventDefault();
+                document.getElementById('heroSearchInput').focus();
+                break;
+            case 'u':
+                e.preventDefault();
+                document.getElementById('fileInput').click();
+                break;
+        }
+    }
+});
+
+// Auto-hide search suggestions after delay
+let suggestionHideTimeout;
+document.getElementById('heroSearchInput').addEventListener('focus', function() {
+    clearTimeout(suggestionHideTimeout);
+});
+
+document.getElementById('heroSearchInput').addEventListener('blur', function() {
+    suggestionHideTimeout = setTimeout(() => {
+        document.getElementById('searchSuggestions').style.display = 'none';
+    }, 200);
+});
+</script>
+{% endblock %}

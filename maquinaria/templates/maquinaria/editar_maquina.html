@@ -1,0 +1,467 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Máquina - SENA{% endblock %}
+{% block page_title %}Editar Máquina{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil-square me-2"></i>Editar Información de la Máquina
+                </h5>
+                <div>
+                    <a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-eye"></i> Ver Detalle
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:lista_maquinas' %}">Máquinas</a></li>
+                        <li class="breadcrumb-item active">Editar {{ maquina.codigo_inventario }}</li>
+                    </ol>
+                </nav>
+
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <h6><i class="bi bi-exclamation-triangle me-2"></i>Por favor corrige los siguientes errores:</h6>
+                        {% for field, errors in form.errors.items %}
+                            <ul class="mb-0">
+                                {% for error in errors %}
+                                    <li><strong>{{ field }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data" id="editMaquinaForm">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <!-- Información Básica -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Información Básica</h6>
+
+                            <div class="mb-3">
+                                <label for="{{ form.codigo_inventario.id_for_label }}" class="form-label">
+                                    {{ form.codigo_inventario.label }} {% if form.codigo_inventario.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.codigo_inventario }}
+                                <div class="form-text">El código no puede modificarse una vez creado</div>
+                                {% if form.codigo_inventario.errors %}
+                                    <div class="text-danger small">{{ form.codigo_inventario.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                                    {{ form.nombre.label }} {% if form.nombre.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                    <div class="text-danger small">{{ form.nombre.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.categoria.id_for_label }}" class="form-label">
+                                    {{ form.categoria.label }} {% if form.categoria.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}
+                                    <div class="text-danger small">{{ form.categoria.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.marca.id_for_label }}" class="form-label">
+                                    {{ form.marca.label }} {% if form.marca.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.marca }}
+                                {% if form.marca.errors %}
+                                    <div class="text-danger small">{{ form.marca.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.modelo.id_for_label }}" class="form-label">{{ form.modelo.label }}</label>
+                                {{ form.modelo }}
+                                {% if form.modelo.errors %}
+                                    <div class="text-danger small">{{ form.modelo.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.numero_serie.id_for_label }}" class="form-label">
+                                    {{ form.numero_serie.label }} {% if form.numero_serie.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.numero_serie }}
+                                {% if form.numero_serie.errors %}
+                                    <div class="text-danger small">{{ form.numero_serie.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Especificaciones Técnicas -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Especificaciones Técnicas</h6>
+
+                            <div class="mb-3">
+                                <label for="{{ form.potencia.id_for_label }}" class="form-label">{{ form.potencia.label }}</label>
+                                {{ form.potencia }}
+                                {% if form.potencia.errors %}
+                                    <div class="text-danger small">{{ form.potencia.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.peso.id_for_label }}" class="form-label">{{ form.peso.label }}</label>
+                                {{ form.peso }}
+                                {% if form.peso.errors %}
+                                    <div class="text-danger small">{{ form.peso.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.capacidad.id_for_label }}" class="form-label">{{ form.capacidad.label }}</label>
+                                {{ form.capacidad }}
+                                {% if form.capacidad.errors %}
+                                    <div class="text-danger small">{{ form.capacidad.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.voltaje.id_for_label }}" class="form-label">{{ form.voltaje.label }}</label>
+                                {{ form.voltaje }}
+                                {% if form.voltaje.errors %}
+                                    <div class="text-danger small">{{ form.voltaje.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.dimensiones.id_for_label }}" class="form-label">{{ form.dimensiones.label }}</label>
+                                {{ form.dimensiones }}
+                                {% if form.dimensiones.errors %}
+                                    <div class="text-danger small">{{ form.dimensiones.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.horas_uso_total.id_for_label }}" class="form-label">{{ form.horas_uso_total.label }}</label>
+                                {{ form.horas_uso_total }}
+                                {% if form.horas_uso_total.errors %}
+                                    <div class="text-danger small">{{ form.horas_uso_total.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <!-- Ubicación y Estado -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Ubicación y Estado</h6>
+
+                            <div class="mb-3">
+                                <label for="{{ form.centro_formacion.id_for_label }}" class="form-label">{{ form.centro_formacion.label }}</label>
+                                {{ form.centro_formacion }}
+                                {% if form.centro_formacion.errors %}
+                                    <div class="text-danger small">{{ form.centro_formacion.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.ubicacion.id_for_label }}" class="form-label">{{ form.ubicacion.label }}</label>
+                                {{ form.ubicacion }}
+                                {% if form.ubicacion.errors %}
+                                    <div class="text-danger small">{{ form.ubicacion.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.estado.id_for_label }}" class="form-label">{{ form.estado.label }}</label>
+                                {{ form.estado }}
+                                {% if form.estado.errors %}
+                                    <div class="text-danger small">{{ form.estado.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.condicion.id_for_label }}" class="form-label">{{ form.condicion.label }}</label>
+                                {{ form.condicion }}
+                                {% if form.condicion.errors %}
+                                    <div class="text-danger small">{{ form.condicion.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Proveedor y Costos -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Información Comercial</h6>
+
+                            <div class="mb-3">
+                                <label for="{{ form.proveedor.id_for_label }}" class="form-label">{{ form.proveedor.label }}</label>
+                                {{ form.proveedor }}
+                                {% if form.proveedor.errors %}
+                                    <div class="text-danger small">{{ form.proveedor.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.valor_adquisicion.id_for_label }}" class="form-label">
+                                    {{ form.valor_adquisicion.label }} {% if form.valor_adquisicion.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.valor_adquisicion }}
+                                {% if form.valor_adquisicion.errors %}
+                                    <div class="text-danger small">{{ form.valor_adquisicion.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.fecha_adquisicion.id_for_label }}" class="form-label">
+                                    {{ form.fecha_adquisicion.label }} {% if form.fecha_adquisicion.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.fecha_adquisicion }}
+                                {% if form.fecha_adquisicion.errors %}
+                                    <div class="text-danger small">{{ form.fecha_adquisicion.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.eficiencia.id_for_label }}" class="form-label">{{ form.eficiencia.label }}</label>
+                                {{ form.eficiencia }}
+                                <div class="form-text">Porcentaje de eficiencia (0-100)</div>
+                                {% if form.eficiencia.errors %}
+                                    <div class="text-danger small">{{ form.eficiencia.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Especificaciones técnicas -->
+                    <div class="mb-3">
+                        <label for="{{ form.especificaciones_tecnicas.id_for_label }}" class="form-label">{{ form.especificaciones_tecnicas.label }}</label>
+                        {{ form.especificaciones_tecnicas }}
+                        {% if form.especificaciones_tecnicas.errors %}
+                            <div class="text-danger small">{{ form.especificaciones_tecnicas.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="mb-3">
+                        <label for="{{ form.observaciones.id_for_label }}" class="form-label">{{ form.observaciones.label }}</label>
+                        {{ form.observaciones }}
+                        {% if form.observaciones.errors %}
+                            <div class="text-danger small">{{ form.observaciones.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Archivos -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Imagen Actual</label>
+                                {% if maquina.imagen %}
+                                    <div class="mb-2">
+                                        <img src="{{ maquina.imagen.url }}" class="img-fluid rounded" alt="Imagen actual" style="max-height: 200px;">
+                                    </div>
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center mb-2" style="height: 150px;">
+                                        <i class="bi bi-image text-muted fs-1"></i>
+                                    </div>
+                                {% endif %}
+                                <label for="{{ form.imagen.id_for_label }}" class="form-label">{{ form.imagen.label }}</label>
+                                {{ form.imagen }}
+                                <div class="form-text">Deja vacío para mantener la imagen actual. Formatos: JPG, PNG, GIF. Máximo 5MB</div>
+                                {% if form.imagen.errors %}
+                                    <div class="text-danger small">{{ form.imagen.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Manual Actual</label>
+                                {% if maquina.manual_pdf %}
+                                    <div class="mb-2">
+                                        <a href="{{ maquina.manual_pdf.url }}" target="_blank" class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-file-pdf"></i> Ver Manual Actual
+                                        </a>
+                                    </div>
+                                {% endif %}
+                                <label for="{{ form.manual_pdf.id_for_label }}" class="form-label">{{ form.manual_pdf.label }}</label>
+                                {{ form.manual_pdf }}
+                                <div class="form-text">Deja vacío para mantener el manual actual. Formato PDF únicamente</div>
+                                {% if form.manual_pdf.errors %}
+                                    <div class="text-danger small">{{ form.manual_pdf.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-warning me-2" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Revertir Cambios
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Historial de Cambios</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <h6>Ubicación actualizada</h6>
+                            <p class="text-muted mb-1">Cambio de "Taller A" a "Sede Principal"</p>
+                            <small class="text-muted">20 de Enero, 2024 - Admin Sistema</small>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h6>Horas de operación actualizadas</h6>
+                            <p class="text-muted mb-1">Actualización de 1200 a 1250 horas</p>
+                            <small class="text-muted">18 de Enero, 2024 - Juan Pérez</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+    }
+    .timeline-item {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    .timeline-marker {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        margin-top: 0.25rem;
+        flex-shrink: 0;
+    }
+    .timeline-content {
+        flex: 1;
+    }
+
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation and change tracking
+let originalFormData = new FormData(document.getElementById('editMaquinaForm'));
+let hasChanges = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editMaquinaForm');
+    const inputs = form.querySelectorAll('input, select, textarea');
+
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            trackChanges();
+        });
+    });
+});
+
+function trackChanges() {
+    const currentFormData = new FormData(document.getElementById('editMaquinaForm'));
+    hasChanges = false;
+
+    for (let [key, value] of currentFormData.entries()) {
+        if (originalFormData.get(key) !== value) {
+            hasChanges = true;
+            break;
+        }
+    }
+
+    // Update save button state
+    const saveBtn = document.querySelector('button[type="submit"]');
+    if (hasChanges) {
+        saveBtn.classList.remove('btn-primary');
+        saveBtn.classList.add('btn-warning');
+        saveBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Guardar Cambios Pendientes';
+    } else {
+        saveBtn.classList.remove('btn-warning');
+        saveBtn.classList.add('btn-primary');
+        saveBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Guardar Cambios';
+    }
+}
+
+function resetForm() {
+    if (confirm('¿Estás seguro de que quieres revertir todos los cambios?')) {
+        document.getElementById('editMaquinaForm').reset();
+        // Reload original values
+        location.reload();
+    }
+}
+
+// Prevent accidental navigation
+window.addEventListener('beforeunload', function(e) {
+    if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = 'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?';
+    }
+});
+
+// Form submission
+document.getElementById('editMaquinaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Guardando...';
+    submitBtn.disabled = true;
+
+    // Simulate save
+    setTimeout(() => {
+        alert('¡Cambios guardados exitosamente!');
+        hasChanges = false;
+        window.location.href = '{% url "maquinaria:detalle_maquina" pk=1 %}';
+    }, 2000);
+});
+
+function showHistory() {
+    new bootstrap.Modal(document.getElementById('historyModal')).show();
+}
+</script>
+{% endblock %}

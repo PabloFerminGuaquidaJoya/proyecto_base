@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Copia - SENA{% endblock %}
+{% block page_title %}Detalle de Copia de Seguridad{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <a href="{% url 'sistema:gestionar_backups' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Volver a Copias de Seguridad
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>{{ backup.nombre }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-3">Información General</h6>
+                        <dl class="row">
+                            <dt class="col-sm-4">Estado:</dt>
+                            <dd class="col-sm-8">
+                                {% if backup.estado == 'completado' %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> {{ backup.get_estado_display }}
+                                    </span>
+                                {% elif backup.estado == 'error' %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle"></i> {{ backup.get_estado_display }}
+                                    </span>
+                                {% elif backup.estado == 'restaurado' %}
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-arrow-repeat"></i> {{ backup.get_estado_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="bi bi-hourglass-split"></i> {{ backup.get_estado_display }}
+                                    </span>
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-sm-4">Tipo:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-secondary">{{ backup.get_tipo_display }}</span>
+                            </dd>
+
+                            <dt class="col-sm-4">Tamaño:</dt>
+                            <dd class="col-sm-8">{{ backup.tamaño_mb }} MB</dd>
+
+                            <dt class="col-sm-4">Archivo:</dt>
+                            <dd class="col-sm-8">
+                                {% if backup.archivo %}
+                                    <code class="small">{{ backup.archivo.name }}</code>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-3">Datos de la Base de Datos</h6>
+                        <dl class="row">
+                            <dt class="col-sm-5">Total Tablas:</dt>
+                            <dd class="col-sm-7">{{ backup.total_tablas|default:"-" }}</dd>
+
+                            <dt class="col-sm-5">Total Registros:</dt>
+                            <dd class="col-sm-7">{{ backup.total_registros|default:"-" }}</dd>
+
+                            <dt class="col-sm-5">Versión BD:</dt>
+                            <dd class="col-sm-7">{{ backup.version_bd|default:"-" }}</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                {% if backup.descripcion %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Descripción</h6>
+                    <p class="mb-0">{{ backup.descripcion }}</p>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-3">Información de Creación</h6>
+                        <dl class="row">
+                            <dt class="col-sm-5">Fecha Creación:</dt>
+                            <dd class="col-sm-7">{{ backup.fecha_creacion|date:"d/m/Y H:i:s" }}</dd>
+
+                            <dt class="col-sm-5">Creado Por:</dt>
+                            <dd class="col-sm-7">{{ backup.creado_por.nombre_completo|default:"Sistema" }}</dd>
+                        </dl>
+                    </div>
+
+                    {% if backup.fecha_restauracion %}
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-3">Información de Restauración</h6>
+                        <dl class="row">
+                            <dt class="col-sm-5">Fecha Restauración:</dt>
+                            <dd class="col-sm-7">{{ backup.fecha_restauracion|date:"d/m/Y H:i:s" }}</dd>
+
+                            <dt class="col-sm-5">Restaurado Por:</dt>
+                            <dd class="col-sm-7">{{ backup.restaurado_por.nombre_completo|default:"Sistema" }}</dd>
+                        </dl>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if backup.notas_restauracion %}
+                <div class="alert alert-info mt-3">
+                    <h6><i class="bi bi-info-circle me-2"></i>Notas de Restauración</h6>
+                    <p class="mb-0">{{ backup.notas_restauracion }}</p>
+                </div>
+                {% endif %}
+
+                {% if backup.mensaje_error %}
+                <div class="alert alert-danger mt-3">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Error</h6>
+                    <p class="mb-0">{{ backup.mensaje_error }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if backup.metadata %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-code-square me-2"></i>Metadatos Adicionales</h6>
+            </div>
+            <div class="card-body">
+                <pre class="mb-0"><code>{{ backup.metadata_json }}</code></pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Acciones</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if backup.puede_restaurar %}
+                        <a href="{% url 'sistema:descargar_backup' backup.id %}" class="btn btn-primary">
+                            <i class="bi bi-download me-1"></i>Descargar Backup
+                        </a>
+                        <a href="{% url 'sistema:restaurar_backup' backup.id %}" class="btn btn-warning">
+                            <i class="bi bi-arrow-repeat me-1"></i>Restaurar Base de Datos
+                        </a>
+                    {% else %}
+                        <button class="btn btn-primary" disabled>
+                            <i class="bi bi-download me-1"></i>No Disponible
+                        </button>
+                    {% endif %}
+                    <a href="{% url 'sistema:eliminar_backup' backup.id %}" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Eliminar Backup
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Información</h6>
+            </div>
+            <div class="card-body">
+                <ul class="small mb-0">
+                    <li>Este backup contiene una copia completa de la base de datos en el momento de su creación</li>
+                    <li>Puedes descargar el archivo para almacenarlo externamente</li>
+                    <li>Al restaurar, se creará automáticamente un backup de seguridad de la base actual</li>
+                    {% if backup.estado == 'completado' %}
+                    <li class="text-success"><strong>Este backup está listo para ser utilizado</strong></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

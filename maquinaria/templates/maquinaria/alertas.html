@@ -1,0 +1,424 @@
+{% extends 'base.html' %}
+
+{% block title %}Alertas de Maquinaria - SENA{% endblock %}
+{% block page_title %}Centro de Alertas{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <!-- Alert Stats -->
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Críticas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_criticas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-exclamation-triangle-fill fs-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Altas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_altas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-exclamation-circle-fill fs-2 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Medias</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_medias }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-info-circle-fill fs-2 text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Resueltas Hoy</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_resueltas_hoy }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle-fill fs-2 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Alerts Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Alertas Activas</h6>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" style="width: auto;">
+                        <option>Todas las prioridades</option>
+                        <option>Crítica</option>
+                        <option>Alta</option>
+                        <option>Media</option>
+                        <option>Baja</option>
+                    </select>
+                    <a href="{% url 'maquinaria:crear_alerta' %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus"></i> Nueva Alerta
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Prioridad</th>
+                                <th>Máquina</th>
+                                <th>Tipo de Alerta</th>
+                                <th>Descripción</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alerta in alertas %}
+                                <tr class="{% if alerta.prioridad == 'critica' %}table-danger{% elif alerta.prioridad == 'alta' %}table-warning{% endif %}">
+                                    <td>
+                                        {% if alerta.prioridad == 'critica' %}
+                                            <span class="badge bg-danger">CRÍTICA</span>
+                                        {% elif alerta.prioridad == 'alta' %}
+                                            <span class="badge bg-warning">ALTA</span>
+                                        {% elif alerta.prioridad == 'media' %}
+                                            <span class="badge bg-info">MEDIA</span>
+                                        {% elif alerta.prioridad == 'baja' %}
+                                            <span class="badge bg-success">BAJA</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong>{{ alerta.maquina.codigo_inventario }}</strong><br>
+                                        <small class="text-muted">{{ alerta.maquina.nombre }}</small>
+                                    </td>
+                                    <td>
+                                        {% if alerta.tipo == 'mantenimiento' %}
+                                            <i class="bi bi-calendar-event text-info me-1"></i>Mantenimiento
+                                        {% elif alerta.tipo == 'reparacion' %}
+                                            <i class="bi bi-wrench text-danger me-1"></i>Reparación
+                                        {% elif alerta.tipo == 'eficiencia' %}
+                                            <i class="bi bi-speedometer text-warning me-1"></i>Eficiencia
+                                        {% elif alerta.tipo == 'garantia' %}
+                                            <i class="bi bi-shield-check text-success me-1"></i>Garantía
+                                        {% elif alerta.tipo == 'inspeccion' %}
+                                            <i class="bi bi-search text-primary me-1"></i>Inspección
+                                        {% else %}
+                                            <i class="bi bi-exclamation-circle text-secondary me-1"></i>{{ alerta.get_tipo_display }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ alerta.titulo }}</td>
+                                    <td>
+                                        <small>{{ alerta.fecha_creacion|timesince }}</small><br>
+                                        <span class="text-muted">{{ alerta.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="resolveAlert({{ alerta.id }})">
+                                            <i class="bi bi-tools"></i>
+                                        </button>
+                                        <a href="{% url 'maquinaria:detalle_alerta' alerta.pk %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="bi bi-check-circle-fill text-success fs-1"></i><br>
+                                        No hay alertas activas en este momento
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Alert Types -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">Tipos de Alerta</h6>
+            </div>
+            <div class="card-body">
+                {% for tipo in tipos_alertas %}
+                    <div class="alert-type-item mb-2">
+                        {% if tipo.tipo == 'mantenimiento' %}
+                            <i class="bi bi-calendar-event text-info me-2"></i>
+                            <span>Mantenimiento</span>
+                        {% elif tipo.tipo == 'reparacion' %}
+                            <i class="bi bi-wrench text-danger me-2"></i>
+                            <span>Reparación</span>
+                        {% elif tipo.tipo == 'eficiencia' %}
+                            <i class="bi bi-speedometer text-warning me-2"></i>
+                            <span>Eficiencia</span>
+                        {% elif tipo.tipo == 'garantia' %}
+                            <i class="bi bi-shield-check text-success me-2"></i>
+                            <span>Garantía</span>
+                        {% elif tipo.tipo == 'inspeccion' %}
+                            <i class="bi bi-search text-primary me-2"></i>
+                            <span>Inspección</span>
+                        {% else %}
+                            <i class="bi bi-exclamation-circle text-secondary me-2"></i>
+                            <span>{{ tipo.tipo|title }}</span>
+                        {% endif %}
+                        <span class="badge bg-primary ms-auto">{{ tipo.count }}</span>
+                    </div>
+                {% empty %}
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-check-circle text-success"></i><br>
+                        <small>No hay alertas por categoría</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Acciones Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-danger" onclick="emergencyProtocol()">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Protocolo de Emergencia
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="massNotification()">
+                        <i class="bi bi-megaphone me-2"></i>Notificación Masiva
+                    </button>
+                    <button class="btn btn-outline-info" onclick="generateAlertReport()">
+                        <i class="bi bi-file-text me-2"></i>Reporte de Alertas
+                    </button>
+                    <button class="btn btn-outline-success" onclick="testAlertSystem()">
+                        <i class="bi bi-check-circle me-2"></i>Probar Sistema
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Alert Modal -->
+<div class="modal fade" id="createAlertModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crear Nueva Alerta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="alertForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Máquina *</label>
+                                <select class="form-select" required>
+                                    <option value="">Seleccionar máquina...</option>
+                                    <option value="1">EXC-001 - Excavadora CAT 320</option>
+                                    <option value="2">BUL-002 - Bulldozer D6T</option>
+                                    <option value="3">GRU-003 - Grúa Grove RT540</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Alerta *</label>
+                                <select class="form-select" required>
+                                    <option value="">Seleccionar tipo...</option>
+                                    <option value="hidraulico">Sistema Hidráulico</option>
+                                    <option value="motor">Motor</option>
+                                    <option value="mecanico">Sistema Mecánico</option>
+                                    <option value="electrico">Sistema Eléctrico</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Prioridad *</label>
+                                <select class="form-select" required>
+                                    <option value="critica">Crítica</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="media" selected>Media</option>
+                                    <option value="baja">Baja</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select">
+                                    <option value="activa" selected>Activa</option>
+                                    <option value="en_proceso">En Proceso</option>
+                                    <option value="resuelta">Resuelta</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Título de la Alerta *</label>
+                        <input type="text" class="form-control" required placeholder="Ej: Pérdida de presión hidráulica">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descripción Detallada *</label>
+                        <textarea class="form-control" rows="4" required placeholder="Describe el problema o situación..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Acciones Recomendadas</label>
+                        <textarea class="form-control" rows="3" placeholder="Pasos sugeridos para resolver la alerta..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notifyTechnicians">
+                                    <label class="form-check-label" for="notifyTechnicians">
+                                        Notificar a técnicos automáticamente
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="stopMachine">
+                                    <label class="form-check-label" for="stopMachine">
+                                        Detener operación de la máquina
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveAlert()">
+                    <i class="bi bi-check-circle me-2"></i>Crear Alerta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .border-left-danger { border-left: 0.25rem solid #dc3545 !important; }
+    .border-left-warning { border-left: 0.25rem solid #ffc107 !important; }
+    .border-left-info { border-left: 0.25rem solid #17a2b8 !important; }
+    .border-left-success { border-left: 0.25rem solid #28a745 !important; }
+
+    .table-danger { background-color: rgba(220, 53, 69, 0.1); }
+    .table-warning { background-color: rgba(255, 193, 7, 0.1); }
+
+    .alert-type-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        transition: background-color 0.2s;
+    }
+
+    .alert-type-item:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function resolveAlert(id) {
+    if (confirm('¿Marcar esta alerta como resuelta?')) {
+        fetch(`/maquinaria/alertas/${id}/resolver/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error al resolver la alerta');
+            console.error('Error:', error);
+        });
+    }
+}
+
+function viewAlert(id) {
+    alert(`Ver detalles de alerta ${id}`);
+}
+
+function scheduleService(id) {
+    alert(`Programar mantenimiento para máquina ${id}`);
+}
+
+function saveAlert() {
+    alert('Alerta creada exitosamente');
+    bootstrap.Modal.getInstance(document.getElementById('createAlertModal')).hide();
+}
+
+function emergencyProtocol() {
+    alert('Activando protocolo de emergencia...');
+}
+
+function massNotification() {
+    alert('Enviando notificación masiva...');
+}
+
+function generateAlertReport() {
+    alert('Generando reporte de alertas...');
+}
+
+function testAlertSystem() {
+    alert('Probando sistema de alertas...');
+}
+</script>
+{% endblock %}

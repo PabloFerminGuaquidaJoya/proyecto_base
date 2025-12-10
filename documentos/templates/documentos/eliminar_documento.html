@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - SENA{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-trash"></i> Confirmar Eliminación</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                    </div>
+
+                    <h5>¿Estás seguro de que deseas eliminar este documento?</h5>
+
+                    <div class="card bg-light mt-3 mb-4">
+                        <div class="card-body">
+                            <h6><i class="{{ documento.tipo_documento.icono }}"></i> {{ documento.titulo }}</h6>
+                            <p class="mb-1"><strong>Tipo:</strong> {{ documento.tipo_documento.nombre }}</p>
+                            <p class="mb-1"><strong>Categoría:</strong> {{ documento.categoria.nombre }}</p>
+                            <p class="mb-1"><strong>Versión:</strong> {{ documento.version }}</p>
+                            <p class="mb-1"><strong>Creado por:</strong> {{ documento.creado_por.nombre_completo }}</p>
+                            <p class="mb-0"><strong>Fecha:</strong> {{ documento.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Sí, eliminar documento
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

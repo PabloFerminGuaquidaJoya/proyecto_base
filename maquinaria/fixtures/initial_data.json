@@ -1,0 +1,97 @@
+[
+    {
+        "model": "maquinaria.categoriamaquina",
+        "pk": 1,
+        "fields": {
+            "nombre": "Excavadoras",
+            "descripcion": "Máquinas para excavación y movimiento de tierra",
+            "icono": "bi-bucket",
+            "color": "#ffc107",
+            "activa": true
+        }
+    },
+    {
+        "model": "maquinaria.categoriamaquina",
+        "pk": 2,
+        "fields": {
+            "nombre": "Bulldozers",
+            "descripcion": "Tractores para nivelación de terrenos",
+            "icono": "bi-truck-front",
+            "color": "#fd7e14",
+            "activa": true
+        }
+    },
+    {
+        "model": "maquinaria.categoriamaquina",
+        "pk": 3,
+        "fields": {
+            "nombre": "Grúas",
+            "descripcion": "Equipos de izaje y construcción",
+            "icono": "bi-arrow-up-square",
+            "color": "#6f42c1",
+            "activa": true
+        }
+    },
+    {
+        "model": "maquinaria.categoriamaquina",
+        "pk": 4,
+        "fields": {
+            "nombre": "Compactadores",
+            "descripción": "Equipos para compactación de suelos",
+            "icono": "bi-circle-fill",
+            "color": "#20c997",
+            "activa": true
+        }
+    },
+    {
+        "model": "maquinaria.proveedor",
+        "pk": 1,
+        "fields": {
+            "nombre": "Caterpillar Colombia SAS",
+            "nit": "860001234-1",
+            "contacto_nombre": "Juan Carlos Mendez",
+            "contacto_telefono": "601-3456789",
+            "contacto_email": "jmendez@cat.com",
+            "direccion": "Calle 100 # 19-54",
+            "ciudad": "Bogotá",
+            "pais": "Colombia",
+            "sitio_web": "https://www.cat.com",
+            "calificacion": 5,
+            "activo": true
+        }
+    },
+    {
+        "model": "maquinaria.proveedor",
+        "pk": 2,
+        "fields": {
+            "nombre": "John Deere Colombia",
+            "nit": "860005678-2",
+            "contacto_nombre": "Maria Elena Rodriguez",
+            "contacto_telefono": "601-7891234",
+            "contacto_email": "mrodriguez@johndeere.com",
+            "direccion": "Carrera 15 # 93-47",
+            "ciudad": "Bogotá",
+            "pais": "Colombia",
+            "sitio_web": "https://www.deere.com.co",
+            "calificacion": 4,
+            "activo": true
+        }
+    },
+    {
+        "model": "maquinaria.proveedor",
+        "pk": 3,
+        "fields": {
+            "nombre": "Komatsu Colombia Ltda",
+            "nit": "860009876-3",
+            "contacto_nombre": "Carlos Alberto Suarez",
+            "contacto_telefono": "601-2345678",
+            "contacto_email": "csuarez@komatsu.com.co",
+            "direccion": "Zona Industrial Cazuca",
+            "ciudad": "Soacha",
+            "pais": "Colombia",
+            "sitio_web": "https://www.komatsu.com.co",
+            "calificacion": 4,
+            "activo": true
+        }
+    }
+]

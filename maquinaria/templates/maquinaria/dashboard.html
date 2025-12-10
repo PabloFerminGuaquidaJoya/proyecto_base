@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Maquinaria - SENA{% endblock %}
+{% block page_title %}Maquinaria{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Stats Cards -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Máquinas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_maquinas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-gear fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Operativas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_operativas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            En Mantenimiento</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_mantenimiento }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-wrench fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Alertas Activas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_activas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-exclamation-triangle fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">Acciones Rápidas</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-primary w-100">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva Máquina
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-list me-2"></i>Ver Todas
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'maquinaria:alertas' %}" class="btn btn-outline-warning w-100">
+                    <i class="bi bi-bell me-2"></i>Alertas
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'maquinaria:mantenimiento_dashboard' %}" class="btn btn-outline-success w-100">
+                    <i class="bi bi-wrench me-2"></i>Mantenimiento
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Actividad Reciente</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% if actividad_reciente %}
+                        {% for actividad in actividad_reciente %}
+                        <div class="timeline-item">
+                            {% if actividad.tipo_evento == 'mantenimiento' %}
+                                <div class="timeline-marker bg-success"></div>
+                            {% elif actividad.tipo_evento == 'reparacion' %}
+                                <div class="timeline-marker bg-danger"></div>
+                            {% elif actividad.tipo_evento == 'creacion' %}
+                                <div class="timeline-marker bg-primary"></div>
+                            {% elif actividad.tipo_evento == 'cambio_estado' %}
+                                <div class="timeline-marker bg-warning"></div>
+                            {% else %}
+                                <div class="timeline-marker bg-secondary"></div>
+                            {% endif %}
+                            <div class="timeline-content">
+                                <h6>{{ actividad.maquina.codigo_inventario }} - {{ actividad.maquina.nombre }}</h6>
+                                <p class="text-muted small">{{ actividad.get_tipo_evento_display }} - {{ actividad.fecha_evento|timesince }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6>Sistema Iniciado</h6>
+                                <p class="text-muted small">No hay actividad reciente registrada</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Estado por Categorías</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+    }
+    .timeline-item {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    .timeline-marker {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        margin-top: 0.25rem;
+        flex-shrink: 0;
+    }
+    .border-left-primary {
+        border-left: 0.25rem solid var(--sena-primary) !important;
+    }
+    .border-left-success {
+        border-left: 0.25rem solid #28a745 !important;
+    }
+    .border-left-warning {
+        border-left: 0.25rem solid #ffc107 !important;
+    }
+    .border-left-danger {
+        border-left: 0.25rem solid #dc3545 !important;
+    }
+</style>
+{% endblock %}

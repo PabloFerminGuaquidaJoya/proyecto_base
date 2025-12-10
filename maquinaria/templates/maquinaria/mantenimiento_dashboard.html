@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard de Mantenimiento - SENA{% endblock %}
+{% block page_title %}Dashboard de Mantenimiento{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">Dashboard de Mantenimiento</h2>
+                    <p class="text-muted">Gestión integral de mantenimiento de maquinaria</p>
+                </div>
+                <div>
+                    <a href="{% url 'maquinaria:programar_mantenimiento' %}" class="btn btn-primary">
+                        <i class="bi bi-calendar-plus me-2"></i>Programar Mantenimiento
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check fs-1"></i>
+                    <h4 class="mt-2">{{ mantenimientos_hoy }}</h4>
+                    <p class="mb-0">Mantenimientos Hoy</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-dark">
+                <div class="card-body">
+                    <i class="bi bi-clock fs-1"></i>
+                    <h4 class="mt-2">{{ mantenimientos_pendientes }}</h4>
+                    <p class="mb-0">Pendientes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-danger text-white">
+                <div class="card-body">
+                    <i class="bi bi-exclamation-triangle fs-1"></i>
+                    <h4 class="mt-2">{{ mantenimientos_vencidos }}</h4>
+                    <p class="mb-0">Vencidos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <i class="bi bi-check-circle fs-1"></i>
+                    <h4 class="mt-2">{{ cumplimiento_porcentaje }}%</h4>
+                    <p class="mb-0">Cumplimiento</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-12">
+            <!-- Recent Activities -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-activity me-2"></i>Actividades Recientes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for actividad in actividades_mantenimiento %}
+                        <div class="timeline-item">
+                            {% if actividad.tipo_evento == 'mantenimiento' %}
+                                <div class="timeline-marker bg-success"></div>
+                            {% elif actividad.tipo_evento == 'reparacion' %}
+                                <div class="timeline-marker bg-danger"></div>
+                            {% else %}
+                                <div class="timeline-marker bg-info"></div>
+                            {% endif %}
+                            <div class="timeline-content">
+                                <h6>{{ actividad.get_tipo_evento_display }}</h6>
+                                <p class="mb-1">{{ actividad.maquina.codigo_inventario }} - {{ actividad.descripcion }}</p>
+                                <small class="text-muted">{{ actividad.fecha_evento|timesince }} {% if actividad.usuario %}- {{ actividad.usuario.nombre_completo }}{% endif %}</small>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6>Sistema Iniciado</h6>
+                                <p class="mb-1">No hay actividades de mantenimiento registradas</p>
+                                <small class="text-muted">Comience programando su primer mantenimiento</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -22px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        z-index: 1;
+    }
+
+    .timeline-content {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Scripts adicionales para funcionalidades de mantenimiento
+</script>
+{% endblock %}

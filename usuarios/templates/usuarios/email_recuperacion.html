@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperación de Contraseña</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #39a900 0%, #2d7a00 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #39a900;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .button:hover {
+            background: #2d7a00;
+        }
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .link-fallback {
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Recuperación de Contraseña</h1>
+            <p style="margin: 10px 0 0 0;">Sistema de Gestión de Maquinaria SENA</p>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Hola {{ usuario.nombre_completo }},
+            </div>
+
+            <div class="message">
+                <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.</p>
+
+                <p>Si fuiste tú quien realizó esta solicitud, haz clic en el siguiente botón para crear una nueva contraseña:</p>
+            </div>
+
+            <div class="button-container">
+                <a href="{{ reset_url }}" class="button">Restablecer Contraseña</a>
+            </div>
+
+            <div class="info-box">
+                <strong>⚠️ Importante:</strong>
+                <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                    <li>Este enlace es válido por <strong>{{ expiracion }} hora(s)</strong></li>
+                    <li>Solo puede usarse una vez</li>
+                    <li>Si no solicitaste este cambio, ignora este correo</li>
+                </ul>
+            </div>
+
+            <div class="message">
+                <p><strong>Si el botón no funciona</strong>, copia y pega el siguiente enlace en tu navegador:</p>
+            </div>
+
+            <div class="link-fallback">
+                {{ reset_url }}
+            </div>
+
+            <div class="message">
+                <p>Si tienes problemas o no solicitaste este cambio, contacta al administrador del sistema.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>SENA - Servicio Nacional de Aprendizaje</strong></p>
+            <p style="margin: 5px 0;">Sistema de Gestión de Maquinaria</p>
+            <p style="margin: 5px 0; font-size: 12px;">Este es un correo automático, por favor no responder.</p>
+            <p style="margin: 5px 0; color: #999;">© 2025 SENA. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

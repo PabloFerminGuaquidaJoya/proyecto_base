@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle Máquina - SENA{% endblock %}
+{% block page_title %}Detalle de Máquina{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Machine Header -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        {% if maquina.imagen %}
+                            <img src="{{ maquina.imagen.url }}" class="img-fluid rounded" alt="{{ maquina.nombre }}" style="max-height: 100px;">
+                        {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 100px;">
+                                <i class="bi bi-gear fs-1 text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="mb-1">{{ maquina.nombre }}</h4>
+                        <p class="text-muted mb-2">Código: <strong>{{ maquina.codigo_inventario }}</strong></p>
+                        {% if maquina.estado == 'operativa' %}
+                            <span class="badge bg-success fs-6">{{ maquina.get_estado_display }}</span>
+                        {% elif maquina.estado == 'mantenimiento' %}
+                            <span class="badge bg-warning fs-6">{{ maquina.get_estado_display }}</span>
+                        {% elif maquina.estado == 'disponible' %}
+                            <span class="badge bg-info fs-6">{{ maquina.get_estado_display }}</span>
+                        {% else %}
+                            <span class="badge bg-danger fs-6">{{ maquina.get_estado_display }}</span>
+                        {% endif %}
+                        <span class="badge bg-secondary fs-6 ms-2">{{ maquina.categoria.nombre }}</span>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'maquinaria:editar_maquina' pk=maquina.pk %}" class="btn btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                            <a href="{% url 'maquinaria:programar_mantenimiento_maquina' pk=maquina.pk %}" class="btn btn-outline-success">
+                                <i class="bi bi-wrench"></i> Mantenimiento
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Basic Information -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Información General</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Marca:</strong></td>
+                                <td>{{ maquina.marca }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Modelo:</strong></td>
+                                <td>{{ maquina.modelo }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Número de Serie:</strong></td>
+                                <td>{{ maquina.numero_serie }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha Adquisición:</strong></td>
+                                <td>{{ maquina.fecha_adquisicion|date:"d/m/Y" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Proveedor:</strong></td>
+                                <td>{{ maquina.proveedor.nombre|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Centro Formación:</strong></td>
+                                <td>{{ maquina.centro_formacion }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Potencia:</strong></td>
+                                <td>{{ maquina.potencia|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Peso:</strong></td>
+                                <td>{{ maquina.peso|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Capacidad:</strong></td>
+                                <td>{{ maquina.capacidad|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ubicación:</strong></td>
+                                <td>{{ maquina.ubicacion }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Horas de Uso:</strong></td>
+                                <td>{{ maquina.horas_uso_total|floatformat:1 }} hrs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Eficiencia:</strong></td>
+                                <td>{{ maquina.eficiencia }}%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                {% if maquina.especificaciones_tecnicas %}
+                <div class="mt-3">
+                    <h6>Especificaciones Técnicas</h6>
+                    <p class="text-muted">{{ maquina.especificaciones_tecnicas }}</p>
+                </div>
+                {% endif %}
+
+                {% if maquina.observaciones %}
+                <div class="mt-3">
+                    <h6>Observaciones</h6>
+                    <p class="text-muted">{{ maquina.observaciones }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Maintenance History -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Historial de Actividades</h6>
+                <a href="{% url 'maquinaria:programar_mantenimiento_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-plus"></i> Programar Mantenimiento
+                </a>
+            </div>
+            <div class="card-body">
+                {% if historial %}
+                    <div class="timeline">
+                        {% for evento in historial %}
+                        <div class="timeline-item">
+                            {% if evento.tipo_evento == 'mantenimiento' %}
+                                <div class="timeline-marker bg-success"></div>
+                            {% elif evento.tipo_evento == 'reparacion' %}
+                                <div class="timeline-marker bg-warning"></div>
+                            {% elif evento.tipo_evento == 'creacion' %}
+                                <div class="timeline-marker bg-primary"></div>
+                            {% elif evento.tipo_evento == 'cambio_estado' %}
+                                <div class="timeline-marker bg-info"></div>
+                            {% else %}
+                                <div class="timeline-marker bg-secondary"></div>
+                            {% endif %}
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6>{{ evento.get_tipo_evento_display }}</h6>
+                                        <p class="text-muted mb-1">{{ evento.descripcion }}</p>
+                                        <small class="text-muted">
+                                            {{ evento.fecha_evento|date:"d/m/Y H:i" }}
+                                            {% if evento.usuario %} - {{ evento.usuario.nombre_completo }}{% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-clock-history fs-1 mb-2"></i>
+                        <p>No hay historial registrado para esta máquina</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Status Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-speedometer me-2"></i>Estado Actual</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="
+                                {% if maquina.eficiencia >= 90 %}text-success
+                                {% elif maquina.eficiencia >= 70 %}text-warning
+                                {% else %}text-danger{% endif %}
+                            ">{{ maquina.eficiencia }}%</h4>
+                            <small class="text-muted">Eficiencia</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-primary">{{ maquina.horas_uso_total|floatformat:0 }}</h4>
+                        <small class="text-muted">Horas de Uso</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            {% if maquina.proximo_mantenimiento %}
+                                <h5 class="text-warning">{{ maquina.proximo_mantenimiento|date:"d/m/Y" }}</h5>
+                                <small class="text-muted">Próximo Mantenimiento</small>
+                            {% else %}
+                                <h5 class="text-muted">-</h5>
+                                <small class="text-muted">Sin programar</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        {% if maquina.condicion == 'excelente' %}
+                            <h5 class="text-success">{{ maquina.get_condicion_display }}</h5>
+                        {% elif maquina.condicion == 'buena' %}
+                            <h5 class="text-info">{{ maquina.get_condicion_display }}</h5>
+                        {% elif maquina.condicion == 'regular' %}
+                            <h5 class="text-warning">{{ maquina.get_condicion_display }}</h5>
+                        {% else %}
+                            <h5 class="text-danger">{{ maquina.get_condicion_display }}</h5>
+                        {% endif %}
+                        <small class="text-muted">Condición</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="reportIssue()">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Reportar Problema
+                    </button>
+                    <button class="btn btn-outline-success" onclick="scheduleService()">
+                        <i class="bi bi-calendar-event me-2"></i>Agendar Servicio
+                    </button>
+                    <button class="btn btn-outline-info" onclick="generateReport()">
+                        <i class="bi bi-file-text me-2"></i>Generar Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-files me-2"></i>Documentos</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% if maquina.manual_pdf %}
+                        <a href="{{ maquina.manual_pdf.url }}" target="_blank" class="list-group-item list-group-item-action">
+                            <i class="bi bi-file-pdf text-danger me-2"></i>Manual de Usuario
+                        </a>
+                    {% endif %}
+                    {% if maquina.ficha_tecnica %}
+                        <a href="{{ maquina.ficha_tecnica.url }}" target="_blank" class="list-group-item list-group-item-action">
+                            <i class="bi bi-file-text text-primary me-2"></i>Ficha Técnica
+                        </a>
+                    {% endif %}
+                    {% if not maquina.manual_pdf and not maquina.ficha_tecnica %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-file-text fs-4 mb-2"></i>
+                            <p class="mb-0">No hay documentos adjuntos</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar Máquina -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="bi bi-trash text-danger fs-1 mb-3"></i>
+                    <h5>¿Está seguro que desea eliminar esta máquina?</h5>
+                    <p class="text-muted">
+                        <strong>{{ maquina.codigo_inventario }} - {{ maquina.nombre }}</strong>
+                    </p>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Advertencia:</strong> Esta acción no se puede deshacer.
+                        Se eliminará toda la información asociada incluyendo historial y alertas.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                </button>
+                <form method="post" action="{% url 'maquinaria:eliminar_maquina' pk=maquina.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="motivo_eliminacion" value="Eliminación rápida desde detalle">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Eliminar Permanentemente
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+    }
+    .timeline-item {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    .timeline-marker {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        margin-top: 0.25rem;
+        flex-shrink: 0;
+    }
+    .timeline-content {
+        flex: 1;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function reportIssue() {
+    alert('Funcionalidad de reporte de problemas en desarrollo');
+}
+
+function scheduleService() {
+    alert('Funcionalidad de agendamiento en desarrollo');
+}
+
+function generateReport() {
+    alert('Funcionalidad de generación de reportes en desarrollo');
+}
+</script>
+{% endblock %}

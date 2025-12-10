@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Máquina - SENA{% endblock %}
+{% block page_title %}Eliminar Máquina{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:lista_maquinas' %}">Máquinas</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}">{{ maquina.codigo_inventario }}</a></li>
+                        <li class="breadcrumb-item active">Eliminar</li>
+                    </ol>
+                </nav>
+
+                <!-- Machine Info -->
+                <div class="row mb-4">
+                    <div class="col-md-4 text-center">
+                        {% if maquina.imagen %}
+                            <img src="{{ maquina.imagen.url }}" class="img-fluid rounded" alt="{{ maquina.nombre }}" style="max-height: 120px;">
+                        {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 120px;">
+                                <i class="bi bi-gear fs-1 text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h4 class="text-danger">{{ maquina.nombre }}</h4>
+                        <p class="mb-2"><strong>Código:</strong> {{ maquina.codigo_inventario }}</p>
+                        <p class="mb-2"><strong>Serie:</strong> {{ maquina.numero_serie|default:"-" }}</p>
+                        <p class="mb-2"><strong>Estado:</strong>
+                            {% if maquina.estado == 'operativa' %}
+                                <span class="badge bg-success">{{ maquina.get_estado_display }}</span>
+                            {% elif maquina.estado == 'mantenimiento' %}
+                                <span class="badge bg-warning">{{ maquina.get_estado_display }}</span>
+                            {% elif maquina.estado == 'disponible' %}
+                                <span class="badge bg-info">{{ maquina.get_estado_display }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ maquina.get_estado_display }}</span>
+                            {% endif %}
+                        </p>
+                        <p class="mb-0"><strong>Ubicación:</strong> {{ maquina.ubicacion }}</p>
+                    </div>
+                </div>
+
+                <!-- Warning Message -->
+                <div class="alert alert-danger" role="alert">
+                    <h6 class="alert-heading"><i class="bi bi-exclamation-triangle me-2"></i>¡Atención!</h6>
+                    <p class="mb-3">Estás a punto de <strong>eliminar permanentemente</strong> esta máquina del sistema. Esta acción:</p>
+                    <ul class="mb-3">
+                        <li>No se puede deshacer</li>
+                        <li>Eliminará todo el historial de mantenimiento</li>
+                        <li>Eliminará todas las alertas asociadas</li>
+                        <li>Eliminará los documentos vinculados</li>
+                        <li>Afectará los reportes históricos</li>
+                    </ul>
+                    <p class="mb-0">¿Estás seguro de que quieres continuar?</p>
+                </div>
+
+                <!-- Impact Analysis - DATOS REALES -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="bi bi-wrench fs-3 text-warning"></i>
+                                <h6 class="mt-2">Mantenimientos</h6>
+                                <p class="mb-0"><strong>{{ total_mantenimientos }}</strong> registro{{ total_mantenimientos|pluralize }} serán eliminado{{ total_mantenimientos|pluralize }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="bi bi-exclamation-triangle fs-3 text-danger"></i>
+                                <h6 class="mt-2">Alertas</h6>
+                                <p class="mb-0"><strong>{{ total_alertas }}</strong> alerta{{ total_alertas|pluralize }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="bi bi-clock-history fs-3 text-info"></i>
+                                <h6 class="mt-2">Historial</h6>
+                                <p class="mb-0"><strong>{{ total_historial }}</strong> evento{{ total_historial|pluralize }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="bi bi-info-circle fs-3 text-primary"></i>
+                                <h6 class="mt-2">Datos Guardados</h6>
+                                <p class="mb-0"><strong>Todo se preservará</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de preservación -->
+                <div class="alert alert-info">
+                    <h6 class="alert-heading"><i class="bi bi-shield-check me-2"></i>Registro de Eliminación</h6>
+                    <p class="mb-0">Aunque la máquina será eliminada del sistema activo, <strong>toda su información será preservada</strong> en el archivo de máquinas eliminadas, incluyendo:</p>
+                    <ul class="mb-0 mt-2">
+                        <li>Todos los datos técnicos y especificaciones</li>
+                        <li>Historial completo de {{ total_historial }} eventos</li>
+                        <li>{{ total_alertas }} alertas registradas</li>
+                        <li>{{ total_mantenimientos }} mantenimientos realizados</li>
+                        <li>Estadísticas y costos totales</li>
+                    </ul>
+                </div>
+
+                <!-- Alternative Actions -->
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading"><i class="bi bi-lightbulb me-2"></i>Alternativas Recomendadas</h6>
+                    <p class="mb-2">En lugar de eliminar la máquina, considera:</p>
+                    <div class="d-grid gap-2 d-md-block">
+                        <a href="{% url 'maquinaria:editar_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-warning">
+                            <i class="bi bi-pause-circle me-2"></i>Marcar como "Fuera de Servicio"
+                        </a>
+                        <button class="btn btn-sm btn-outline-info" onclick="archiveMachine()">
+                            <i class="bi bi-archive me-2"></i>Archivar Máquina
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="transferMachine()">
+                            <i class="bi bi-arrow-right-circle me-2"></i>Transferir a Otro Centro
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirmation Form -->
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="motivo_eliminacion" class="form-label">Motivo de la Eliminación *</label>
+                        <textarea class="form-control" id="motivo_eliminacion" name="motivo_eliminacion" rows="3" required placeholder="Explica el motivo por el cual se elimina esta máquina (ej: vendida, transferida, dada de baja, etc.)"></textarea>
+                        <small class="form-text text-muted">Este motivo quedará registrado en el historial permanente</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmacion" name="confirmacion" required>
+                            <label class="form-check-label text-danger" for="confirmacion">
+                                <strong>Confirmo que entiendo que esta acción es irreversible y eliminará permanentemente toda la información asociada a esta máquina.</strong>
+                            </label>
+                        </div>
+                    </div>
+
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}" class="btn btn-success">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                            <i class="bi bi-trash3 me-2"></i>Eliminar Definitivamente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="finalConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmación Final</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="bi bi-exclamation-triangle-fill fs-1 text-danger mb-3"></i>
+                <h5>¿Estás absolutamente seguro?</h5>
+                <p class="text-muted">Esta es tu última oportunidad para cancelar. Una vez confirmado, la máquina <strong>{{ maquina.codigo_inventario }}</strong> será eliminada permanentemente.</p>
+
+                <div class="mb-3">
+                    <label for="final_confirmation" class="form-label">Escribe <strong>"ELIMINAR"</strong> para confirmar:</label>
+                    <input type="text" class="form-control text-center" id="final_confirmation" placeholder="ELIMINAR">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="finalDeleteBtn" onclick="executeDeletion()" disabled>
+                    <i class="bi bi-trash3 me-2"></i>Eliminar Definitivamente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card.border-danger {
+        border-width: 2px;
+    }
+
+    .alert-danger {
+        border-left: 4px solid #dc3545;
+    }
+
+    .alert-warning {
+        border-left: 4px solid #ffc107;
+    }
+
+    .form-check-label.text-danger {
+        font-weight: 500;
+    }
+
+    #deleteBtn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheckbox = document.getElementById('confirmacion');
+    const passwordField = document.getElementById('password_confirmacion');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const razonSelect = document.getElementById('razon_eliminacion');
+
+    const motivoField = document.getElementById('motivo_eliminacion');
+
+    // Enable delete button only when all conditions are met
+    function checkFormValidity() {
+        const isChecked = confirmCheckbox.checked;
+        const hasMotivo = motivoField.value.trim().length > 10;
+
+        deleteBtn.disabled = !(isChecked && hasMotivo);
+    }
+
+    confirmCheckbox.addEventListener('change', checkFormValidity);
+    motivoField.addEventListener('input', checkFormValidity);
+
+    // Form submission with final confirmation
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Show final confirmation modal
+        const modal = new bootstrap.Modal(document.getElementById('finalConfirmModal'));
+        modal.show();
+    });
+
+    // Final confirmation input validation
+    const finalConfirmInput = document.getElementById('final_confirmation');
+    const finalDeleteBtn = document.getElementById('finalDeleteBtn');
+
+    finalConfirmInput.addEventListener('input', function() {
+        const isValid = this.value.trim().toUpperCase() === 'ELIMINAR';
+        finalDeleteBtn.disabled = !isValid;
+
+        if (isValid) {
+            finalDeleteBtn.classList.remove('btn-danger');
+            finalDeleteBtn.classList.add('btn-outline-danger');
+        } else {
+            finalDeleteBtn.classList.remove('btn-outline-danger');
+            finalDeleteBtn.classList.add('btn-danger');
+        }
+    });
+});
+
+function executeDeletion() {
+    const finalDeleteBtn = document.getElementById('finalDeleteBtn');
+
+    finalDeleteBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Eliminando y guardando registro...';
+    finalDeleteBtn.disabled = true;
+
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('finalConfirmModal')).hide();
+
+    // Submit the form for real
+    document.getElementById('deleteForm').submit();
+}
+
+function archiveMachine() {
+    if (confirm('¿Quieres archivar esta máquina en lugar de eliminarla?')) {
+        alert('Funcionalidad de archivado en desarrollo');
+        // Redirect to edit with archived status
+        // window.location.href = '{% url "maquinaria:editar_maquina" pk=1 %}?action=archive';
+    }
+}
+
+function transferMachine() {
+    if (confirm('¿Quieres transferir esta máquina a otro centro?')) {
+        alert('Funcionalidad de transferencia en desarrollo');
+        // Open transfer modal or redirect
+    }
+}
+
+// Prevent accidental navigation
+window.addEventListener('beforeunload', function(e) {
+    const form = document.getElementById('deleteForm');
+    const formData = new FormData(form);
+
+    // If form has been partially filled
+    if (formData.get('razon_eliminacion') || formData.get('comentarios')) {
+        e.preventDefault();
+        e.returnValue = 'Tienes un proceso de eliminación en curso. ¿Estás seguro de que quieres salir?';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SENA{% endblock %}
+{% block page_title %}Dashboard Principal{% endblock %}
+
+{% block content %}
+<!-- Stats Grid -->
+<div class="stats-grid mb-4">
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Máquinas</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_maquinas }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-gear fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Máquinas Operativas</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_operativas }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check-circle fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                En Mantenimiento</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_mantenimiento }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-wrench fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Alertas Activas</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_activas }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-exclamation-triangle fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_staff %}
+    <div class="row">
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Máquinas Asignadas</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_asignadas }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-person-badge fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Disponibles</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_disponibles }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check2-square fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-lightning me-2"></i>Acciones Rápidas
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-outline-primary w-100 py-3">
+                    <i class="bi bi-plus-circle d-block fs-2 mb-2"></i>
+                    <strong>Nueva Máquina</strong>
+                    <small class="d-block text-muted">Registrar equipamiento</small>
+                </a>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-outline-success w-100 py-3">
+                    <i class="bi bi-file-earmark-text d-block fs-2 mb-2"></i>
+                    <strong>Generar Reporte</strong>
+                    <small class="d-block text-muted">Análisis y estadísticas</small>
+                </a>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'maquinaria:alertas' %}" class="btn btn-outline-warning w-100 py-3">
+                    <i class="bi bi-bell d-block fs-2 mb-2"></i>
+                    <strong>Ver Alertas</strong>
+                    <small class="d-block text-muted">Notificaciones del sistema</small>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-clock-history me-2"></i>Actividad Reciente
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if actividades_recientes %}
+            <div class="timeline">
+                {% for actividad in actividades_recientes %}
+                <div class="timeline-item">
+                    {% if actividad.tipo_evento == 'mantenimiento' %}
+                        <div class="timeline-marker bg-warning"></div>
+                    {% elif actividad.tipo_evento == 'reparacion' %}
+                        <div class="timeline-marker bg-danger"></div>
+                    {% elif actividad.tipo_evento == 'creacion' %}
+                        <div class="timeline-marker bg-success"></div>
+                    {% elif actividad.tipo_evento == 'cambio_estado' %}
+                        <div class="timeline-marker bg-info"></div>
+                    {% else %}
+                        <div class="timeline-marker bg-secondary"></div>
+                    {% endif %}
+                    <div class="timeline-content">
+                        <h6>{{ actividad.maquina.codigo_inventario }} - {{ actividad.get_tipo_evento_display }}</h6>
+                        <p class="mb-1">{{ actividad.descripcion|truncatewords:10 }}</p>
+                        <small class="text-muted">
+                            {{ actividad.fecha_evento|timesince }} -
+                            {% if actividad.usuario %}{{ actividad.usuario.nombre_completo }}{% else %}Sistema{% endif %}
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-success"></div>
+                    <div class="timeline-content">
+                        <h6>Sistema inicializado correctamente</h6>
+                        <p class="mb-1">Todos los módulos están funcionando</p>
+                        <small class="text-muted">Sistema</small>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-info"></div>
+                    <div class="timeline-content">
+                        <h6>Sistema de seguridad activo</h6>
+                        <p class="mb-1">Acceso controlado y monitorizado</p>
+                        <small class="text-muted">Sistema</small>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .border-left-primary { border-left: 0.25rem solid var(--sena-primary) !important; }
+    .border-left-success { border-left: 0.25rem solid #28a745 !important; }
+    .border-left-info { border-left: 0.25rem solid #17a2b8 !important; }
+    .border-left-warning { border-left: 0.25rem solid #ffc107 !important; }
+    .border-left-danger { border-left: 0.25rem solid #dc3545 !important; }
+    .border-left-secondary { border-left: 0.25rem solid #6c757d !important; }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -22px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        z-index: 1;
+    }
+
+    .timeline-content {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .btn-outline-primary:hover,
+    .btn-outline-success:hover,
+    .btn-outline-warning:hover {
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh stats every 30 seconds
+setInterval(() => {
+    fetch('/api/usuarios/estadisticas/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Stats updated:', data);
+            }
+        })
+        .catch(error => console.log('Stats update failed:', error));
+}, 30000);
+</script>
+{% endblock %}

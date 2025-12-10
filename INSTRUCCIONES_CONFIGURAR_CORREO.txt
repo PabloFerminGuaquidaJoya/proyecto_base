@@ -1,0 +1,167 @@
+================================================================
+  CONFIGURACIÓN DE CORREO ELECTRÓNICO PARA RECUPERACIÓN
+================================================================
+
+El sistema ahora está configurado para enviar correos REALES.
+Necesitas configurar tus credenciales de Gmail.
+
+================================================================
+  PASO 1: CREAR CONTRASEÑA DE APLICACIÓN EN GMAIL
+================================================================
+
+1. Ve a: https://myaccount.google.com/apppasswords
+
+2. Inicia sesión con tu cuenta de Gmail
+
+3. En "Seleccionar app", elige "Correo"
+
+4. En "Seleccionar dispositivo", elige "Otro" y escribe "Django SENA"
+
+5. Haz clic en "Generar"
+
+6. Gmail te dará una contraseña de 16 caracteres como:
+   abcd efgh ijkl mnop
+
+7. COPIA esta contraseña (sin espacios)
+
+
+================================================================
+  PASO 2: CONFIGURAR settings.py
+================================================================
+
+1. Abre el archivo:
+   app_prototipo/app_prototipo/settings.py
+
+2. Busca las líneas 210-212 y reemplaza:
+
+   EMAIL_HOST_USER = 'tu_correo@gmail.com'
+   Por tu correo real, ejemplo:
+   EMAIL_HOST_USER = 'juan.perez@gmail.com'
+
+   EMAIL_HOST_PASSWORD = 'tu_contraseña_app'
+   Por la contraseña de aplicación que copiaste:
+   EMAIL_HOST_PASSWORD = 'abcdefghijklmnop'
+
+   DEFAULT_FROM_EMAIL = 'SENA Maquinaria <tu_correo@gmail.com>'
+   Por tu correo real:
+   DEFAULT_FROM_EMAIL = 'SENA Maquinaria <juan.perez@gmail.com>'
+
+3. Guarda el archivo
+
+
+================================================================
+  PASO 3: PROBAR EL SISTEMA
+================================================================
+
+1. Reinicia el servidor Django (Ctrl+C y luego):
+   python manage.py runserver
+
+2. Ve a: http://localhost:8000/usuarios/login/
+
+3. Haz clic en "¿Olvidaste tu contraseña?"
+
+4. Ingresa un correo electrónico registrado
+
+5. Revisa la bandeja de entrada de ese correo
+   (También revisa SPAM por si acaso)
+
+6. Haz clic en el enlace del correo
+
+7. Establece tu nueva contraseña
+
+8. ¡Listo! Ya puedes iniciar sesión
+
+
+================================================================
+  CONFIGURACIONES ALTERNATIVAS
+================================================================
+
+SI NO TIENES GMAIL:
+
+Para Outlook/Hotmail:
+- EMAIL_HOST = 'smtp-mail.outlook.com'
+- EMAIL_PORT = 587
+- EMAIL_USE_TLS = True
+
+Para Yahoo:
+- EMAIL_HOST = 'smtp.mail.yahoo.com'
+- EMAIL_PORT = 587
+- EMAIL_USE_TLS = True
+
+Para otros proveedores, busca sus configuraciones SMTP
+
+
+================================================================
+  SOLUCIÓN DE PROBLEMAS
+================================================================
+
+❌ Error: "SMTPAuthenticationError"
+   → Verifica que la contraseña de aplicación sea correcta
+   → Asegúrate de haber habilitado "Acceso de apps menos seguras"
+
+❌ Error: "Connection refused"
+   → Verifica tu conexión a internet
+   → Verifica que el EMAIL_HOST y EMAIL_PORT sean correctos
+
+❌ No llega el correo
+   → Revisa la carpeta de SPAM
+   → Verifica que el correo esté registrado en el sistema
+   → Revisa la consola del servidor por errores
+
+❌ Error: "timed out"
+   → Tu proveedor de internet podría estar bloqueando el puerto 587
+   → Intenta usar el puerto 465 con EMAIL_USE_SSL = True
+
+❌ Quiero volver a modo desarrollo (consola)
+   → Abre settings.py
+   → En la línea 206, cambia:
+     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+   → Comenta las otras configuraciones de EMAIL
+
+
+================================================================
+  SEGURIDAD
+================================================================
+
+⚠️ IMPORTANTE:
+- NUNCA compartas tu contraseña de aplicación
+- NUNCA subas settings.py con credenciales a repositorios públicos
+- Considera usar variables de entorno para producción
+
+Para usar variables de entorno:
+1. Crea un archivo .env en la raíz del proyecto
+2. Agrega:
+   EMAIL_HOST_USER=tu_correo@gmail.com
+   EMAIL_HOST_PASSWORD=tu_contraseña_app
+
+3. En settings.py usa:
+   import os
+   EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+   EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
+
+================================================================
+  CARACTERÍSTICAS DEL SISTEMA
+================================================================
+
+✅ Tokens seguros de un solo uso
+✅ Expiración automática de 1 hora
+✅ Correos HTML profesionales
+✅ Registro de IP de solicitud
+✅ Validación de seguridad
+✅ Diseño responsive
+
+
+================================================================
+  SOPORTE
+================================================================
+
+Si tienes problemas:
+1. Verifica que las migraciones estén aplicadas
+2. Verifica la configuración de correo
+3. Revisa la consola del servidor por errores
+4. Prueba con otro correo electrónico
+
+
+© 2025 SENA - Sistema de Gestión de Maquinaria
+================================================================

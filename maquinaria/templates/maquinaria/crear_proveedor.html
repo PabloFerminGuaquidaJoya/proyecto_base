@@ -1,0 +1,577 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo Proveedor - SENA{% endblock %}
+{% block page_title %}Nuevo Proveedor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-building-add me-2"></i>Registrar Nuevo Proveedor
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:proveedores' %}">Proveedores</a></li>
+                        <li class="breadcrumb-item active">Nuevo Proveedor</li>
+                    </ol>
+                </nav>
+
+                <!-- Form Steps Progress -->
+                <div class="progress mb-4" style="height: 3px;">
+                    <div class="progress-bar" id="progressBar" role="progressbar" style="width: 33%"></div>
+                </div>
+
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="badge bg-primary">1. Información Básica</span>
+                    <span class="badge bg-secondary">2. Contacto</span>
+                    <span class="badge bg-secondary">3. Servicios</span>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" id="providerForm">
+                    {% csrf_token %}
+
+                    <!-- Step 1: Basic Information -->
+                    <div class="form-step" id="step1">
+                        <h6 class="text-primary mb-3">Información Básica de la Empresa</h6>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="nombre_empresa" class="form-label">Nombre de la Empresa *</label>
+                                    <input type="text" class="form-control" id="nombre_empresa" name="nombre_empresa" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="nombre_comercial" class="form-label">Nombre Comercial</label>
+                                    <input type="text" class="form-control" id="nombre_comercial" name="nombre_comercial">
+                                    <div class="form-text">Si es diferente al nombre de la empresa</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="nit" class="form-label">NIT *</label>
+                                            <input type="text" class="form-control" id="nit" name="nit" required placeholder="123.456.789-0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="digito_verificacion" class="form-label">Dígito de Verificación</label>
+                                            <input type="number" class="form-control" id="digito_verificacion" name="digito_verificacion" min="0" max="9">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Logo de la Empresa</label>
+                                    <div class="logo-upload-area border rounded p-3 text-center">
+                                        <img id="logoPreview" src="/static/images/default-company-logo.png" alt="Logo" class="img-fluid mb-2" style="max-height: 100px;">
+                                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*" onchange="previewLogo(event)">
+                                        <small class="text-muted">JPG, PNG. Máximo 2MB</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="tipo_proveedor" class="form-label">Tipo de Proveedor *</label>
+                                    <select class="form-select" id="tipo_proveedor" name="tipo_proveedor" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option value="fabricante">Fabricante</option>
+                                        <option value="distribuidor">Distribuidor Autorizado</option>
+                                        <option value="servicio">Servicio Técnico</option>
+                                        <option value="repuestos">Proveedor de Repuestos</option>
+                                        <option value="leasing">Leasing/Arrendamiento</option>
+                                        <option value="mixto">Servicios Mixtos</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="categoria_principal" class="form-label">Categoría Principal</label>
+                                    <select class="form-select" id="categoria_principal" name="categoria_principal">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="excavadoras">Excavadoras</option>
+                                        <option value="bulldozers">Bulldozers</option>
+                                        <option value="gruas">Grúas</option>
+                                        <option value="cargadoras">Cargadoras</option>
+                                        <option value="compactadoras">Compactadoras</option>
+                                        <option value="todas">Todas las Categorías</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción de la Empresa</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Breve descripción de la empresa, su experiencia y especialidades..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                Siguiente <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Contact Information -->
+                    <div class="form-step" id="step2" style="display: none;">
+                        <h6 class="text-primary mb-3">Información de Contacto</h6>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-secondary">Dirección Principal</h6>
+
+                                <div class="mb-3">
+                                    <label for="direccion" class="form-label">Dirección *</label>
+                                    <input type="text" class="form-control" id="direccion" name="direccion" required>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="ciudad" class="form-label">Ciudad *</label>
+                                            <select class="form-select" id="ciudad" name="ciudad" required>
+                                                <option value="">Seleccionar ciudad...</option>
+                                                <option value="bogota">Bogotá</option>
+                                                <option value="medellin">Medellín</option>
+                                                <option value="cali">Cali</option>
+                                                <option value="barranquilla">Barranquilla</option>
+                                                <option value="cartagena">Cartagena</option>
+                                                <option value="bucaramanga">Bucaramanga</option>
+                                                <option value="pereira">Pereira</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="codigo_postal" class="form-label">Código Postal</label>
+                                            <input type="text" class="form-control" id="codigo_postal" name="codigo_postal">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="departamento" class="form-label">Departamento</label>
+                                    <input type="text" class="form-control" id="departamento" name="departamento">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6 class="text-secondary">Contacto Comercial</h6>
+
+                                <div class="mb-3">
+                                    <label for="telefono_principal" class="form-label">Teléfono Principal *</label>
+                                    <input type="tel" class="form-control" id="telefono_principal" name="telefono_principal" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="telefono_secundario" class="form-label">Teléfono Secundario</label>
+                                    <input type="tel" class="form-control" id="telefono_secundario" name="telefono_secundario">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email_comercial" class="form-label">Email Comercial *</label>
+                                    <input type="email" class="form-control" id="email_comercial" name="email_comercial" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="sitio_web" class="form-label">Sitio Web</label>
+                                    <input type="url" class="form-control" id="sitio_web" name="sitio_web" placeholder="https://www.ejemplo.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Persona de Contacto -->
+                        <hr class="my-4">
+                        <h6 class="text-secondary">Persona de Contacto Principal</h6>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="contacto_nombre" class="form-label">Nombre Completo *</label>
+                                    <input type="text" class="form-control" id="contacto_nombre" name="contacto_nombre" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="contacto_cargo" class="form-label">Cargo</label>
+                                    <input type="text" class="form-control" id="contacto_cargo" name="contacto_cargo">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="contacto_telefono" class="form-label">Teléfono Directo</label>
+                                    <input type="tel" class="form-control" id="contacto_telefono" name="contacto_telefono">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="contacto_email" class="form-label">Email Personal</label>
+                                    <input type="email" class="form-control" id="contacto_email" name="contacto_email">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                <i class="bi bi-arrow-left me-2"></i>Anterior
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                Siguiente <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Services and Capabilities -->
+                    <div class="form-step" id="step3" style="display: none;">
+                        <h6 class="text-primary mb-3">Servicios y Capacidades</h6>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-secondary">Tipos de Máquinas</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="tipo_excavadoras" name="tipos_maquinas" value="excavadoras">
+                                    <label class="form-check-label" for="tipo_excavadoras">Excavadoras</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="tipo_bulldozers" name="tipos_maquinas" value="bulldozers">
+                                    <label class="form-check-label" for="tipo_bulldozers">Bulldozers</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="tipo_gruas" name="tipos_maquinas" value="gruas">
+                                    <label class="form-check-label" for="tipo_gruas">Grúas</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="tipo_cargadoras" name="tipos_maquinas" value="cargadoras">
+                                    <label class="form-check-label" for="tipo_cargadoras">Cargadoras</label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="tipo_compactadoras" name="tipos_maquinas" value="compactadoras">
+                                    <label class="form-check-label" for="tipo_compactadoras">Compactadoras</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6 class="text-secondary">Servicios Ofrecidos</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="servicio_venta" name="servicios" value="venta">
+                                    <label class="form-check-label" for="servicio_venta">Venta de Maquinaria</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="servicio_alquiler" name="servicios" value="alquiler">
+                                    <label class="form-check-label" for="servicio_alquiler">Alquiler/Arrendamiento</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="servicio_mantenimiento" name="servicios" value="mantenimiento">
+                                    <label class="form-check-label" for="servicio_mantenimiento">Mantenimiento Preventivo</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="servicio_reparacion" name="servicios" value="reparacion">
+                                    <label class="form-check-label" for="servicio_reparacion">Reparaciones</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="servicio_repuestos" name="servicios" value="repuestos">
+                                    <label class="form-check-label" for="servicio_repuestos">Venta de Repuestos</label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="servicio_capacitacion" name="servicios" value="capacitacion">
+                                    <label class="form-check-label" for="servicio_capacitacion">Capacitación de Operadores</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="anos_experiencia" class="form-label">Años de Experiencia</label>
+                                    <input type="number" class="form-control" id="anos_experiencia" name="anos_experiencia" min="0" max="100">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="certificaciones" class="form-label">Certificaciones</label>
+                                    <textarea class="form-control" id="certificaciones" name="certificaciones" rows="2" placeholder="ISO, certificaciones técnicas, etc."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cobertura_geografica" class="form-label">Cobertura Geográfica</label>
+                                    <select class="form-select" id="cobertura_geografica" name="cobertura_geografica">
+                                        <option value="local">Local (ciudad)</option>
+                                        <option value="regional">Regional (departamento)</option>
+                                        <option value="nacional">Nacional</option>
+                                        <option value="internacional">Internacional</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tiempo_respuesta" class="form-label">Tiempo de Respuesta</label>
+                                    <select class="form-select" id="tiempo_respuesta" name="tiempo_respuesta">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="inmediato">Inmediato (0-2 horas)</option>
+                                        <option value="rapido">Rápido (2-8 horas)</option>
+                                        <option value="normal">Normal (1-2 días)</option>
+                                        <option value="programado">Programado (3+ días)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones Adicionales</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="3" placeholder="Información adicional relevante sobre el proveedor..."></textarea>
+                        </div>
+
+                        <!-- Estado del Proveedor -->
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">Estado del Proveedor</h6>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="activo" name="activo" checked>
+                                    <label class="form-check-label" for="activo">
+                                        Marcar como proveedor activo
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="preferido" name="preferido">
+                                    <label class="form-check-label" for="preferido">
+                                        Proveedor preferido
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                <i class="bi bi-arrow-left me-2"></i>Anterior
+                            </button>
+                            <button type="submit" class="btn btn-success" id="submitBtn">
+                                <i class="bi bi-check-circle me-2"></i>Registrar Proveedor
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Preview Modal -->
+<div class="modal fade" id="summaryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Resumen del Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="summaryContent">
+                <!-- Content generated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Revisar</button>
+                <button type="button" class="btn btn-success" onclick="confirmSubmission()">
+                    <i class="bi bi-check-circle me-2"></i>Confirmar y Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-step {
+        min-height: 500px;
+    }
+
+    .logo-upload-area {
+        background-color: #f8f9fa;
+        transition: background-color 0.3s ease;
+    }
+
+    .logo-upload-area:hover {
+        background-color: #e9ecef;
+    }
+
+    .progress-bar {
+        transition: width 0.3s ease;
+    }
+
+    .badge {
+        padding: 0.5em 0.75em;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+    }
+
+    .is-invalid {
+        border-color: #dc3545;
+    }
+
+    .is-valid {
+        border-color: #198754;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentStep = 1;
+const totalSteps = 3;
+
+function nextStep() {
+    if (validateCurrentStep()) {
+        if (currentStep < totalSteps) {
+            document.getElementById('step' + currentStep).style.display = 'none';
+            currentStep++;
+            document.getElementById('step' + currentStep).style.display = 'block';
+            updateProgress();
+            updateStepIndicators();
+        }
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        document.getElementById('step' + currentStep).style.display = 'none';
+        currentStep--;
+        document.getElementById('step' + currentStep).style.display = 'block';
+        updateProgress();
+        updateStepIndicators();
+    }
+}
+
+function updateProgress() {
+    const progress = (currentStep / totalSteps) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+}
+
+function updateStepIndicators() {
+    // Update step badges
+    for (let i = 1; i <= totalSteps; i++) {
+        const badge = document.querySelector(`.badge:nth-child(${i})`);
+        if (i === currentStep) {
+            badge.className = 'badge bg-primary';
+        } else if (i < currentStep) {
+            badge.className = 'badge bg-success';
+        } else {
+            badge.className = 'badge bg-secondary';
+        }
+    }
+}
+
+function validateCurrentStep() {
+    const currentStepElement = document.getElementById('step' + currentStep);
+    const requiredFields = currentStepElement.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        }
+    });
+
+    if (!isValid) {
+        alert('Por favor, completa todos los campos obligatorios antes de continuar.');
+    }
+
+    return isValid;
+}
+
+function previewLogo(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('logoPreview');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Form submission
+document.getElementById('providerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (validateCurrentStep()) {
+        showSummaryModal();
+    }
+});
+
+function showSummaryModal() {
+    const form = document.getElementById('providerForm');
+    const formData = new FormData(form);
+
+    // Generate summary content
+    const summaryContent = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Información Básica</h6>
+                <p><strong>Empresa:</strong> ${formData.get('nombre_empresa') || 'No especificado'}</p>
+                <p><strong>NIT:</strong> ${formData.get('nit') || 'No especificado'}</p>
+                <p><strong>Tipo:</strong> ${formData.get('tipo_proveedor') || 'No especificado'}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Contacto</h6>
+                <p><strong>Teléfono:</strong> ${formData.get('telefono_principal') || 'No especificado'}</p>
+                <p><strong>Email:</strong> ${formData.get('email_comercial') || 'No especificado'}</p>
+                <p><strong>Ciudad:</strong> ${formData.get('ciudad') || 'No especificado'}</p>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('summaryContent').innerHTML = summaryContent;
+
+    const modal = new bootstrap.Modal(document.getElementById('summaryModal'));
+    modal.show();
+}
+
+function confirmSubmission() {
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
+
+    submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Registrando...';
+    submitBtn.disabled = true;
+
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('summaryModal')).hide();
+
+    // Simulate form submission
+    setTimeout(() => {
+        alert('¡Proveedor registrado exitosamente!');
+        window.location.href = '{% url "maquinaria:proveedores" %}';
+    }, 2000);
+}
+
+// Auto-format NIT
+document.getElementById('nit').addEventListener('input', function() {
+    let value = this.value.replace(/\D/g, '');
+    if (value.length > 9) {
+        value = value.slice(0, 9);
+    }
+    if (value.length > 3) {
+        value = value.replace(/(\d{3})(\d{3})(\d{3})/, '$1.$2.$3');
+    }
+    this.value = value;
+});
+
+// Initialize
+updateProgress();
+updateStepIndicators();
+</script>
+{% endblock %}

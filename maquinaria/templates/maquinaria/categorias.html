@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+
+{% block title %}Categorías de Maquinaria - SENA{% endblock %}
+{% block page_title %}Gestión de Categorías{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4>Categorías de Maquinaria</h4>
+        <p class="text-muted">Gestiona las categorías para clasificar tu maquinaria</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+        <i class="bi bi-plus-circle me-2"></i>Nueva Categoría
+    </button>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Categories List -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Categorías Activas</h6>
+                <div class="d-flex gap-2">
+                    <div class="input-group" style="width: 250px;">
+                        <input type="text" class="form-control form-control-sm" id="searchCategories" placeholder="Buscar categorías...">
+                        <button class="btn btn-outline-secondary btn-sm" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60px;">
+                                    <i class="bi bi-palette"></i>
+                                </th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Máquinas</th>
+                                <th>Estado</th>
+                                <th style="width: 120px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="category-color-badge bg-primary"></div>
+                                </td>
+                                <td>
+                                    <strong>Excavadoras</strong>
+                                    <br><small class="text-muted">excavadora</small>
+                                </td>
+                                <td>Maquinaria para excavación y movimiento de tierras</td>
+                                <td>
+                                    <span class="badge bg-info">12 máquinas</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">Activa</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="editCategory(1)" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(1)" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="category-color-badge bg-warning"></div>
+                                </td>
+                                <td>
+                                    <strong>Bulldozers</strong>
+                                    <br><small class="text-muted">bulldozer</small>
+                                </td>
+                                <td>Maquinaria para nivelación y empuje</td>
+                                <td>
+                                    <span class="badge bg-info">8 máquinas</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">Activa</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="editCategory(2)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(2)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="category-color-badge bg-success"></div>
+                                </td>
+                                <td>
+                                    <strong>Grúas</strong>
+                                    <br><small class="text-muted">grua</small>
+                                </td>
+                                <td>Equipos de levante y transporte vertical</td>
+                                <td>
+                                    <span class="badge bg-info">6 máquinas</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">Activa</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="editCategory(3)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(3)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="category-color-badge bg-info"></div>
+                                </td>
+                                <td>
+                                    <strong>Cargadoras</strong>
+                                    <br><small class="text-muted">cargadora</small>
+                                </td>
+                                <td>Maquinaria para carga y transporte de materiales</td>
+                                <td>
+                                    <span class="badge bg-info">10 máquinas</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">Activa</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="editCategory(4)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(4)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="category-color-badge bg-secondary"></div>
+                                </td>
+                                <td>
+                                    <strong>Compactadoras</strong>
+                                    <br><small class="text-muted">compactadora</small>
+                                </td>
+                                <td>Equipos para compactación de suelos</td>
+                                <td>
+                                    <span class="badge bg-warning">2 máquinas</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning">Inactiva</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="editCategory(5)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" onclick="activateCategory(5)" title="Activar">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Sidebar -->
+    <div class="col-lg-4">
+        <!-- Stats Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Estadísticas</h6>
+            </div>
+            <div class="card-body">
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Categorías</span>
+                        <strong>5</strong>
+                    </div>
+                </div>
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Categorías Activas</span>
+                        <strong>4</strong>
+                    </div>
+                </div>
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Máquinas</span>
+                        <strong>38</strong>
+                    </div>
+                </div>
+                <hr>
+                <h6>Distribución por Categoría</h6>
+                <div class="category-distribution">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><span class="category-color-dot bg-primary"></span>Excavadoras</span>
+                        <span>32%</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 6px;">
+                        <div class="progress-bar bg-primary" style="width: 32%"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><span class="category-color-dot bg-info"></span>Cargadoras</span>
+                        <span>26%</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 6px;">
+                        <div class="progress-bar bg-info" style="width: 26%"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><span class="category-color-dot bg-warning"></span>Bulldozers</span>
+                        <span>21%</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 6px;">
+                        <div class="progress-bar bg-warning" style="width: 21%"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><span class="category-color-dot bg-success"></span>Grúas</span>
+                        <span>16%</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: 16%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="importCategories()">
+                        <i class="bi bi-upload me-2"></i>Importar Categorías
+                    </button>
+                    <button class="btn btn-outline-success" onclick="exportCategories()">
+                        <i class="bi bi-download me-2"></i>Exportar Lista
+                    </button>
+                    <button class="btn btn-outline-info" onclick="generateReport()">
+                        <i class="bi bi-file-text me-2"></i>Reporte de Categorías
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Category Modal -->
+<div class="modal fade" id="createCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Nueva Categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="categoryForm">
+                <div class="modal-body">
+                    <input type="hidden" id="categoryId" name="id">
+
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Nombre de la Categoría *</label>
+                        <input type="text" class="form-control" id="categoryName" name="nombre" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="categorySlug" class="form-label">Identificador (slug) *</label>
+                        <input type="text" class="form-control" id="categorySlug" name="slug" required>
+                        <div class="form-text">Se usa internamente para identificar la categoría. Solo letras minúsculas, números y guiones.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="categoryDescription" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="categoryDescription" name="descripcion" rows="3" placeholder="Descripción de la categoría..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="categoryColor" class="form-label">Color Identificativo</label>
+                        <div class="d-flex gap-2">
+                            <input type="color" class="form-control form-control-color" id="categoryColor" name="color" value="#0d6efd">
+                            <input type="text" class="form-control" placeholder="#0d6efd" id="categoryColorHex" style="width: 100px;">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="categoryIcon" class="form-label">Icono (Bootstrap Icons)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i id="iconPreview" class="bi bi-gear"></i></span>
+                            <input type="text" class="form-control" id="categoryIcon" name="icono" placeholder="gear" value="gear">
+                        </div>
+                        <div class="form-text">Nombre del icono de Bootstrap Icons (sin el prefijo "bi-")</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="categoryActive" name="activo" checked>
+                            <label class="form-check-label" for="categoryActive">
+                                Categoría activa
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>Guardar Categoría
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-color-badge {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        margin: 0 auto;
+    }
+
+    .category-color-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    .stat-item {
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .stat-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .category-distribution .progress {
+        background-color: #f8f9fa;
+    }
+
+    .form-control-color {
+        width: 60px;
+        padding: 0.375rem 0.375rem;
+    }
+
+    .table th {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-generate slug from name
+document.getElementById('categoryName').addEventListener('input', function() {
+    const name = this.value;
+    const slug = name.toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/--+/g, '-') // Replace multiple hyphens with single
+        .trim();
+
+    document.getElementById('categorySlug').value = slug;
+});
+
+// Color picker sync
+document.getElementById('categoryColor').addEventListener('input', function() {
+    document.getElementById('categoryColorHex').value = this.value;
+});
+
+document.getElementById('categoryColorHex').addEventListener('input', function() {
+    const hex = this.value;
+    if (/^#[0-9A-F]{6}$/i.test(hex)) {
+        document.getElementById('categoryColor').value = hex;
+    }
+});
+
+// Icon preview
+document.getElementById('categoryIcon').addEventListener('input', function() {
+    const iconName = this.value;
+    const preview = document.getElementById('iconPreview');
+    preview.className = `bi bi-${iconName}`;
+});
+
+// Search functionality
+document.getElementById('searchCategories').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const shouldShow = text.includes(searchTerm);
+        row.style.display = shouldShow ? '' : 'none';
+    });
+});
+
+// Form submission
+document.getElementById('categoryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const isEdit = document.getElementById('categoryId').value !== '';
+
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Guardando...';
+    submitBtn.disabled = true;
+
+    // Simulate save
+    setTimeout(() => {
+        alert(isEdit ? '¡Categoría actualizada exitosamente!' : '¡Categoría creada exitosamente!');
+
+        // Close modal and reset form
+        bootstrap.Modal.getInstance(document.getElementById('createCategoryModal')).hide();
+        this.reset();
+        document.getElementById('categoryId').value = '';
+        document.getElementById('modalTitle').textContent = 'Nueva Categoría';
+
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+
+        // Reload page to show changes
+        location.reload();
+    }, 1500);
+});
+
+// Edit category function
+function editCategory(id) {
+    // Simulate loading category data
+    const categoryData = {
+        1: { nombre: 'Excavadoras', slug: 'excavadora', descripcion: 'Maquinaria para excavación y movimiento de tierras', color: '#0d6efd', icono: 'gear', activo: true },
+        2: { nombre: 'Bulldozers', slug: 'bulldozer', descripcion: 'Maquinaria para nivelación y empuje', color: '#ffc107', icono: 'gear', activo: true },
+        3: { nombre: 'Grúas', slug: 'grua', descripcion: 'Equipos de levante y transporte vertical', color: '#28a745', icono: 'gear', activo: true },
+        4: { nombre: 'Cargadoras', slug: 'cargadora', descripcion: 'Maquinaria para carga y transporte de materiales', color: '#17a2b8', icono: 'gear', activo: true },
+        5: { nombre: 'Compactadoras', slug: 'compactadora', descripcion: 'Equipos para compactación de suelos', color: '#6c757d', icono: 'gear', activo: false }
+    };
+
+    const data = categoryData[id];
+    if (data) {
+        document.getElementById('categoryId').value = id;
+        document.getElementById('categoryName').value = data.nombre;
+        document.getElementById('categorySlug').value = data.slug;
+        document.getElementById('categoryDescription').value = data.descripcion;
+        document.getElementById('categoryColor').value = data.color;
+        document.getElementById('categoryColorHex').value = data.color;
+        document.getElementById('categoryIcon').value = data.icono;
+        document.getElementById('categoryActive').checked = data.activo;
+        document.getElementById('modalTitle').textContent = 'Editar Categoría';
+
+        // Update icon preview
+        document.getElementById('iconPreview').className = `bi bi-${data.icono}`;
+
+        // Show modal
+        new bootstrap.Modal(document.getElementById('createCategoryModal')).show();
+    }
+}
+
+// Delete category function
+function deleteCategory(id) {
+    if (confirm('¿Estás seguro de que quieres eliminar esta categoría?\n\nEsta acción no se puede deshacer y podría afectar las máquinas asociadas.')) {
+        alert('Categoría eliminada exitosamente');
+        location.reload();
+    }
+}
+
+// Activate category function
+function activateCategory(id) {
+    if (confirm('¿Quieres activar esta categoría?')) {
+        alert('Categoría activada exitosamente');
+        location.reload();
+    }
+}
+
+// Quick actions
+function importCategories() {
+    alert('Funcionalidad de importación en desarrollo');
+}
+
+function exportCategories() {
+    alert('Exportando lista de categorías...');
+}
+
+function generateReport() {
+    alert('Generando reporte de categorías...');
+}
+
+// Reset modal on close
+document.getElementById('createCategoryModal').addEventListener('hidden.bs.modal', function() {
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryId').value = '';
+    document.getElementById('modalTitle').textContent = 'Nueva Categoría';
+    document.getElementById('iconPreview').className = 'bi bi-gear';
+});
+</script>
+{% endblock %}

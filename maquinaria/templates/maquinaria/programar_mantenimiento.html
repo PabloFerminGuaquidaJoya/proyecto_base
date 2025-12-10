@@ -1,0 +1,571 @@
+{% extends 'base.html' %}
+
+{% block title %}Programar Mantenimiento - SENA{% endblock %}
+{% block page_title %}Programar Mantenimiento{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-plus me-2"></i>Programar Nuevo Mantenimiento
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:mantenimiento_dashboard' %}">Mantenimiento</a></li>
+                        <li class="breadcrumb-item active">Programar</li>
+                    </ol>
+                </nav>
+
+                <form method="post" id="maintenanceForm">
+                    {% csrf_token %}
+
+                    <!-- Maintenance Type Selection -->
+                    <div class="mb-4">
+                        <label class="form-label">Tipo de Mantenimiento *</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo" id="preventivo" value="preventivo" required>
+                                <label class="btn btn-outline-success w-100 p-3" for="preventivo">
+                                    <i class="bi bi-shield-check display-6"></i>
+                                    <div class="mt-2">
+                                        <strong>Preventivo</strong>
+                                        <div class="small text-muted">Programado regularmente</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo" id="correctivo" value="correctivo">
+                                <label class="btn btn-outline-warning w-100 p-3" for="correctivo">
+                                    <i class="bi bi-wrench display-6"></i>
+                                    <div class="mt-2">
+                                        <strong>Correctivo</strong>
+                                        <div class="small text-muted">Reparación de fallas</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo" id="emergencia" value="emergencia">
+                                <label class="btn btn-outline-danger w-100 p-3" for="emergencia">
+                                    <i class="bi bi-lightning display-6"></i>
+                                    <div class="mt-2">
+                                        <strong>Emergencia</strong>
+                                        <div class="small text-muted">Atención inmediata</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Left Column -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Información Básica</h6>
+
+                            <div class="mb-3">
+                                <label for="maquina" class="form-label">Máquina *</label>
+                                <select class="form-select" id="maquina" name="maquina" required onchange="loadMachineInfo()">
+                                    <option value="">Seleccionar máquina...</option>
+                                    {% for maquina in maquinas %}
+                                        <option value="{{ maquina.id }}"
+                                                data-codigo="{{ maquina.codigo_inventario }}"
+                                                data-ubicacion="{{ maquina.ubicacion }}"
+                                                data-estado="{{ maquina.estado }}"
+                                                {% if maquina_seleccionada and maquina.id == maquina_seleccionada.id %}selected{% endif %}>
+                                            {{ maquina.codigo_inventario }} - {{ maquina.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Machine Info -->
+                            <div class="alert alert-info d-none" id="machineInfo">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <img id="machineImage" src="/static/images/machine-placeholder.png" alt="Máquina" class="img-fluid rounded">
+                                    </div>
+                                    <div class="col-9">
+                                        <h6 id="machineName"></h6>
+                                        <div class="small">
+                                            <div><strong>Ubicación:</strong> <span id="machineLocation"></span></div>
+                                            <div><strong>Horas de Operación:</strong> <span id="machineHours"></span></div>
+                                            <div><strong>Último Mantenimiento:</strong> <span id="lastMaintenance"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="titulo" class="form-label">Título del Mantenimiento *</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required
+                                       placeholder="Ej: Cambio de aceite hidráulico y filtros">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="categoria" class="form-label">Categoría</label>
+                                <select class="form-select" id="categoria" name="categoria">
+                                    <option value="">Seleccionar categoría...</option>
+                                    <option value="motor">Motor</option>
+                                    <option value="hidraulico">Sistema Hidráulico</option>
+                                    <option value="transmision">Transmisión</option>
+                                    <option value="electrico">Sistema Eléctrico</option>
+                                    <option value="neumatico">Sistema Neumático</option>
+                                    <option value="estructura">Estructura</option>
+                                    <option value="general">Inspección General</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="prioridad" class="form-label">Prioridad *</label>
+                                <select class="form-select" id="prioridad" name="prioridad" required>
+                                    <option value="">Seleccionar prioridad...</option>
+                                    <option value="baja">Baja - Puede programarse con flexibilidad</option>
+                                    <option value="media">Media - Programar en las próximas semanas</option>
+                                    <option value="alta">Alta - Programar esta semana</option>
+                                    <option value="urgente">Urgente - Programar en 24-48 horas</option>
+                                    <option value="emergencia">Emergencia - Atención inmediata</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción Detallada</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="4"
+                                          placeholder="Describe las tareas específicas a realizar, componentes a revisar, etc."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Programación y Asignación</h6>
+
+                            <div class="mb-3">
+                                <label for="fecha_programada" class="form-label">Fecha Programada *</label>
+                                <input type="datetime-local" class="form-control" id="fecha_programada" name="fecha_programada" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="duracion_estimada" class="form-label">Duración Estimada (horas)</label>
+                                <select class="form-select" id="duracion_estimada" name="duracion_estimada">
+                                    <option value="">Seleccionar duración...</option>
+                                    <option value="1">1 hora</option>
+                                    <option value="2">2 horas</option>
+                                    <option value="4">4 horas (medio día)</option>
+                                    <option value="8">8 horas (día completo)</option>
+                                    <option value="16">2 días</option>
+                                    <option value="24">3 días</option>
+                                    <option value="custom">Personalizado</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 d-none" id="customDurationField">
+                                <label for="duracion_custom" class="form-label">Duración Personalizada (horas)</label>
+                                <input type="number" class="form-control" id="duracion_custom" name="duracion_custom" min="0.5" step="0.5">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="tecnico_asignado" class="form-label">Técnico Asignado *</label>
+                                <select class="form-select" id="tecnico_asignado" name="tecnico_asignado">
+                                    <option value="">Asignar automáticamente</option>
+                                    {% for tecnico in usuarios_tecnicos %}
+                                        <option value="{{ tecnico.id }}">{{ tecnico.nombre_completo }} - {{ tecnico.cargo|default:"Técnico" }}</option>
+                                    {% empty %}
+                                        <option value="" disabled>No hay técnicos disponibles</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Technician Availability -->
+                            <div class="alert alert-light d-none" id="technicianInfo">
+                                <h6>Disponibilidad del Técnico</h6>
+                                <div id="availabilityInfo">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="ubicacion" class="form-label">Ubicación del Mantenimiento</label>
+                                <select class="form-select" id="ubicacion" name="ubicacion">
+                                    <option value="">Ubicación actual de la máquina</option>
+                                    <option value="taller_principal">Taller Principal</option>
+                                    <option value="taller_norte">Taller Norte</option>
+                                    <option value="campo">En Campo</option>
+                                    <option value="proveedor">Taller Externo</option>
+                                </select>
+                            </div>
+
+                            <!-- Recurring Options -->
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="recurrente" name="recurrente" onchange="toggleRecurrence()">
+                                    <label class="form-check-label" for="recurrente">
+                                        Mantenimiento Recurrente
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="d-none" id="recurrenceOptions">
+                                <div class="card bg-light mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Configuración de Recurrencia</h6>
+
+                                        <div class="mb-3">
+                                            <label for="frecuencia" class="form-label">Frecuencia</label>
+                                            <select class="form-select" id="frecuencia" name="frecuencia">
+                                                <option value="semanal">Semanal</option>
+                                                <option value="quincenal">Quincenal</option>
+                                                <option value="mensual">Mensual</option>
+                                                <option value="trimestral">Trimestral</option>
+                                                <option value="semestral">Semestral</option>
+                                                <option value="anual">Anual</option>
+                                                <option value="horas">Por Horas de Operación</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label for="repeticiones" class="form-label">Repeticiones</label>
+                                                <input type="number" class="form-control" id="repeticiones" name="repeticiones" min="1" max="50" value="12">
+                                            </div>
+                                            <div class="col-6">
+                                                <label for="fecha_fin" class="form-label">Fecha Fin</label>
+                                                <input type="date" class="form-control" id="fecha_fin" name="fecha_fin">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources and Parts -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">Recursos y Repuestos</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Repuestos Necesarios</label>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" id="repuesto_item" placeholder="Código o nombre del repuesto">
+                                    <button class="btn btn-outline-primary" type="button" onclick="addPart()">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                                <div id="partsList" class="border rounded p-2 bg-light min-height-100">
+                                    <small class="text-muted">Los repuestos agregados aparecerán aquí</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="herramientas" class="form-label">Herramientas Especiales</label>
+                                <textarea class="form-control" id="herramientas" name="herramientas" rows="2"
+                                          placeholder="Ej: Llave dinamométrica, equipo de soldadura..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="costo_estimado" class="form-label">Costo Estimado</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="costo_estimado" name="costo_estimado" min="0" step="0.01">
+                                    <span class="input-group-text">COP</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="personal_adicional" class="form-label">Personal Adicional</label>
+                                <select class="form-select" id="personal_adicional" name="personal_adicional" multiple>
+                                    <option value="1">Juan Carlos Pérez</option>
+                                    <option value="2">María González</option>
+                                    <option value="3">Roberto Silva</option>
+                                    <option value="4">Ana Rodríguez</option>
+                                </select>
+                                <div class="form-text">Mantén Ctrl presionado para seleccionar múltiples técnicos</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="observaciones" class="form-label">Observaciones Especiales</label>
+                                <textarea class="form-control" id="observaciones" name="observaciones" rows="2"
+                                          placeholder="Precauciones de seguridad, condiciones especiales, etc."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-eye me-2"></i>Vista Previa del Mantenimiento
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div><strong>Tipo:</strong> <span id="preview-tipo">-</span></div>
+                                    <div><strong>Máquina:</strong> <span id="preview-maquina">-</span></div>
+                                    <div><strong>Fecha:</strong> <span id="preview-fecha">-</span></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div><strong>Técnico:</strong> <span id="preview-tecnico">-</span></div>
+                                    <div><strong>Duración:</strong> <span id="preview-duracion">-</span></div>
+                                    <div><strong>Prioridad:</strong> <span id="preview-prioridad">-</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'maquinaria:mantenimiento_dashboard' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-primary me-2" onclick="saveDraft()">
+                                <i class="bi bi-save me-2"></i>Guardar Borrador
+                            </button>
+                            <button type="submit" class="btn btn-success" id="submitBtn">
+                                <i class="bi bi-calendar-check me-2"></i>Programar Mantenimiento
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-check:checked + .btn-outline-success {
+        background-color: #198754;
+        border-color: #198754;
+        color: white;
+    }
+
+    .btn-check:checked + .btn-outline-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: black;
+    }
+
+    .btn-check:checked + .btn-outline-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .min-height-100 {
+        min-height: 100px;
+    }
+
+    .part-item {
+        display: inline-block;
+        background: #007bff;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .part-item .remove-part {
+        background: none;
+        border: none;
+        color: white;
+        margin-left: 0.5rem;
+        cursor: pointer;
+    }
+
+    .part-item .remove-part:hover {
+        color: #ffdddd;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let addedParts = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('fecha_programada').min = now.toISOString().slice(0, 16);
+
+    // Update preview when form changes
+    const formElements = document.querySelectorAll('input, select, textarea');
+    formElements.forEach(element => {
+        element.addEventListener('change', updatePreview);
+        element.addEventListener('input', updatePreview);
+    });
+
+    // Custom duration field toggle
+    document.getElementById('duracion_estimada').addEventListener('change', function() {
+        const customField = document.getElementById('customDurationField');
+        if (this.value === 'custom') {
+            customField.classList.remove('d-none');
+        } else {
+            customField.classList.add('d-none');
+        }
+    });
+});
+
+function loadMachineInfo() {
+    const machineId = document.getElementById('maquina').value;
+    const machineInfo = document.getElementById('machineInfo');
+
+    if (machineId) {
+        const machines = {
+            '1': {
+                name: 'Excavadora Caterpillar 320',
+                location: 'Sede Principal - Taller A',
+                hours: '1,250 hrs',
+                lastMaintenance: '15 Dic 2023'
+            },
+            '2': {
+                name: 'Bulldozer Komatsu D65',
+                location: 'Sede Norte - Campo B',
+                hours: '2,100 hrs',
+                lastMaintenance: '8 Ene 2024'
+            }
+        };
+
+        const machine = machines[machineId] || machines['1'];
+
+        document.getElementById('machineName').textContent = machine.name;
+        document.getElementById('machineLocation').textContent = machine.location;
+        document.getElementById('machineHours').textContent = machine.hours;
+        document.getElementById('lastMaintenance').textContent = machine.lastMaintenance;
+
+        machineInfo.classList.remove('d-none');
+    } else {
+        machineInfo.classList.add('d-none');
+    }
+
+    updatePreview();
+}
+
+function toggleRecurrence() {
+    const checkbox = document.getElementById('recurrente');
+    const options = document.getElementById('recurrenceOptions');
+
+    if (checkbox.checked) {
+        options.classList.remove('d-none');
+    } else {
+        options.classList.add('d-none');
+    }
+}
+
+function addPart() {
+    const input = document.getElementById('repuesto_item');
+    const partName = input.value.trim();
+
+    if (partName && !addedParts.includes(partName)) {
+        addedParts.push(partName);
+        updatePartsList();
+        input.value = '';
+    }
+}
+
+function removePart(partName) {
+    const index = addedParts.indexOf(partName);
+    if (index > -1) {
+        addedParts.splice(index, 1);
+        updatePartsList();
+    }
+}
+
+function updatePartsList() {
+    const container = document.getElementById('partsList');
+
+    if (addedParts.length === 0) {
+        container.innerHTML = '<small class="text-muted">Los repuestos agregados aparecerán aquí</small>';
+    } else {
+        container.innerHTML = addedParts.map(part =>
+            `<span class="part-item">
+                ${part}
+                <button type="button" class="remove-part" onclick="removePart('${part}')">×</button>
+            </span>`
+        ).join('');
+    }
+}
+
+function updatePreview() {
+    // Update maintenance type
+    const tipoRadio = document.querySelector('input[name="tipo_mantenimiento"]:checked');
+    document.getElementById('preview-tipo').textContent = tipoRadio ? tipoRadio.nextElementSibling.querySelector('strong').textContent : '-';
+
+    // Update machine
+    const maquinaSelect = document.getElementById('maquina');
+    document.getElementById('preview-maquina').textContent = maquinaSelect.selectedOptions[0] ? maquinaSelect.selectedOptions[0].textContent : '-';
+
+    // Update date
+    const fechaInput = document.getElementById('fecha_programada');
+    if (fechaInput.value) {
+        const fecha = new Date(fechaInput.value);
+        document.getElementById('preview-fecha').textContent = fecha.toLocaleString('es-ES');
+    } else {
+        document.getElementById('preview-fecha').textContent = '-';
+    }
+
+    // Update technician
+    const tecnicoSelect = document.getElementById('tecnico_asignado');
+    document.getElementById('preview-tecnico').textContent = tecnicoSelect.selectedOptions[0] ? tecnicoSelect.selectedOptions[0].textContent.split(' - ')[0] : '-';
+
+    // Update duration
+    const duracionSelect = document.getElementById('duracion_estimada');
+    if (duracionSelect.value === 'custom') {
+        const customDuration = document.getElementById('duracion_custom').value;
+        document.getElementById('preview-duracion').textContent = customDuration ? `${customDuration} horas` : '-';
+    } else {
+        document.getElementById('preview-duracion').textContent = duracionSelect.selectedOptions[0] ? duracionSelect.selectedOptions[0].textContent : '-';
+    }
+
+    // Update priority
+    const prioridadSelect = document.getElementById('prioridad');
+    document.getElementById('preview-prioridad').textContent = prioridadSelect.selectedOptions[0] ? prioridadSelect.selectedOptions[0].textContent.split(' - ')[0] : '-';
+}
+
+function saveDraft() {
+    alert('Borrador de mantenimiento guardado');
+}
+
+// Form submission - submit real form
+document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Validar campos requeridos
+    const maquina = document.getElementById('maquina').value;
+    const titulo = document.getElementById('titulo').value;
+    const descripcion = document.getElementById('descripcion').value;
+    const fechaProgramada = document.getElementById('fecha_programada').value;
+    const tipoMantenimiento = document.querySelector('input[name="tipo"]:checked');
+
+    if (!maquina || !titulo || !descripcion || !fechaProgramada || !tipoMantenimiento) {
+        alert('Por favor complete todos los campos requeridos');
+        return false;
+    }
+
+    // Mostrar loading
+    submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Programando...';
+    submitBtn.disabled = true;
+
+    // Permitir que el formulario se envíe normalmente
+    return true;
+});
+
+// Add part with Enter key
+document.getElementById('repuesto_item').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addPart();
+    }
+});
+</script>
+{% endblock %}

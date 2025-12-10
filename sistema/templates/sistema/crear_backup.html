@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Copia de Seguridad - SENA{% endblock %}
+{% block page_title %}Crear Copia de Seguridad{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva Copia de Seguridad
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="formCrearBackup">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">
+                            <i class="bi bi-tag me-1"></i>Nombre de la Copia
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="nombre"
+                               name="nombre"
+                               placeholder="Ej: Backup Semanal - 2025"
+                               required>
+                        <div class="form-text">
+                            Si no especificas un nombre, se generará uno automáticamente con la fecha y hora actual
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">
+                            <i class="bi bi-file-text me-1"></i>Descripción
+                        </label>
+                        <textarea class="form-control"
+                                  id="descripcion"
+                                  name="descripcion"
+                                  rows="3"
+                                  placeholder="Describe el propósito de esta copia de seguridad..."></textarea>
+                        <div class="form-text">
+                            Opcional: Agrega detalles sobre el estado actual del sistema o el motivo del backup
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle me-2"></i>Información del Proceso:</h6>
+                        <ul class="mb-0 small">
+                            <li>Se creará una copia completa de la base de datos actual</li>
+                            <li>El proceso puede tomar algunos segundos dependiendo del tamaño</li>
+                            <li>La copia se almacenará en el servidor en la carpeta de backups</li>
+                            <li>Podrás descargarla o restaurarla cuando lo necesites</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'sistema:gestionar_backups' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="btnCrear">
+                            <i class="bi bi-shield-check me-1"></i>Crear Copia de Seguridad
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Consejos</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success"><i class="bi bi-check-circle me-1"></i>Cuándo Crear Copias:</h6>
+                        <ul class="small">
+                            <li>Antes de actualizaciones importantes</li>
+                            <li>Después de cambios significativos en los datos</li>
+                            <li>De forma periódica (diaria, semanal, mensual)</li>
+                            <li>Antes de operaciones masivas</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary"><i class="bi bi-shield-check me-1"></i>Buenas Prácticas:</h6>
+                        <ul class="small">
+                            <li>Usa nombres descriptivos y con fechas</li>
+                            <li>Descarga copias críticas a ubicaciones externas</li>
+                            <li>Verifica regularmente que las copias funcionen</li>
+                            <li>Elimina copias antiguas que ya no necesites</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('formCrearBackup').addEventListener('submit', function(e) {
+    const btn = document.getElementById('btnCrear');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creando...';
+});
+</script>
+{% endblock %}

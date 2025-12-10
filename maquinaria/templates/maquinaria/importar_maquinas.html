@@ -1,0 +1,648 @@
+{% extends 'base.html' %}
+
+{% block title %}Importar Máquinas - SENA{% endblock %}
+{% block page_title %}Importar Máquinas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-upload me-2"></i>Importar Máquinas desde Archivo
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:lista_maquinas' %}">Máquinas</a></li>
+                        <li class="breadcrumb-item active">Importar</li>
+                    </ol>
+                </nav>
+
+                <!-- Import Steps -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between">
+                            <div class="step-item active">
+                                <div class="step-circle">1</div>
+                                <div class="step-label">Cargar Archivo</div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-circle">2</div>
+                                <div class="step-label">Validar Datos</div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-circle">3</div>
+                                <div class="step-label">Confirmar Importación</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 1: File Upload -->
+                <div id="step1" class="import-step">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Seleccionar Archivo</h6>
+
+                            <div class="mb-3">
+                                <label for="importFile" class="form-label">Archivo de Importación</label>
+                                <input type="file" class="form-control" id="importFile" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event)">
+                                <div class="form-text">
+                                    Formatos soportados: CSV, Excel (.xlsx, .xls)
+                                    <br>Tamaño máximo: 10MB
+                                </div>
+                            </div>
+
+                            <!-- File Info -->
+                            <div class="alert alert-info d-none" id="fileInfo">
+                                <h6><i class="bi bi-file-earmark-text me-2"></i>Información del Archivo</h6>
+                                <div id="fileDetails"></div>
+                            </div>
+
+                            <!-- Import Options -->
+                            <div class="mb-3">
+                                <label class="form-label">Opciones de Importación</label>
+
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="skipDuplicates" checked>
+                                    <label class="form-check-label" for="skipDuplicates">
+                                        Omitir máquinas duplicadas (basado en código)
+                                    </label>
+                                </div>
+
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="updateExisting">
+                                    <label class="form-check-label" for="updateExisting">
+                                        Actualizar máquinas existentes
+                                    </label>
+                                </div>
+
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="validateData" checked>
+                                    <label class="form-check-label" for="validateData">
+                                        Validar datos antes de importar
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="generateReport" checked>
+                                    <label class="form-check-label" for="generateReport">
+                                        Generar reporte de importación
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Formato Requerido</h6>
+
+                            <div class="alert alert-warning">
+                                <h6><i class="bi bi-info-circle me-2"></i>Estructura del Archivo</h6>
+                                <p class="mb-2">El archivo debe contener las siguientes columnas (en este orden):</p>
+                                <ol class="mb-0">
+                                    <li><strong>codigo_inventario</strong> - Código único</li>
+                                    <li><strong>nombre</strong> - Nombre de la máquina</li>
+                                    <li><strong>categoria</strong> - Categoría</li>
+                                    <li><strong>marca</strong> - Marca</li>
+                                    <li><strong>modelo</strong> - Modelo</li>
+                                    <li><strong>numero_serie</strong> - Número de serie</li>
+                                    <li><strong>año_fabricacion</strong> - Año</li>
+                                    <li><strong>ubicacion</strong> - Ubicación actual</li>
+                                    <li><strong>estado</strong> - Estado operativo</li>
+                                </ol>
+                            </div>
+
+                            <div class="mb-3">
+                                <button class="btn btn-outline-secondary btn-sm w-100" onclick="downloadTemplate()">
+                                    <i class="bi bi-download me-2"></i>Descargar Plantilla CSV
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <button class="btn btn-outline-info btn-sm w-100" onclick="downloadExcelTemplate()">
+                                    <i class="bi bi-file-earmark-excel me-2"></i>Descargar Plantilla Excel
+                                </button>
+                            </div>
+
+                            <!-- Sample Data -->
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Ejemplo de Datos</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th style="font-size: 0.75rem;">Código</th>
+                                                    <th style="font-size: 0.75rem;">Nombre</th>
+                                                    <th style="font-size: 0.75rem;">Categoría</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td style="font-size: 0.75rem;">EXC-001</td>
+                                                    <td style="font-size: 0.75rem;">Excavadora CAT</td>
+                                                    <td style="font-size: 0.75rem;">excavadora</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="font-size: 0.75rem;">BUL-002</td>
+                                                    <td style="font-size: 0.75rem;">Bulldozer Komatsu</td>
+                                                    <td style="font-size: 0.75rem;">bulldozer</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button class="btn btn-primary" onclick="processFile()" id="processBtn" disabled>
+                            Procesar Archivo <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Data Validation -->
+                <div id="step2" class="import-step d-none">
+                    <h6 class="text-primary mb-3">Validación de Datos</h6>
+
+                    <!-- Processing Status -->
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="spinner-border spinner-border-sm me-2" id="validationSpinner"></div>
+                            <span id="validationStatus">Validando datos...</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" id="validationProgress" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Validation Results -->
+                    <div class="row" id="validationResults" style="display: none;">
+                        <div class="col-md-4">
+                            <div class="card text-center bg-success text-white">
+                                <div class="card-body">
+                                    <i class="bi bi-check-circle fs-2"></i>
+                                    <h4 class="mt-2" id="validRecords">0</h4>
+                                    <p class="mb-0">Registros Válidos</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center bg-warning text-dark">
+                                <div class="card-body">
+                                    <i class="bi bi-exclamation-triangle fs-2"></i>
+                                    <h4 class="mt-2" id="warningRecords">0</h4>
+                                    <p class="mb-0">Con Advertencias</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center bg-danger text-white">
+                                <div class="card-body">
+                                    <i class="bi bi-x-circle fs-2"></i>
+                                    <h4 class="mt-2" id="errorRecords">0</h4>
+                                    <p class="mb-0">Con Errores</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Results -->
+                    <div class="mt-4" id="detailedResults" style="display: none;">
+                        <div class="card">
+                            <div class="card-header">
+                                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" data-bs-toggle="tab" href="#validTab">Válidos</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#warningTab">Advertencias</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#errorTab">Errores</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="validTab">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Código</th>
+                                                        <th>Nombre</th>
+                                                        <th>Categoría</th>
+                                                        <th>Marca</th>
+                                                        <th>Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="validTableBody">
+                                                    <!-- Populated dynamically -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="warningTab">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Fila</th>
+                                                        <th>Campo</th>
+                                                        <th>Valor</th>
+                                                        <th>Advertencia</th>
+                                                        <th>Acción</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="warningTableBody">
+                                                    <!-- Populated dynamically -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="errorTab">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Fila</th>
+                                                        <th>Campo</th>
+                                                        <th>Valor</th>
+                                                        <th>Error</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="errorTableBody">
+                                                    <!-- Populated dynamically -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-secondary" onclick="goToStep(1)">
+                            <i class="bi bi-arrow-left me-2"></i>Volver
+                        </button>
+                        <button class="btn btn-success" onclick="goToStep(3)" id="confirmBtn" disabled>
+                            Continuar con Importación <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Import Confirmation -->
+                <div id="step3" class="import-step d-none">
+                    <h6 class="text-primary mb-3">Confirmar Importación</h6>
+
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle me-2"></i>Resumen de Importación</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="mb-0">
+                                    <li>Registros a importar: <strong id="summaryValid">0</strong></li>
+                                    <li>Registros con advertencias: <strong id="summaryWarnings">0</strong></li>
+                                    <li>Registros omitidos: <strong id="summaryErrors">0</strong></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="mb-0">
+                                    <li>Máquinas nuevas: <strong id="summaryNew">0</strong></li>
+                                    <li>Actualizaciones: <strong id="summaryUpdates">0</strong></li>
+                                    <li>Duplicados omitidos: <strong id="summaryDuplicates">0</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final Options -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Opciones Finales</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="notifyUsers">
+                                <label class="form-check-label" for="notifyUsers">
+                                    Notificar a usuarios sobre nuevas máquinas
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="generateQRCodes">
+                                <label class="form-check-label" for="generateQRCodes">
+                                    Generar códigos QR automáticamente
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="schedulePreventive">
+                                <label class="form-check-label" for="schedulePreventive">
+                                    Programar mantenimiento preventivo inicial
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Import Progress -->
+                    <div class="mt-4 d-none" id="importProgress">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="spinner-border spinner-border-sm me-2"></div>
+                            <span id="importStatus">Importando máquinas...</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" id="importProgressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-secondary" onclick="goToStep(2)" id="backToValidationBtn">
+                            <i class="bi bi-arrow-left me-2"></i>Volver a Validación
+                        </button>
+                        <button class="btn btn-success" onclick="executeImport()" id="executeImportBtn">
+                            <i class="bi bi-upload me-2"></i>Ejecutar Importación
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .step-item.active .step-circle {
+        background-color: #0d6efd;
+    }
+
+    .step-item.completed .step-circle {
+        background-color: #198754;
+    }
+
+    .step-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .step-item.active .step-label {
+        color: #0d6efd;
+        font-weight: bold;
+    }
+
+    .import-step {
+        min-height: 400px;
+    }
+
+    .table-sm th,
+    .table-sm td {
+        padding: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .progress {
+        height: 8px;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.5rem 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentStep = 1;
+let fileData = null;
+let validationResults = null;
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    const processBtn = document.getElementById('processBtn');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileDetails = document.getElementById('fileDetails');
+
+    if (file) {
+        // Display file information
+        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+        fileDetails.innerHTML = `
+            <div><strong>Nombre:</strong> ${file.name}</div>
+            <div><strong>Tamaño:</strong> ${fileSize} MB</div>
+            <div><strong>Tipo:</strong> ${file.type || 'No especificado'}</div>
+            <div><strong>Última modificación:</strong> ${new Date(file.lastModified).toLocaleString('es-ES')}</div>
+        `;
+
+        fileInfo.classList.remove('d-none');
+        processBtn.disabled = false;
+        fileData = file;
+    } else {
+        fileInfo.classList.add('d-none');
+        processBtn.disabled = true;
+        fileData = null;
+    }
+}
+
+function downloadTemplate() {
+    // Simulate downloading CSV template
+    const csvContent = "codigo_inventario,nombre,categoria,marca,modelo,numero_serie,año_fabricacion,ubicacion,estado\n" +
+                      "EXC-001,Excavadora Caterpillar 320,excavadora,Caterpillar,320,CAT320-2020-001,2020,Sede Principal,operativa\n" +
+                      "BUL-002,Bulldozer Komatsu D65,bulldozer,Komatsu,D65,KOM-D65-2019-002,2019,Sede Norte,mantenimiento";
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantilla_maquinas.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function downloadExcelTemplate() {
+    alert('Descargando plantilla Excel...');
+    // In real implementation, this would download an Excel file
+}
+
+function processFile() {
+    if (!fileData) return;
+
+    goToStep(2);
+    simulateValidation();
+}
+
+function simulateValidation() {
+    const spinner = document.getElementById('validationSpinner');
+    const status = document.getElementById('validationStatus');
+    const progress = document.getElementById('validationProgress');
+    const results = document.getElementById('validationResults');
+    const detailed = document.getElementById('detailedResults');
+    const confirmBtn = document.getElementById('confirmBtn');
+
+    let progressValue = 0;
+    const interval = setInterval(() => {
+        progressValue += 10;
+        progress.style.width = progressValue + '%';
+
+        if (progressValue >= 100) {
+            clearInterval(interval);
+            spinner.classList.add('d-none');
+            status.textContent = 'Validación completada';
+
+            // Show results
+            document.getElementById('validRecords').textContent = '8';
+            document.getElementById('warningRecords').textContent = '2';
+            document.getElementById('errorRecords').textContent = '1';
+
+            results.style.display = 'block';
+            detailed.style.display = 'block';
+            confirmBtn.disabled = false;
+
+            populateValidationTables();
+        }
+    }, 200);
+}
+
+function populateValidationTables() {
+    // Populate valid records table
+    const validTableBody = document.getElementById('validTableBody');
+    validTableBody.innerHTML = `
+        <tr>
+            <td>EXC-001</td>
+            <td>Excavadora Caterpillar 320</td>
+            <td>excavadora</td>
+            <td>Caterpillar</td>
+            <td><span class="badge bg-success">Válido</span></td>
+        </tr>
+        <tr>
+            <td>BUL-002</td>
+            <td>Bulldozer Komatsu D65</td>
+            <td>bulldozer</td>
+            <td>Komatsu</td>
+            <td><span class="badge bg-success">Válido</span></td>
+        </tr>
+    `;
+
+    // Populate warnings table
+    const warningTableBody = document.getElementById('warningTableBody');
+    warningTableBody.innerHTML = `
+        <tr>
+            <td>3</td>
+            <td>año_fabricacion</td>
+            <td>2025</td>
+            <td>Año futuro detectado</td>
+            <td><button class="btn btn-sm btn-warning">Corregir</button></td>
+        </tr>
+    `;
+
+    // Populate errors table
+    const errorTableBody = document.getElementById('errorTableBody');
+    errorTableBody.innerHTML = `
+        <tr>
+            <td>5</td>
+            <td>codigo_inventario</td>
+            <td></td>
+            <td>Campo obligatorio vacío</td>
+        </tr>
+    `;
+}
+
+function goToStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.import-step').forEach(el => el.classList.add('d-none'));
+
+    // Show target step
+    document.getElementById('step' + step).classList.remove('d-none');
+
+    // Update step indicators
+    document.querySelectorAll('.step-item').forEach((el, index) => {
+        el.classList.remove('active', 'completed');
+        if (index + 1 === step) {
+            el.classList.add('active');
+        } else if (index + 1 < step) {
+            el.classList.add('completed');
+        }
+    });
+
+    currentStep = step;
+
+    if (step === 3) {
+        updateSummary();
+    }
+}
+
+function updateSummary() {
+    document.getElementById('summaryValid').textContent = '8';
+    document.getElementById('summaryWarnings').textContent = '2';
+    document.getElementById('summaryErrors').textContent = '1';
+    document.getElementById('summaryNew').textContent = '7';
+    document.getElementById('summaryUpdates').textContent = '1';
+    document.getElementById('summaryDuplicates').textContent = '2';
+}
+
+function executeImport() {
+    const executeBtn = document.getElementById('executeImportBtn');
+    const backBtn = document.getElementById('backToValidationBtn');
+    const importProgress = document.getElementById('importProgress');
+    const importStatus = document.getElementById('importStatus');
+    const importProgressBar = document.getElementById('importProgressBar');
+
+    executeBtn.disabled = true;
+    backBtn.disabled = true;
+    importProgress.classList.remove('d-none');
+
+    let progressValue = 0;
+    const interval = setInterval(() => {
+        progressValue += 12.5;
+        importProgressBar.style.width = progressValue + '%';
+
+        if (progressValue <= 25) {
+            importStatus.textContent = 'Validando datos finales...';
+        } else if (progressValue <= 50) {
+            importStatus.textContent = 'Creando registros de máquinas...';
+        } else if (progressValue <= 75) {
+            importStatus.textContent = 'Generando códigos QR...';
+        } else if (progressValue < 100) {
+            importStatus.textContent = 'Finalizando importación...';
+        }
+
+        if (progressValue >= 100) {
+            clearInterval(interval);
+            importStatus.textContent = 'Importación completada exitosamente';
+
+            setTimeout(() => {
+                alert('¡Importación completada! Se han importado 8 máquinas correctamente.');
+                window.location.href = '{% url "maquinaria:lista_maquinas" %}';
+            }, 1000);
+        }
+    }, 300);
+}
+</script>
+{% endblock %}

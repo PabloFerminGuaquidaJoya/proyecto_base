@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - SENA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="bi bi-pencil-square"></i> Editar Documento</h2>
+                    <p class="text-muted">Modifica la información del documento</p>
+                </div>
+                <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> Por favor corrige los siguientes errores:
+                            <ul class="mb-0 mt-2">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <!-- Título -->
+                            <div class="col-12">
+                                <label class="form-label">Título del documento <span class="text-danger">*</span></label>
+                                {{ form.titulo }}
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                {{ form.descripcion }}
+                            </div>
+
+                            <!-- Tipo y Categoría -->
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo de documento <span class="text-danger">*</span></label>
+                                {{ form.tipo_documento }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Categoría <span class="text-danger">*</span></label>
+                                {{ form.categoria }}
+                            </div>
+
+                            <!-- Archivo actual -->
+                            <div class="col-12">
+                                <label class="form-label">Archivo actual</label>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-file-earmark"></i> {{ documento.archivo.name|split:'/'|last }}
+                                    <span class="badge bg-secondary">{{ documento.tamaño_mb }} MB</span>
+                                </div>
+                            </div>
+
+                            <!-- Nuevo archivo (opcional) -->
+                            <div class="col-12">
+                                <label class="form-label">Reemplazar archivo (opcional)</label>
+                                {{ form.archivo }}
+                                <div class="form-text">Solo selecciona un nuevo archivo si deseas reemplazar el actual.</div>
+                            </div>
+
+                            <!-- Versión y Autor -->
+                            <div class="col-md-6">
+                                <label class="form-label">Versión</label>
+                                {{ form.version }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Autor original</label>
+                                {{ form.autor_original }}
+                            </div>
+
+                            <!-- Palabras clave -->
+                            <div class="col-12">
+                                <label class="form-label">Palabras clave</label>
+                                {{ form.palabras_clave_texto }}
+                                <div class="form-text">{{ form.palabras_clave_texto.help_text }}</div>
+                            </div>
+
+                            <!-- Nivel de acceso -->
+                            <div class="col-md-6">
+                                <label class="form-label">Nivel de acceso</label>
+                                {{ form.nivel_acceso }}
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="col-md-6">
+                                <label class="form-label">Estado</label>
+                                {{ form.estado }}
+                            </div>
+
+                            <!-- Fechas -->
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de publicación</label>
+                                {{ form.fecha_publicacion }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de vencimiento</label>
+                                {{ form.fecha_vencimiento }}
+                            </div>
+
+                            <!-- Máquina relacionada -->
+                            <div class="col-12">
+                                <label class="form-label">Máquina relacionada</label>
+                                {{ form.maquina_relacionada }}
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="col-12">
+                                <hr>
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle"></i> Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Guardar cambios
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

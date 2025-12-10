@@ -1,0 +1,295 @@
+================================================================================
+  PROYECTO PROTOTIPO SENA - GUÍA RÁPIDA
+================================================================================
+
+📋 ÍNDICE RÁPIDO
+================================================================================
+
+1. INICIO RÁPIDO
+2. ESTRUCTURA DEL PROYECTO
+3. COMANDOS ÚTILES
+4. SCRIPTS DISPONIBLES
+5. MÓDULOS PRINCIPALES
+6. DOCUMENTACIÓN
+7. SOLUCIÓN DE PROBLEMAS
+
+================================================================================
+1. INICIO RÁPIDO
+================================================================================
+
+🚀 Para iniciar el servidor:
+
+1. Abrir terminal en esta carpeta
+2. Ejecutar:
+
+   venv\Scripts\python manage.py runserver
+
+3. Abrir navegador en: http://127.0.0.1:8000/
+
+📊 Para poblar datos iniciales:
+
+   python scripts/poblacion/ejecutar_poblacion.py
+
+✅ Para verificar datos:
+
+   python scripts/verificacion/verificar_datos.py
+
+================================================================================
+2. ESTRUCTURA DEL PROYECTO
+================================================================================
+
+📁 Carpetas Principales:
+
+   myworld/app_prototipo/
+   ├── manage.py                    ← Comando principal Django
+   ├── db.sqlite3                   ← Base de datos
+   │
+   ├── 📱 APPS (Módulos)
+   │   ├── usuarios/                ← Gestión de usuarios
+   │   ├── maquinaria/              ← Gestión de máquinas
+   │   ├── documentos/              ← Sistema de documentos ⭐
+   │   ├── reportes/                ← Sistema de reportes
+   │   ├── sistema/                 ← Configuración
+   │   └── api/                     ← API REST
+   │
+   ├── 📜 SCRIPTS (Organizados)     ⭐ NUEVO
+   │   ├── poblacion/               ← Poblar base de datos
+   │   ├── verificacion/            ← Verificar datos
+   │   └── tests/                   ← Scripts de pruebas
+   │
+   ├── 📄 TEMPLATES
+   │   └── templates/               ← Plantillas HTML
+   │
+   ├── 📦 STATIC
+   │   ├── static/                  ← CSS, JS, imágenes
+   │   └── staticfiles/             ← Archivos compilados
+   │
+   ├── 📤 MEDIA
+   │   └── media/                   ← Archivos subidos
+   │
+   ├── 🔧 VENV
+   │   └── venv/                    ← Entorno virtual Python
+   │
+   └── 📚 DOCS
+       ├── ESTRUCTURA_PROYECTO.md           ← Estructura completa
+       ├── EXPLICACION_MODULO_DOCUMENTOS.txt ← Documentos detallado
+       ├── INSTRUCCIONES_SETUP.md
+       └── LEEME.txt                        ← Este archivo
+
+================================================================================
+3. COMANDOS ÚTILES
+================================================================================
+
+🔧 Django:
+
+   # Iniciar servidor
+   venv\Scripts\python manage.py runserver
+
+   # Crear migraciones
+   python manage.py makemigrations
+
+   # Aplicar migraciones
+   python manage.py migrate
+
+   # Crear superusuario
+   python manage.py createsuperuser
+
+   # Abrir shell de Django
+   python manage.py shell
+
+   # Recopilar archivos estáticos
+   python manage.py collectstatic
+
+📦 Scripts del Proyecto:
+
+   # Poblar datos de documentos (RECOMENDADO)
+   python scripts/poblacion/ejecutar_poblacion.py
+
+   # Verificar datos de documentos
+   python scripts/verificacion/verificar_datos.py
+
+   # Verificar usuarios
+   python scripts/verificacion/verificar_usuarios.py
+
+   # Test de endpoints
+   python scripts/tests/test_endpoint.py
+
+🔍 SQLite (Base de Datos):
+
+   # Abrir base de datos
+   sqlite3 db.sqlite3
+
+   # Ver tablas
+   .tables
+
+   # Salir
+   .quit
+
+================================================================================
+4. SCRIPTS DISPONIBLES
+================================================================================
+
+📁 scripts/poblacion/ - Poblar Base de Datos
+
+   ⭐ ejecutar_poblacion.py      ← RECOMENDADO para documentos
+      poblar_documentos.py
+      poblar_documentos.sql
+      crear_docs_shell.py
+      crear_datos_iniciales.py
+      crear_perfil_usuario.py
+      crear_tipos_reporte_script.py
+
+   📖 Ver: scripts/poblacion/README.md
+
+📁 scripts/verificacion/ - Verificar Datos
+
+      verificar_datos.py          ← Verifica tipos y categorías
+      verificar_usuarios.py       ← Verifica usuarios
+
+   📖 Ver: scripts/verificacion/README.md
+
+📁 scripts/tests/ - Testing
+
+      test_endpoint.py            ← Prueba endpoints API
+
+   📖 Ver: scripts/tests/README.md
+
+================================================================================
+5. MÓDULOS PRINCIPALES
+================================================================================
+
+👥 USUARIOS (/usuarios/)
+   - Login/Logout
+   - Registro
+   - Perfiles
+   - Dashboard
+
+⚙️ MAQUINARIA (/maquinaria/)
+   - Gestión de máquinas
+   - Categorías
+   - Alertas
+   - Mantenimiento
+
+📄 DOCUMENTOS (/documentos/) ⭐ COMPLETO
+   - Subir documentos (PDF, Word, Excel, etc.)
+   - Búsqueda avanzada
+   - 8 tipos de documento
+   - 8 categorías
+   - Control de acceso
+   - Estadísticas
+   - Vinculación con máquinas
+
+📊 REPORTES (/reportes/)
+   - Generar reportes
+   - Múltiples tipos
+   - Exportar PDF/Excel
+   - Historial
+
+🔧 SISTEMA (/sistema/)
+   - Configuración
+   - Logs
+   - Parámetros
+
+🌐 API (/api/)
+   - REST API
+   - JSON
+   - Autenticación
+
+================================================================================
+6. DOCUMENTACIÓN
+================================================================================
+
+📚 Archivos de Documentación:
+
+   LEEME.txt                          ← Este archivo (Guía rápida)
+   ESTRUCTURA_PROYECTO.md             ← Estructura completa detallada
+   EXPLICACION_MODULO_DOCUMENTOS.txt  ← Módulo de documentos (800+ líneas)
+   INSTRUCCIONES_SETUP.md             ← Instalación y configuración
+   INSTRUCCIONES_MIGRACIONES.md       ← Guía de migraciones
+   ERRORES_CORREGIDOS.md              ← Soluciones a errores comunes
+   inicio_entorno.txt                 ← Variables de entorno
+
+📁 READMEs de Scripts:
+
+   scripts/README.md                  ← Índice general
+   scripts/poblacion/README.md        ← Scripts de población
+   scripts/verificacion/README.md     ← Scripts de verificación
+   scripts/tests/README.md            ← Scripts de testing
+
+================================================================================
+7. SOLUCIÓN DE PROBLEMAS
+================================================================================
+
+❌ Error: "No module named 'django'"
+
+   ✅ Solución: Activar entorno virtual
+      venv\Scripts\activate
+
+❌ Error: "db.sqlite3 not found"
+
+   ✅ Solución: Ejecutar desde la carpeta correcta
+      cd C:\INFORMACION\Desktop\prototipo_0.1\myworld\app_prototipo
+
+❌ Error: "No such table"
+
+   ✅ Solución: Aplicar migraciones
+      python manage.py migrate
+
+❌ Error al subir documentos
+
+   ✅ Solución: Verificar que existe carpeta media/
+      mkdir media
+
+❌ No hay tipos de documento
+
+   ✅ Solución: Ejecutar script de población
+      python scripts/poblacion/ejecutar_poblacion.py
+
+❌ Puerto 8000 en uso
+
+   ✅ Solución: Usar otro puerto
+      python manage.py runserver 8001
+
+================================================================================
+🔗 ENLACES ÚTILES
+================================================================================
+
+📖 Documentación Django:
+   https://docs.djangoproject.com/en/5.2/
+
+📖 Bootstrap 5:
+   https://getbootstrap.com/docs/5.0/
+
+📖 Bootstrap Icons:
+   https://icons.getbootstrap.com/
+
+📖 Django REST Framework:
+   https://www.django-rest-framework.org/
+
+================================================================================
+📞 SOPORTE
+================================================================================
+
+Para más información, consulta:
+
+1. ESTRUCTURA_PROYECTO.md - Vista completa del proyecto
+2. EXPLICACION_MODULO_DOCUMENTOS.txt - Módulo de documentos detallado
+3. scripts/*/README.md - Documentación de cada script
+
+================================================================================
+✅ CHECKLIST DE INICIO
+================================================================================
+
+□ 1. Activar entorno virtual (venv\Scripts\activate)
+□ 2. Instalar dependencias (pip install -r requirements.txt)
+□ 3. Aplicar migraciones (python manage.py migrate)
+□ 4. Poblar datos (python scripts/poblacion/ejecutar_poblacion.py)
+□ 5. Crear superusuario (python manage.py createsuperuser)
+□ 6. Iniciar servidor (python manage.py runserver)
+□ 7. Abrir http://127.0.0.1:8000/
+
+================================================================================
+Última Actualización: 9 de Octubre 2025
+Versión: 0.1
+Estado: En Desarrollo
+================================================================================

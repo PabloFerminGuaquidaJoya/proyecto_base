@@ -1,0 +1,1011 @@
+<!-- templates/usuarios/modern_login.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - SENA Maquinaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #b4e29eff 0%, #394234ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            min-height: 600px;
+            display: flex;
+        }
+
+        .login-left {
+            flex: 1;
+            background: linear-gradient(135deg, #39A900, #2E8000);
+            color: white;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+        
+        .login-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        .login-logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .login-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .login-right {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .login-form h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-form p {
+            color: #718096;
+            margin-bottom: 2rem;
+        }
+        
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+        
+        .form-control:focus {
+            border-color: #39A900;
+            box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.25);
+            background: white;
+        }
+
+        .form-floating > label {
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #39A900, #2E8000);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(57, 169, 0, 0.3);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .btn-login.loading {
+            color: transparent;
+        }
+        
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .forgot-password {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .forgot-password a {
+            color: #39A900;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #2E8000;
+            text-decoration: underline;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+        }
+
+        .register-link a {
+            color: #39A900;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .register-link a:hover {
+            color: #2E8000;
+            text-decoration: underline;
+        }
+        
+        .alert {
+            border-radius: 12px;
+            border: none;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.25rem;
+        }
+        
+        .alert-danger {
+            background: rgba(245, 101, 101, 0.1);
+            color: #c53030;
+            border-left: 4px solid #f56565;
+        }
+        
+        .alert-success {
+            background: rgba(72, 187, 120, 0.1);
+            color: #2f855a;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-check-input {
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            margin-right: 0.75rem;
+        }
+        
+        .form-check-input:checked {
+            background-color: #39A900;
+            border-color: #39A900;
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+        }
+        
+        .features-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .features-list i {
+            color: rgba(255,255,255,0.8);
+            margin-right: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                margin: 1rem;
+                max-width: none;
+                min-height: auto;
+            }
+            
+            .login-left {
+                padding: 2rem;
+                min-height: 300px;
+            }
+            
+            .login-right {
+                padding: 2rem;
+            }
+            
+            .login-title {
+                font-size: 2rem;
+            }
+            
+            .login-logo {
+                font-size: 3rem;
+            }
+        }
+        
+        .social-login {
+            margin-top: 1.5rem;
+        }
+        
+        .btn-social {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-social:hover {
+            border-color: #39A900;
+            color: #39A900;
+            transform: translateY(-1px);
+        }
+
+        .login-subtitle-main {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .version-info {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .accessibility-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1001;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid #39A900;
+        }
+
+        .accessibility-toggle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #39A900, #2E8000);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(57, 169, 0, 0.3);
+        }
+
+        .accessibility-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(57, 169, 0, 0.4);
+        }
+
+        .accessibility-menu {
+            display: none;
+            padding: 20px;
+            min-width: 280px;
+            background: white;
+        }
+
+        .accessibility-menu.show {
+            display: block;
+        }
+
+        .accessibility-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .accessibility-option:last-child {
+            border-bottom: none;
+        }
+
+        .accessibility-option label {
+            font-weight: 500;
+            color: #00324d;
+            margin-bottom: 0;
+        }
+
+        .theme-toggle, .font-size-controls button, .tts-toggle {
+            background: #39A900;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover, .font-size-controls button:hover, .tts-toggle:hover {
+            background: #2E8000;
+            transform: scale(1.05);
+        }
+
+        .font-size-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .font-size-controls button {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.dark-theme {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%) !important;
+        }
+
+        body.dark-theme .login-container {
+            background-color: #2d2d2d !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .login-right {
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .login-form h2 {
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .login-form p {
+            color: #cccccc !important;
+        }
+
+        body.dark-theme .form-control {
+            background-color: #3d3d3d !important;
+            border-color: #555 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .form-floating > label {
+            color: #cccccc !important;
+        }
+
+        body.dark-theme .accessibility-panel {
+            background-color: #2d2d2d !important;
+        }
+
+        body.dark-theme .accessibility-menu {
+            background-color: #2d2d2d !important;
+        }
+
+        body.dark-theme .accessibility-option label {
+            color: #ffffff !important;
+        }
+
+        body.font-small {
+            font-size: 14px !important;
+        }
+
+        body.font-large {
+            font-size: 18px !important;
+        }
+
+        body.font-xlarge {
+            font-size: 22px !important;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #718096;
+            z-index: 999;
+        }
+
+        body.dark-theme .footer {
+            background: rgba(45, 45, 45, 0.95) !important;
+            border-top-color: #555 !important;
+            color: #cccccc !important;
+        }
+
+        .footer a {
+            color: #39A900;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #2E8000;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Left Panel -->
+        <div class="login-left">
+            <div class="sena-logo mb-4">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMTAgMTBIMTEwVjcwSDEwVjEwWiIgZmlsbD0iI0ZGRkZGRiIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjIiLz4KPHRleHQgeD0iNjAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMzlBOTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSJib2xkIj5TRU5BPC90ZXh0Pgo8L3N2Zz4K"
+                     alt="Logo SENA" style="width: 120px; height: 80px;">
+            </div>
+            <h1 class="login-title">SENA</h1>
+            <h2 class="login-subtitle-main">Sistema de Maquinaria</h2>
+            <p class="login-subtitle">
+                Gestión integral de inventario y mantenimiento con tecnología de vanguardia
+            </p>
+            
+            <ul class="features-list">
+                <li>
+                    <i class="bi bi-gear"></i>
+                    <span>Gestión completa de inventario</span>
+                </li>
+                <li>
+                    <i class="bi bi-wrench"></i>
+                    <span>Mantenimiento predictivo</span>
+                </li>
+                <li>
+                    <i class="bi bi-robot"></i>
+                    <span>Asistente IA especializado</span>
+                </li>
+                <li>
+                    <i class="bi bi-shield-check"></i>
+                    <span>Seguridad y control de acceso</span>
+                </li>
+            </ul>
+            
+            <div class="version-info">
+                prototipo v 1.0.0
+            </div>
+        </div>
+        
+        <!-- Right Panel - Login Form -->
+        <div class="login-right">
+            <form class="login-form" method="post" id="loginForm">
+                <h2>Iniciar Sesión</h2>
+                <p>Accede a tu cuenta del sistema SENA</p>
+                
+                {% csrf_token %}
+                
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <i class="bi bi-{% if message.tags == 'error' %}exclamation-triangle{% else %}check-circle{% endif %} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Username Field -->
+                <div class="form-floating">
+                    <input type="text" 
+                           class="form-control" 
+                           id="id_username" 
+                           name="username" 
+                           placeholder="Usuario"
+                           required
+                           autocomplete="username">
+                    <label for="id_username">
+                        <i class="bi bi-person me-2"></i>Usuario o Cédula
+                    </label>
+                </div>
+                
+                <!-- Password Field -->
+                <div class="form-floating">
+                    <input type="password" 
+                           class="form-control" 
+                           id="id_password" 
+                           name="password" 
+                           placeholder="Contraseña"
+                           required
+                           autocomplete="current-password">
+                    <label for="id_password">
+                        <i class="bi bi-lock me-2"></i>Contraseña
+                    </label>
+                </div>
+                
+                <!-- Remember Me -->
+                <div class="remember-me">
+                    <input class="form-check-input" 
+                           type="checkbox" 
+                           id="rememberMe" 
+                           name="remember_me">
+                    <label class="form-check-label" for="rememberMe">
+                        Recordar sesión
+                    </label>
+                </div>
+                
+                <!-- Login Button -->
+                <button type="submit" class="btn btn-login" id="loginBtn">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Iniciar Sesión
+                </button>
+                
+                <!-- Forgot Password -->
+                <div class="forgot-password">
+                    <a href="{% url 'usuarios:recuperar_password' %}">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </div>
+                
+           
+                
+                <!-- Register Link -->
+                <div class="register-link">
+                    ¿No tienes cuenta?
+                    <a href="{% url 'usuarios:register' %}">Registrarse</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Panel de Accesibilidad -->
+    <div class="accessibility-panel" id="accessibilityPanel">
+        <button class="accessibility-toggle" onclick="toggleAccessibilityMenu()" title="Opciones de accesibilidad">
+            <i class="bi bi-universal-access-circle"></i>
+        </button>
+        <div class="accessibility-menu" id="accessibilityMenu">
+            <div class="accessibility-option">
+                <label>Tema</label>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="bi bi-moon-fill"></i> Oscuro
+                </button>
+            </div>
+            <div class="accessibility-option">
+                <label>Tamaño de fuente</label>
+                <div class="font-size-controls">
+                    <button onclick="changeFontSize('small')" title="Reducir fuente">A-</button>
+                    <button onclick="changeFontSize('normal')" title="Fuente normal">A</button>
+                    <button onclick="changeFontSize('large')" title="Aumentar fuente">A+</button>
+                    <button onclick="changeFontSize('xlarge')" title="Fuente muy grande">A++</button>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label>Lectura de texto</label>
+                <button class="tts-toggle" onclick="toggleTTS()" id="ttsToggle">
+                    <i class="bi bi-volume-up-fill"></i> Activar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div>
+           <li> © 2025 SENA - Sistema de Gestión de Maquinaria </li>
+            Ilich Esteban Reyes Botia |
+            Andres Santiago Sandoval Corzo |
+            Pablo Fermin Guaquida Joya |
+            Eliana Alejandra Gamboa Velandia |
+           <li> <a href="#" onclick="showPrivacyPolicy()">Política de Privacidad</a> |
+            <a href="#" onclick="showTerms()">Términos de Uso</a> |
+            <a href="#" onclick="showSupport()">Soporte Técnico</a></li>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3">Verificando credenciales...</p>
+        </div>
+    </div>
+    
+    <style>
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+        
+        .loading-spinner {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            color: #495057;
+        }
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // Form submission
+            loginForm.addEventListener('submit', function(e) {
+                loginBtn.classList.add('loading');
+                loadingOverlay.style.display = 'flex';
+                
+                // Simulate loading time (remove in production)
+                setTimeout(() => {
+                    // Form will submit naturally
+                }, 1000);
+            });
+            
+            // Enhanced form validation
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                input.addEventListener('blur', validateField);
+                input.addEventListener('input', clearErrors);
+            });
+            
+            function validateField(e) {
+                const field = e.target;
+                const value = field.value.trim();
+                
+                // Remove existing validation classes
+                field.classList.remove('is-valid', 'is-invalid');
+                
+                if (!value) {
+                    field.classList.add('is-invalid');
+                    return false;
+                }
+                
+                // Specific validation for username
+                if (field.name === 'username') {
+                    if (value.length < 3) {
+                        field.classList.add('is-invalid');
+                        return false;
+                    }
+                }
+                
+                // Specific validation for password
+                if (field.name === 'password') {
+                    if (value.length < 6) {
+                        field.classList.add('is-invalid');
+                        return false;
+                    }
+                }
+                
+                field.classList.add('is-valid');
+                return true;
+            }
+            
+            function clearErrors(e) {
+                e.target.classList.remove('is-invalid');
+            }
+            
+            // Auto-focus first empty field
+            const firstEmptyField = Array.from(inputs).find(input => !input.value.trim());
+            if (firstEmptyField) {
+                firstEmptyField.focus();
+            }
+            
+            // Caps Lock detection
+            document.addEventListener('keydown', function(e) {
+                const capsLockWarning = document.getElementById('capsLockWarning');
+                if (e.getModifierState && e.getModifierState('CapsLock')) {
+                    if (!capsLockWarning) {
+                        const warning = document.createElement('div');
+                        warning.id = 'capsLockWarning';
+                        warning.className = 'alert alert-warning mt-2';
+                        warning.innerHTML = '<i class="bi bi-caps-lock me-2"></i>Mayúsculas activadas';
+                        document.getElementById('id_password').parentNode.appendChild(warning);
+                    }
+                } else if (capsLockWarning) {
+                    capsLockWarning.remove();
+                }
+            });
+            
+            // Remember me functionality
+            const rememberCheckbox = document.getElementById('rememberMe');
+            const usernameInput = document.getElementById('id_username');
+            
+            // Load remembered username
+            if (localStorage.getItem('sena_remember_username')) {
+                usernameInput.value = localStorage.getItem('sena_remember_username');
+                rememberCheckbox.checked = true;
+            }
+            
+            // Save username if remember me is checked
+            loginForm.addEventListener('submit', function() {
+                if (rememberCheckbox.checked) {
+                    localStorage.setItem('sena_remember_username', usernameInput.value);
+                } else {
+                    localStorage.removeItem('sena_remember_username');
+                }
+            });
+        });
+        
+        function showForgotPassword() {
+            const email = prompt('Ingresa tu correo electrónico para recuperar tu contraseña:');
+            if (email && email.includes('@')) {
+                alert('Se han enviado las instrucciones de recuperación a ' + email);
+                // Here you would make an AJAX call to send the reset email
+            } else if (email) {
+                alert('Por favor ingresa un correo electrónico válido');
+            }
+        }
+        
+        function loginWithMicrosoft() {
+            alert('Funcionalidad de Microsoft 365 no implementada aún');
+            // Here you would integrate with Microsoft Graph API
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('loginForm').submit();
+            }
+        });
+        
+        // Check for system status
+        fetch('/api/status/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.maintenance) {
+                    document.body.insertAdjacentHTML('afterbegin', `
+                        <div class="alert alert-warning position-fixed top-0 start-0 end-0" style="z-index: 10000; border-radius: 0;">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Sistema en mantenimiento. Algunas funcionalidades pueden no estar disponibles.
+                        </div>
+                    `);
+                }
+            })
+            .catch(() => {
+                // Silently handle error
+            });
+        
+        // Analytics (if needed)
+        function trackLoginAttempt(success) {
+            // Google Analytics or other tracking
+            console.log('Login attempt:', success ? 'successful' : 'failed');
+        }
+
+        // Funciones de accesibilidad
+        let ttsEnabled = false;
+        let currentUtterance = null;
+
+        function toggleAccessibilityMenu() {
+            const menu = document.getElementById('accessibilityMenu');
+            menu.classList.toggle('show');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+
+            body.classList.toggle('dark-theme');
+
+            if (body.classList.contains('dark-theme')) {
+                themeToggle.innerHTML = '<i class="bi bi-sun-fill"></i> Claro';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.innerHTML = '<i class="bi bi-moon-fill"></i> Oscuro';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        function changeFontSize(size) {
+            const body = document.body;
+            body.classList.remove('font-small', 'font-large', 'font-xlarge');
+
+            if (size !== 'normal') {
+                body.classList.add('font-' + size);
+            }
+
+            localStorage.setItem('fontSize', size);
+        }
+
+        function toggleTTS() {
+            const ttsToggle = document.getElementById('ttsToggle');
+            ttsEnabled = !ttsEnabled;
+
+            if (ttsEnabled) {
+                ttsToggle.innerHTML = '<i class="bi bi-volume-mute-fill"></i> Desactivar';
+                document.addEventListener('click', handleTTSClick);
+            } else {
+                ttsToggle.innerHTML = '<i class="bi bi-volume-up-fill"></i> Activar';
+                document.removeEventListener('click', handleTTSClick);
+                if (currentUtterance) {
+                    speechSynthesis.cancel();
+                }
+            }
+
+            localStorage.setItem('ttsEnabled', ttsEnabled);
+        }
+
+        function handleTTSClick(event) {
+            if (!ttsEnabled) return;
+
+            const element = event.target;
+            let textToRead = '';
+
+            if (element.tagName === 'BUTTON') {
+                textToRead = element.textContent || element.title || element.getAttribute('aria-label');
+            } else if (element.tagName === 'A') {
+                textToRead = element.textContent;
+            } else if (['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(element.tagName)) {
+                textToRead = element.textContent;
+            } else if (element.tagName === 'P') {
+                textToRead = element.textContent;
+            } else if (element.tagName === 'LABEL') {
+                textToRead = element.textContent;
+            }
+
+            if (textToRead.trim()) {
+                if (currentUtterance) {
+                    speechSynthesis.cancel();
+                }
+
+                currentUtterance = new SpeechSynthesisUtterance(textToRead);
+                currentUtterance.lang = 'es-ES';
+                currentUtterance.rate = 0.8;
+                speechSynthesis.speak(currentUtterance);
+            }
+        }
+
+        // Cargar preferencias de accesibilidad al inicio
+        function loadAccessibilityPreferences() {
+            const savedTheme = localStorage.getItem('theme');
+            const savedFontSize = localStorage.getItem('fontSize');
+            const savedTTSEnabled = localStorage.getItem('ttsEnabled') === 'true';
+
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeToggle').innerHTML = '<i class="bi bi-sun-fill"></i> Claro';
+            }
+
+            if (savedFontSize && savedFontSize !== 'normal') {
+                document.body.classList.add('font-' + savedFontSize);
+            }
+
+            if (savedTTSEnabled) {
+                ttsEnabled = true;
+                document.getElementById('ttsToggle').innerHTML = '<i class="bi bi-volume-mute-fill"></i> Desactivar';
+                document.addEventListener('click', handleTTSClick);
+            }
+        }
+
+        // Footer functions
+        function showPrivacyPolicy() {
+            alert('Política de Privacidad\n\nEste sistema cumple con las normas de protección de datos personales establecidas por la ley colombiana.');
+        }
+
+        function showTerms() {
+            alert('Términos de Uso\n\nEste sistema es de uso exclusivo para personal autorizado del SENA.');
+        }
+
+        function showSupport() {
+            alert('Soporte Técnico\n\nPara ayuda técnica contacte:\nCorreo: adsitoipae@gmail.com\nTeléfono: +57 322 8985923');
+        }
+
+        // Cerrar menu de accesibilidad al hacer click fuera
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('accessibilityPanel');
+            const menu = document.getElementById('accessibilityMenu');
+
+            if (!panel.contains(event.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // Cargar preferencias cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAccessibilityPreferences();
+        });
+    </script>
+</body>
+</html>
+

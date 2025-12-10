@@ -1,0 +1,130 @@
+================================================================
+  INSTRUCCIONES PARA AGREGAR EL MANUAL DE LA APLICACIÓN
+================================================================
+
+📖 PASO 1: Preparar tu manual completo de la app
+--------------------------------
+1. Asegúrate de que tu manual esté en formato PDF
+2. Renombra el archivo a: manual_app.pdf
+
+
+📂 PASO 2: Colocar el archivo
+--------------------------------
+Copia tu archivo PDF en esta carpeta:
+
+📁 Ruta completa:
+   C:\INFORMACION\Desktop\prototipo_0.1\myworld\app_prototipo\media\manuales\
+
+🎯 El archivo debe quedar en:
+   C:\INFORMACION\Desktop\prototipo_0.1\myworld\app_prototipo\media\manuales\manual_app.pdf
+
+
+✅ PASO 3: Verificar que funciona
+--------------------------------
+1. Inicia el servidor Django:
+   cd C:\INFORMACION\Desktop\prototipo_0.1\myworld\app_prototipo
+   python manage.py runserver
+
+2. Inicia sesión en el sistema
+
+3. En el menú lateral (sidebar) verás una opción justo después de "Mi Perfil":
+   📄 Manual de la App
+
+4. Haz clic en "Manual de la App"
+
+5. El archivo PDF se descargará automáticamente como:
+   "Manual_Completo_App_SENA_Maquinaria.pdf"
+
+
+📋 DIFERENCIA ENTRE LOS DOS MANUALES
+--------------------------------
+📚 Manual de Usuario (manual_usuario.pdf)
+   → Manual básico para usuarios finales
+   → Cómo usar las funciones principales
+
+📄 Manual de la App (manual_app.pdf)
+   → Manual COMPLETO de toda la aplicación
+   → Incluye documentación técnica, arquitectura, módulos
+   → Guía completa para administradores y desarrolladores
+
+
+🎨 CONTENIDO SUGERIDO PARA EL MANUAL DE LA APP
+--------------------------------
+✓ Arquitectura del Sistema
+  - Tecnologías utilizadas (Django, Bootstrap, etc.)
+  - Estructura de la base de datos
+  - Diagramas de flujo
+
+✓ Módulos del Sistema
+  - Dashboard
+  - Usuarios (registro, permisos, recuperación de contraseña)
+  - Maquinaria (CRUD, historial, alertas, mantenimiento)
+  - IA Assistant
+  - Reportes
+  - Documentos
+  - Sistema
+
+✓ Funcionalidades Especiales
+  - Panel de accesibilidad
+  - Tema oscuro
+  - Text-to-Speech (TTS)
+  - Exportación de datos
+  - Códigos QR
+
+✓ Administración
+  - Panel de administración Django
+  - Gestión de usuarios y permisos
+  - Respaldo y restauración de datos
+  - Configuración de correo electrónico
+
+✓ Instalación y Configuración
+  - Requisitos del sistema
+  - Instalación paso a paso
+  - Configuración de la base de datos
+  - Variables de entorno
+
+✓ Mantenimiento
+  - Actualización del sistema
+  - Monitoreo de logs
+  - Solución de problemas comunes
+
+✓ API y Desarrollo
+  - Endpoints disponibles
+  - Autenticación
+  - Ejemplos de uso
+
+
+⚠️ SOLUCIÓN DE PROBLEMAS
+--------------------------------
+❌ "El manual de la aplicación no está disponible"
+   → Verifica que el archivo existe en la ruta correcta
+   → Verifica que el nombre del archivo sea exacto: manual_app.pdf
+
+❌ Error al abrir el archivo
+   → Verifica que el archivo no esté corrupto
+   → Intenta abrir el PDF en tu computadora primero
+
+❌ El enlace no funciona
+   → Verifica que el servidor Django esté corriendo
+   → Limpia la caché del navegador (Ctrl + F5)
+
+
+📞 UBICACIÓN EN LA INTERFAZ
+--------------------------------
+El botón aparece en el menú lateral (sidebar) en este orden:
+
+1. Dashboard
+2. Maquinaria
+3. IA Assistant
+4. Reportes
+5. Documentos
+6. ✅ Mi Perfil
+7. 📄 **Manual de la App** ← NUEVO
+8. 📚 Manual de Usuario
+9. 🚪 Cerrar Sesión
+
+
+================================================================
+   ¡Listo! Tu manual completo de la app estará disponible
+   para descargar desde el menú lateral.
+================================================================

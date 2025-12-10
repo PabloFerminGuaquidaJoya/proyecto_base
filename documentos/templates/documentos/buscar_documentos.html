@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - SENA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-search"></i> Búsqueda Avanzada de Documentos</h2>
+            <p class="text-muted">Utiliza los filtros para encontrar documentos específicos</p>
+        </div>
+    </div>
+
+    <!-- Formulario de Búsqueda -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="get" action="{% url 'documentos:buscar_documentos' %}">
+                        <div class="row g-3">
+                            <!-- Búsqueda por texto -->
+                            <div class="col-md-12">
+                                <label class="form-label">Búsqueda por texto</label>
+                                {{ form.query }}
+                            </div>
+
+                            <!-- Categoría -->
+                            <div class="col-md-4">
+                                <label class="form-label">Categoría</label>
+                                {{ form.categoria }}
+                            </div>
+
+                            <!-- Tipo de documento -->
+                            <div class="col-md-4">
+                                <label class="form-label">Tipo de documento</label>
+                                {{ form.tipo_documento }}
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="col-md-4">
+                                <label class="form-label">Estado</label>
+                                {{ form.estado }}
+                            </div>
+
+                            <!-- Nivel de acceso -->
+                            <div class="col-md-4">
+                                <label class="form-label">Nivel de acceso</label>
+                                {{ form.nivel_acceso }}
+                            </div>
+
+                            <!-- Máquina -->
+                            <div class="col-md-4">
+                                <label class="form-label">Máquina relacionada</label>
+                                {{ form.maquina_relacionada }}
+                            </div>
+
+                            <!-- Rango de fechas -->
+                            <div class="col-md-4">
+                                <label class="form-label">Desde</label>
+                                {{ form.fecha_inicio }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Hasta</label>
+                                {{ form.fecha_fin }}
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+                                <a href="{% url 'documentos:buscar_documentos' %}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Limpiar filtros
+                                </a>
+                                <a href="{% url 'documentos:repositorio' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Volver al repositorio
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados -->
+    {% if documentos %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <h5>Resultados de la búsqueda ({{ total_resultados }} documento{{ total_resultados|pluralize }})</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for documento in documentos %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">
+                            <i class="{{ documento.tipo_documento.icono }}" style="color: {{ documento.tipo_documento.color }}"></i>
+                            {{ documento.titulo|truncatewords:10 }}
+                        </h6>
+                        <span class="badge bg-{{ documento.estado }}" style="background-color: {% if documento.estado == 'publicado' %}#28a745{% elif documento.estado == 'borrador' %}#6c757d{% elif documento.estado == 'revision' %}#ffc107{% else %}#007bff{% endif %} !important;">
+                            {{ documento.get_estado_display }}
+                        </span>
+                    </div>
+
+                    <p class="card-text text-muted small">
+                        {{ documento.descripcion|truncatewords:15 }}
+                    </p>
+
+                    <div class="small mb-2">
+                        <div><i class="bi bi-folder"></i> {{ documento.categoria.nombre }}</div>
+                        <div><i class="bi bi-person"></i> {{ documento.creado_por.nombre_completo }}</div>
+                        <div><i class="bi bi-calendar"></i> {{ documento.fecha_creacion|date:"d/m/Y" }}</div>
+                        {% if documento.maquina_relacionada %}
+                        <div><i class="bi bi-gear"></i> {{ documento.maquina_relacionada.nombre }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-sm btn-primary flex-fill">
+                            <i class="bi bi-eye"></i> Ver
+                        </a>
+                        <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-sm btn-success">
+                            <i class="bi bi-download"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if documentos.has_other_pages %}
+    <nav aria-label="Paginación de resultados" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if documentos.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documentos.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Anterior</span>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">Página {{ documentos.number }} de {{ documentos.paginator.num_pages }}</span>
+            </li>
+
+            {% if documentos.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documentos.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Siguiente</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Siguiente</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle fs-1 d-block mb-2"></i>
+                <h5>No se encontraron documentos</h5>
+                <p>Intenta modificar los criterios de búsqueda para obtener mejores resultados.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

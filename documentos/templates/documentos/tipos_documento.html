@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - SENA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="bi bi-file-earmark-text"></i> Tipos de Documento</h2>
+                    <p class="text-muted">Gestión de tipos del sistema</p>
+                </div>
+                {% if user.is_staff %}
+                <a href="{% url 'documentos:crear_tipo_documento' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nuevo tipo
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if tipos %}
+    <div class="row">
+        {% for tipo in tipos %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title">
+                                <i class="{{ tipo.icono }}" style="color: {{ tipo.color }}"></i>
+                                {{ tipo.nombre }}
+                            </h5>
+                            {% if not tipo.activo %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                            {% endif %}
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ tipo.num_documentos }} docs</span>
+                    </div>
+
+                    <p class="card-text text-muted">
+                        {{ tipo.descripcion|truncatewords:15 }}
+                    </p>
+
+                    <div class="mb-2">
+                        <small class="text-muted">
+                            <strong>Tamaño máximo:</strong> {{ tipo.tamaño_maximo_mb }} MB
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <strong>Extensiones:</strong>
+                            {% for ext in tipo.extensiones_permitidas %}
+                                <span class="badge bg-secondary">{{ ext }}</span>
+                            {% endfor %}
+                        </small>
+                    </div>
+
+                    <div>
+                        <a href="{% url 'documentos:documentos_por_tipo' tipo.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> Ver documentos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle fs-1 d-block mb-2"></i>
+        <h5>No hay tipos de documento disponibles</h5>
+        <p>Crea el primer tipo para clasificar tus documentos.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

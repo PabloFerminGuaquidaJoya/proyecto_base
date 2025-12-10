@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Categoría - SENA{% endblock %}
+{% block page_title %}Nueva Categoría{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Crear Nueva Categoría
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:categorias' %}">Categorías</a></li>
+                        <li class="breadcrumb-item active">Nueva Categoría</li>
+                    </ol>
+                </nav>
+
+                <form method="post" id="createCategoryForm">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre de la Categoría *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required
+                               placeholder="Ej: Excavadoras, Bulldozers, Grúas...">
+                        <div class="invalid-feedback" id="nombre-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="codigo" class="form-label">Código de Categoría *</label>
+                        <input type="text" class="form-control" id="codigo" name="codigo" required
+                               placeholder="Ej: EXC, BUL, GRU..." maxlength="5" style="text-transform: uppercase;">
+                        <div class="form-text">Código único de máximo 5 caracteres</div>
+                        <div class="invalid-feedback" id="codigo-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
+                                  placeholder="Descripción detallada de la categoría y tipos de máquinas que incluye..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="color" class="form-label">Color Identificativo</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="color" class="form-control form-control-color" id="color" name="color" value="#0066cc">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="color-preview d-flex align-items-center h-100">
+                                    <span class="badge" id="color-badge" style="background-color: #0066cc; font-size: 1rem;">
+                                        <i class="bi bi-circle-fill me-1"></i>Vista Previa
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Configuración Adicional</label>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="requiere_licencia" name="requiere_licencia">
+                            <label class="form-check-label" for="requiere_licencia">
+                                Requiere licencia especial para operar
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="mantenimiento_especializado" name="mantenimiento_especializado">
+                            <label class="form-check-label" for="mantenimiento_especializado">
+                                Requiere mantenimiento especializado
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="activa" name="activa" checked>
+                            <label class="form-check-label" for="activa">
+                                Categoría activa
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Plantillas de Especificaciones -->
+                    <div class="mb-3">
+                        <label class="form-label">Especificaciones Técnicas por Defecto</label>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-2">
+                                            <label class="form-label small">Potencia Motor (HP)</label>
+                                            <input type="number" class="form-control form-control-sm" name="potencia_default" placeholder="Rango típico">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label small">Peso Operativo (kg)</label>
+                                            <input type="number" class="form-control form-control-sm" name="peso_default" placeholder="Rango típico">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-2">
+                                            <label class="form-label small">Capacidad de Carga (kg)</label>
+                                            <input type="number" class="form-control form-control-sm" name="capacidad_default" placeholder="Rango típico">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label small">Combustible Principal</label>
+                                            <select class="form-select form-select-sm" name="combustible_default">
+                                                <option value="">No especificar</option>
+                                                <option value="diesel">Diésel</option>
+                                                <option value="gasolina">Gasolina</option>
+                                                <option value="electrico">Eléctrico</option>
+                                                <option value="hibrido">Híbrido</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Estos valores se usarán como plantilla al crear nuevas máquinas de esta categoría</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Card -->
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-eye me-2"></i>Vista Previa de la Categoría</h6>
+                        <div class="category-preview">
+                            <div class="d-flex align-items-center">
+                                <span class="badge me-3" id="preview-badge" style="background-color: #0066cc; font-size: 1.1rem;">
+                                    <span id="preview-codigo">CÓDIGO</span>
+                                </span>
+                                <div>
+                                    <h6 class="mb-1" id="preview-nombre">Nombre de la Categoría</h6>
+                                    <small class="text-muted" id="preview-descripcion">Descripción de la categoría</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'maquinaria:categorias' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="bi bi-check-circle me-2"></i>Crear Categoría
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control-color {
+        width: 100%;
+        height: 38px;
+    }
+
+    .color-preview {
+        min-height: 38px;
+    }
+
+    #color-badge {
+        transition: background-color 0.3s ease;
+    }
+
+    .category-preview {
+        padding: 10px;
+        background: white;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    #preview-badge {
+        transition: all 0.3s ease;
+    }
+
+    .invalid-feedback {
+        display: none;
+    }
+
+    .is-invalid ~ .invalid-feedback {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nombreInput = document.getElementById('nombre');
+    const codigoInput = document.getElementById('codigo');
+    const descripcionInput = document.getElementById('descripcion');
+    const colorInput = document.getElementById('color');
+    const colorBadge = document.getElementById('color-badge');
+    const previewBadge = document.getElementById('preview-badge');
+    const previewCodigo = document.getElementById('preview-codigo');
+    const previewNombre = document.getElementById('preview-nombre');
+    const previewDescripcion = document.getElementById('preview-descripcion');
+    const form = document.getElementById('createCategoryForm');
+
+    // Real-time preview updates
+    function updatePreview() {
+        const nombre = nombreInput.value || 'Nombre de la Categoría';
+        const codigo = codigoInput.value || 'CÓDIGO';
+        const descripcion = descripcionInput.value || 'Descripción de la categoría';
+        const color = colorInput.value;
+
+        previewNombre.textContent = nombre;
+        previewCodigo.textContent = codigo;
+        previewDescripcion.textContent = descripcion;
+
+        colorBadge.style.backgroundColor = color;
+        previewBadge.style.backgroundColor = color;
+    }
+
+    // Auto-generate code from name
+    nombreInput.addEventListener('input', function() {
+        if (!codigoInput.value || codigoInput.dataset.autoGenerated === 'true') {
+            const words = this.value.toUpperCase().split(' ');
+            let codigo = '';
+
+            if (words.length === 1) {
+                codigo = words[0].substring(0, 3);
+            } else {
+                codigo = words.map(word => word.charAt(0)).join('').substring(0, 5);
+            }
+
+            codigoInput.value = codigo;
+            codigoInput.dataset.autoGenerated = 'true';
+        }
+        updatePreview();
+        validateField(nombreInput);
+    });
+
+    codigoInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+        this.dataset.autoGenerated = 'false';
+        updatePreview();
+        validateField(codigoInput);
+    });
+
+    descripcionInput.addEventListener('input', updatePreview);
+    colorInput.addEventListener('input', updatePreview);
+
+    // Field validation
+    function validateField(field) {
+        const fieldId = field.id;
+        const value = field.value.trim();
+        let isValid = true;
+        let message = '';
+
+        if (fieldId === 'nombre') {
+            if (!value) {
+                isValid = false;
+                message = 'El nombre es obligatorio';
+            } else if (value.length < 3) {
+                isValid = false;
+                message = 'El nombre debe tener al menos 3 caracteres';
+            }
+        } else if (fieldId === 'codigo') {
+            if (!value) {
+                isValid = false;
+                message = 'El código es obligatorio';
+            } else if (!/^[A-Z0-9]+$/.test(value)) {
+                isValid = false;
+                message = 'El código solo puede contener letras mayúsculas y números';
+            } else if (value.length < 2 || value.length > 5) {
+                isValid = false;
+                message = 'El código debe tener entre 2 y 5 caracteres';
+            }
+        }
+
+        updateFieldValidation(field, isValid, message);
+        return isValid;
+    }
+
+    function updateFieldValidation(field, isValid, message) {
+        const feedbackElement = document.getElementById(field.id + '-feedback');
+
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        } else {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+            if (feedbackElement) {
+                feedbackElement.textContent = message;
+            }
+        }
+    }
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const nombreValid = validateField(nombreInput);
+        const codigoValid = validateField(codigoInput);
+
+        if (nombreValid && codigoValid) {
+            const saveBtn = document.getElementById('saveBtn');
+            const originalText = saveBtn.innerHTML;
+
+            saveBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Creando...';
+            saveBtn.disabled = true;
+
+            // Simulate form submission
+            setTimeout(() => {
+                alert('¡Categoría creada exitosamente!');
+                window.location.href = '{% url "maquinaria:categorias" %}';
+            }, 2000);
+        } else {
+            alert('Por favor, corrige los errores en el formulario antes de continuar.');
+        }
+    });
+
+    // Initial preview update
+    updatePreview();
+});
+</script>
+{% endblock %}

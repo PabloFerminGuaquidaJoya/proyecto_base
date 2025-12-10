@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - SENA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="bi bi-person-badge"></i> Mis Documentos</h2>
+                    <p class="text-muted">Documentos creados por ti ({{ total }} total)</p>
+                </div>
+                <a href="{% url 'documentos:subir_documento' %}" class="btn btn-primary">
+                    <i class="bi bi-upload"></i> Subir nuevo documento
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label">Estado</label>
+                            {{ form.estado }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Categoría</label>
+                            {{ form.categoria }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Ordenar por</label>
+                            {{ form.ordenar_por }}
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-funnel"></i> Aplicar filtros
+                            </button>
+                            <a href="{% url 'documentos:mis_documentos' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de documentos -->
+    {% if documentos %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Documento</th>
+                                    <th>Tipo</th>
+                                    <th>Categoría</th>
+                                    <th>Estado</th>
+                                    <th>Versión</th>
+                                    <th>Última modificación</th>
+                                    <th>Descargas</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for documento in documentos %}
+                                <tr>
+                                    <td>
+                                        <i class="{{ documento.tipo_documento.icono }}" style="color: {{ documento.tipo_documento.color }}"></i>
+                                        <strong>{{ documento.titulo|truncatewords:8 }}</strong>
+                                    </td>
+                                    <td>{{ documento.tipo_documento.nombre }}</td>
+                                    <td>
+                                        <span class="badge" style="background-color: {{ documento.categoria.color }}">
+                                            {{ documento.categoria.nombre }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ documento.estado }}" style="background-color: {% if documento.estado == 'publicado' %}#28a745{% elif documento.estado == 'borrador' %}#6c757d{% elif documento.estado == 'revision' %}#ffc107{% else %}#007bff{% endif %} !important;">
+                                            {{ documento.get_estado_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ documento.version }}</td>
+                                    <td>{{ documento.fecha_modificacion|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <i class="bi bi-download"></i> {{ documento.total_descargas }}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'documentos:detalle_documento' documento.pk %}"
+                                               class="btn btn-outline-primary" title="Ver detalles">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{% url 'documentos:editar_documento' documento.pk %}"
+                                               class="btn btn-outline-warning" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="{% url 'documentos:descargar_documento' documento.pk %}"
+                                               class="btn btn-outline-success" title="Descargar">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if documentos.has_other_pages %}
+    <nav aria-label="Paginación" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if documentos.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documentos.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ documentos.number }} de {{ documentos.paginator.num_pages }}</span>
+            </li>
+
+            {% if documentos.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documentos.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Siguiente</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                <h5>No has creado ningún documento todavía</h5>
+                <p>Sube tu primer documento para comenzar.</p>
+                <a href="{% url 'documentos:subir_documento' %}" class="btn btn-primary">
+                    <i class="bi bi-upload"></i> Subir documento
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

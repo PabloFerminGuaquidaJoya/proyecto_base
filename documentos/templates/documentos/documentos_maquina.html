@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Documentos de {{ maquina.nombre }} - SENA{% endblock %}
+{% block page_title %}Documentos de la Máquina{% endblock %}
+
+{% block content %}
+<!-- Información de la Máquina -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4 class="mb-2">
+                    <i class="bi bi-gear-fill me-2 text-primary"></i>{{ maquina.nombre }}
+                </h4>
+                <p class="text-muted mb-2">
+                    <strong>Código:</strong> {{ maquina.codigo_inventario }} |
+                    <strong>Categoría:</strong> {{ maquina.categoria.nombre }} |
+                    <strong>Estado:</strong>
+                    {% if maquina.estado == 'operativa' %}
+                        <span class="badge bg-success">Operativa</span>
+                    {% elif maquina.estado == 'mantenimiento' %}
+                        <span class="badge bg-warning">Mantenimiento</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ maquina.get_estado_display }}</span>
+                    {% endif %}
+                </p>
+                {% if maquina.ubicacion %}
+                <p class="mb-0">
+                    <i class="bi bi-geo-alt me-2"></i>{{ maquina.ubicacion }}
+                </p>
+                {% endif %}
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'maquinaria:detalle_maquina' maquina.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-box-seam me-2"></i>Ver Máquina
+                </a>
+                <a href="{% url 'documentos:subir_documento' %}?maquina={{ maquina.pk }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Subir Documento
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card shadow h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-text fs-2 text-primary mb-2"></i>
+                <h3 class="mb-0">{{ documentos.paginator.count }}</h3>
+                <small class="text-muted">Total Documentos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-pdf fs-2 text-danger mb-2"></i>
+                <h3 class="mb-0">{{ documentos|length }}</h3>
+                <small class="text-muted">En esta página</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-folder fs-2 text-warning mb-2"></i>
+                <h3 class="mb-0">{{ tipos_count|default:0 }}</h3>
+                <small class="text-muted">Tipos de Docs</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-download fs-2 text-success mb-2"></i>
+                <h3 class="mb-0">{{ total_descargas|default:0 }}</h3>
+                <small class="text-muted">Descargas</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Documentos -->
+<div class="card shadow">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-files me-2"></i>Documentos Disponibles
+            </h5>
+            <div class="d-flex gap-2">
+                <select class="form-select form-select-sm" id="filterType" style="width: auto;">
+                    <option value="">Todos los tipos</option>
+                    {% for tipo in tipos_disponibles %}
+                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if documentos %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th width="5%"><i class="bi bi-file-earmark"></i></th>
+                        <th width="30%">Título</th>
+                        <th width="15%">Tipo</th>
+                        <th width="10%">Versión</th>
+                        <th width="15%">Fecha</th>
+                        <th width="10%">Estado</th>
+                        <th width="15%">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documentos %}
+                    <tr>
+                        <td class="text-center">
+                            {% if doc.extension == '.pdf' %}
+                                <i class="bi bi-file-earmark-pdf fs-4 text-danger"></i>
+                            {% elif doc.extension in '.doc,.docx' %}
+                                <i class="bi bi-file-earmark-word fs-4 text-primary"></i>
+                            {% elif doc.extension in '.xls,.xlsx' %}
+                                <i class="bi bi-file-earmark-excel fs-4 text-success"></i>
+                            {% elif doc.extension in '.ppt,.pptx' %}
+                                <i class="bi bi-file-earmark-ppt fs-4 text-warning"></i>
+                            {% else %}
+                                <i class="bi bi-file-earmark-text fs-4 text-secondary"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'documentos:detalle_documento' doc.pk %}" class="text-decoration-none">
+                                <strong>{{ doc.titulo }}</strong>
+                            </a>
+                            {% if doc.descripcion %}
+                            <br><small class="text-muted">{{ doc.descripcion|truncatechars:60 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ doc.tipo_documento.nombre }}</span>
+                        </td>
+                        <td>
+                            <code>{{ doc.version }}</code>
+                        </td>
+                        <td>
+                            <small>{{ doc.fecha_creacion|date:"d/m/Y" }}</small>
+                        </td>
+                        <td>
+                            {% if doc.estado == 'publicado' %}
+                                <span class="badge bg-success">{{ doc.get_estado_display }}</span>
+                            {% elif doc.estado == 'aprobado' %}
+                                <span class="badge bg-primary">{{ doc.get_estado_display }}</span>
+                            {% elif doc.estado == 'revision' %}
+                                <span class="badge bg-warning">{{ doc.get_estado_display }}</span>
+                            {% elif doc.estado == 'borrador' %}
+                                <span class="badge bg-secondary">{{ doc.get_estado_display }}</span>
+                            {% else %}
+                                <span class="badge bg-dark">{{ doc.get_estado_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'documentos:detalle_documento' doc.pk %}"
+                                   class="btn btn-outline-primary"
+                                   title="Ver detalle">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'documentos:descargar_documento' doc.pk %}"
+                                   class="btn btn-outline-success"
+                                   title="Descargar">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if documentos.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if documentos.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">Primera</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ documentos.previous_page_number }}">Anterior</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">
+                        Página {{ documentos.number }} de {{ documentos.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if documentos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ documentos.next_page_number }}">Siguiente</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ documentos.paginator.num_pages }}">Última</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <!-- Sin documentos -->
+        <div class="text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+            <h5>No hay documentos para esta máquina</h5>
+            <p class="text-muted">Sube el primer documento para comenzar</p>
+            <a href="{% url 'documentos:subir_documento' %}?maquina={{ maquina.pk }}" class="btn btn-primary mt-3">
+                <i class="bi bi-plus-circle me-2"></i>Subir Documento
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Documentos Relacionados -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-link-45deg me-2"></i>Acciones Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{% url 'documentos:subir_documento' %}?maquina={{ maquina.pk }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-cloud-upload me-2"></i>Subir Documento
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'maquinaria:detalle_maquina' maquina.pk %}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-box-seam me-2"></i>Ver Máquina
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'documentos:repositorio' %}" class="btn btn-outline-info w-100">
+                            <i class="bi bi-folder2-open me-2"></i>Repositorio
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-success w-100" onclick="exportarDocumentos()">
+                            <i class="bi bi-file-earmark-arrow-down me-2"></i>Exportar Lista
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+    .table tbody tr:hover {
+        background-color: rgba(57, 169, 0, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('filterType').addEventListener('change', function() {
+    const tipo = this.value;
+    if (tipo) {
+        window.location.href = '?tipo=' + tipo;
+    } else {
+        window.location.href = window.location.pathname;
+    }
+});
+
+function exportarDocumentos() {
+    alert('Exportando lista de documentos...');
+    // Aquí se implementaría la exportación
+}
+</script>
+{% endblock %}

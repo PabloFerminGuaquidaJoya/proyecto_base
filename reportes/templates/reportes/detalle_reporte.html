@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ reporte.titulo }} - SENA{% endblock %}
+{% block page_title %}Detalle del Reporte{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Información Principal del Reporte -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-text me-2"></i>{{ reporte.titulo }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Tipo de Reporte:</strong><br>
+                            <span class="badge bg-primary">{{ reporte.tipo_reporte.nombre }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Estado:</strong><br>
+                            {% if reporte.estado == 'pendiente' %}
+                                <span class="badge bg-warning">Pendiente</span>
+                            {% elif reporte.estado == 'generando' %}
+                                <span class="badge bg-info">Generando</span>
+                            {% elif reporte.estado == 'completado' %}
+                                <span class="badge bg-success">Completado</span>
+                            {% elif reporte.estado == 'error' %}
+                                <span class="badge bg-danger">Error</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ reporte.get_estado_display }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Formato:</strong><br>
+                            <span class="badge bg-secondary">{{ reporte.get_formato_display }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Fecha de Solicitud:</strong><br>
+                            {{ reporte.fecha_solicitud|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                </div>
+
+                {% if reporte.descripcion %}
+                <div class="mb-3">
+                    <strong>Descripción:</strong>
+                    <p class="text-muted">{{ reporte.descripcion }}</p>
+                </div>
+                {% endif %}
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Solicitado por:</strong><br>
+                            {{ reporte.usuario_solicitante.nombre_completo }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>ID del Reporte:</strong><br>
+                            <code>{{ reporte.id }}</code>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Filtros Aplicados -->
+                <hr>
+                <h6 class="mb-3"><i class="bi bi-funnel me-2"></i>Filtros Aplicados</h6>
+                <div class="row">
+                    {% if reporte.fecha_inicio and reporte.fecha_fin %}
+                    <div class="col-md-6 mb-2">
+                        <strong>Período:</strong><br>
+                        {{ reporte.fecha_inicio|date:"d/m/Y" }} - {{ reporte.fecha_fin|date:"d/m/Y" }}
+                    </div>
+                    {% endif %}
+
+                    {% if reporte.categorias_maquina %}
+                    <div class="col-md-6 mb-2">
+                        <strong>Categorías:</strong><br>
+                        {{ reporte.categorias_maquina|join:", " }}
+                    </div>
+                    {% endif %}
+
+                    {% if reporte.centros_formacion %}
+                    <div class="col-md-6 mb-2">
+                        <strong>Centros de Formación:</strong><br>
+                        {{ reporte.centros_formacion|join:", " }}
+                    </div>
+                    {% endif %}
+
+                    {% if reporte.estados_maquina %}
+                    <div class="col-md-6 mb-2">
+                        <strong>Estados de Máquina:</strong><br>
+                        {{ reporte.estados_maquina|join:", " }}
+                    </div>
+                    {% endif %}
+
+                    {% if not reporte.fecha_inicio and not reporte.categorias_maquina and not reporte.centros_formacion and not reporte.estados_maquina %}
+                    <div class="col-12">
+                        <p class="text-muted">Sin filtros aplicados</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Procesamiento -->
+                {% if reporte.estado == 'completado' %}
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Fecha de Completado:</strong><br>
+                            {{ reporte.fecha_completado|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                    {% if reporte.tiempo_procesamiento %}
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Tiempo de Procesamiento:</strong><br>
+                            {{ reporte.tiempo_procesamiento }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    {% if reporte.total_registros %}
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Total de Registros:</strong><br>
+                            {{ reporte.total_registros }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if reporte.estado == 'error' and reporte.error_mensaje %}
+                <hr>
+                <div class="alert alert-danger">
+                    <strong><i class="bi bi-exclamation-triangle me-2"></i>Error:</strong><br>
+                    {{ reporte.error_mensaje }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Acciones</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2 flex-wrap">
+                    {% if reporte.estado == 'completado' and reporte.archivo_resultado %}
+                    <a href="{% url 'reportes:descargar_reporte' reporte.id %}" class="btn btn-primary">
+                        <i class="bi bi-download me-2"></i>Descargar Reporte
+                    </a>
+                    {% endif %}
+
+                    {% if reporte.estado == 'pendiente' %}
+                    <button class="btn btn-info" onclick="procesarReporte()">
+                        <i class="bi bi-play-circle me-2"></i>Procesar Ahora
+                    </button>
+                    {% endif %}
+
+                    <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-plus-circle me-2"></i>Generar Nuevo Reporte
+                    </a>
+
+                    <a href="{% url 'reportes:lista_reportes' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-list me-2"></i>Ver Todos los Reportes
+                    </a>
+
+                    {% if reporte.estado == 'pendiente' or reporte.estado == 'error' %}
+                    <button class="btn btn-outline-danger" onclick="cancelarReporte()">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar Reporte
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Estado del Procesamiento -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Estado del Procesamiento</h6>
+            </div>
+            <div class="card-body">
+                {% if reporte.estado == 'pendiente' %}
+                <div class="alert alert-warning mb-0">
+                    <i class="bi bi-hourglass me-2"></i>
+                    El reporte está en cola de procesamiento.
+                </div>
+                {% elif reporte.estado == 'generando' %}
+                <div class="alert alert-info mb-0">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    Generando reporte...
+                </div>
+                {% elif reporte.estado == 'completado' %}
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Reporte completado y listo para descargar.
+                </div>
+                {% elif reporte.estado == 'error' %}
+                <div class="alert alert-danger mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error al generar el reporte.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Estadísticas de Descarga -->
+        {% if reporte.estado == 'completado' %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Estadísticas</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>Descargas:</strong> {{ reporte.veces_descargado }}
+                </p>
+                {% if reporte.fecha_ultima_descarga %}
+                <p class="mb-2">
+                    <strong>Última descarga:</strong><br>
+                    {{ reporte.fecha_ultima_descarga|date:"d/m/Y H:i" }}
+                </p>
+                {% endif %}
+                {% if reporte.tamaño_archivo %}
+                <p class="mb-0">
+                    <strong>Tamaño:</strong> {{ reporte.tamaño_archivo|filesizeformat }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Información del Tipo de Reporte -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Sobre este Tipo de Reporte</h6>
+            </div>
+            <div class="card-body">
+                <h6>{{ reporte.tipo_reporte.nombre }}</h6>
+                <p class="text-muted small">{{ reporte.tipo_reporte.descripcion }}</p>
+
+                {% if reporte.tipo_reporte.formato_salida %}
+                <p class="mb-0">
+                    <strong>Formatos disponibles:</strong><br>
+                    {% for formato in reporte.tipo_reporte.formato_salida %}
+                        <span class="badge bg-secondary me-1">{{ formato|upper }}</span>
+                    {% endfor %}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function procesarReporte() {
+    if (confirm('¿Deseas procesar este reporte ahora?')) {
+        alert('El reporte comenzará a procesarse. Recibirás una notificación cuando esté listo.');
+        // Aquí iría la llamada AJAX para iniciar el procesamiento
+        // location.reload();
+    }
+}
+
+function cancelarReporte() {
+    if (confirm('¿Estás seguro de que deseas cancelar y eliminar este reporte? Esta acción no se puede deshacer.')) {
+        // Deshabilitar el botón
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Cancelando...';
+
+        // Obtener el token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                          getCookie('csrftoken');
+
+        // Hacer la petición AJAX
+        fetch('{% url "reportes:cancelar_reporte" reporte.id %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message || 'Reporte eliminado correctamente');
+                window.location.href = '{% url "reportes:lista_reportes" %}';
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo cancelar el reporte'));
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cancelar el reporte. Por favor, intenta de nuevo.');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    }
+}
+
+// Función auxiliar para obtener cookie CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Auto-refresh si el reporte está en estado 'generando'
+{% if reporte.estado == 'generando' %}
+setTimeout(function() {
+    location.reload();
+}, 5000); // Recargar cada 5 segundos
+{% endif %}
+</script>
+{% endblock %}

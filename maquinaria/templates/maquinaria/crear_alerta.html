@@ -1,0 +1,681 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Alerta - SENA{% endblock %}
+{% block page_title %}Nueva Alerta{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle-dotted me-2"></i>Crear Nueva Alerta
+                </h5>
+                <div>
+                    <button class="btn btn-outline-info btn-sm" onclick="showTemplates()">
+                        <i class="bi bi-clipboard-data me-1"></i>Plantillas
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'maquinaria:alertas' %}">Alertas</a></li>
+                        <li class="breadcrumb-item active">Nueva Alerta</li>
+                    </ol>
+                </nav>
+
+                <form method="post" enctype="multipart/form-data" id="alertForm">
+                    {% csrf_token %}
+
+                    <!-- Alert Type Selection -->
+                    <div class="mb-4">
+                        <label class="form-label">Tipo de Alerta *</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_alerta" id="tipo_falla" value="falla" required>
+                                <label class="btn btn-outline-danger w-100 p-3" for="tipo_falla">
+                                    <i class="bi bi-exclamation-triangle display-6"></i>
+                                    <div class="mt-2">
+                                        <strong>Falla Mecánica</strong>
+                                        <div class="small text-muted">Problemas técnicos</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_alerta" id="tipo_mantenimiento" value="mantenimiento">
+                                <label class="btn btn-outline-warning w-100 p-3" for="tipo_mantenimiento">
+                                    <i class="bi bi-wrench display-6"></i>
+                                    <div class="mt-2">
+                                        <strong>Mantenimiento</strong>
+                                        <div class="small text-muted">Programado o urgente</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_alerta" id="tipo_operacional" value="operacional">
+                                <label class="btn btn-outline-info w-100 p-3" for="tipo_operacional">
+                                    <i class="bi bi-gear display-6"></i>
+                                    <div class="mt-2">
+                                        <strong>Operacional</strong>
+                                        <div class="small text-muted">Uso y rendimiento</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Basic Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Información Básica</h6>
+
+                            <div class="mb-3">
+                                <label for="maquina" class="form-label">Máquina Afectada *</label>
+                                <select class="form-select" id="maquina" name="maquina" required onchange="loadMachineInfo()">
+                                    <option value="">Seleccionar máquina...</option>
+                                    {% for maquina in maquinas %}
+                                        <option value="{{ maquina.id }}" data-codigo="{{ maquina.codigo_inventario }}" data-ubicacion="{{ maquina.ubicacion }}" data-estado="{{ maquina.estado }}">
+                                            {{ maquina.codigo_inventario }} - {{ maquina.nombre }} ({{ maquina.marca }} {{ maquina.modelo }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Machine Info Preview -->
+                            <div class="alert alert-info d-none" id="machineInfo">
+                                <div class="d-flex align-items-center">
+                                    <img id="machineImage" src="" alt="Máquina" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                                    <div>
+                                        <h6 class="mb-1" id="machineName"></h6>
+                                        <small class="text-muted" id="machineLocation"></small>
+                                        <div>
+                                            <span class="badge" id="machineStatus"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="titulo" class="form-label">Título de la Alerta *</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required placeholder="Ej: Falla en sistema hidráulico">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="prioridad" class="form-label">Prioridad *</label>
+                                <select class="form-select" id="prioridad" name="prioridad" required onchange="updatePriorityInfo()">
+                                    <option value="">Seleccionar prioridad...</option>
+                                    <option value="baja">Baja</option>
+                                    <option value="media">Media</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="critica">Crítica</option>
+                                    <option value="emergencia">Emergencia</option>
+                                </select>
+                            </div>
+
+                            <!-- Priority Info -->
+                            <div class="alert d-none" id="priorityInfo">
+                                <h6 id="priorityTitle"></h6>
+                                <p class="mb-0 small" id="priorityDescription"></p>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="categoria" class="form-label">Categoría</label>
+                                <select class="form-select" id="categoria" name="categoria">
+                                    <option value="">Seleccionar categoría...</option>
+                                    <option value="hidraulico">Sistema Hidráulico</option>
+                                    <option value="motor">Motor</option>
+                                    <option value="transmision">Transmisión</option>
+                                    <option value="electrico">Sistema Eléctrico</option>
+                                    <option value="neumatico">Sistema Neumático</option>
+                                    <option value="estructural">Estructura</option>
+                                    <option value="seguridad">Seguridad</option>
+                                    <option value="otros">Otros</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Detection Details -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Detalles de Detección</h6>
+
+                            <div class="mb-3">
+                                <label for="fecha_deteccion" class="form-label">Fecha de Detección *</label>
+                                <input type="datetime-local" class="form-control" id="fecha_deteccion" name="fecha_deteccion" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="detectado_por" class="form-label">Detectado Por</label>
+                                <select class="form-select" id="detectado_por" name="detectado_por">
+                                    <option value="sistema">Sistema Automático</option>
+                                    <option value="operador">Operador</option>
+                                    <option value="tecnico">Técnico de Mantenimiento</option>
+                                    <option value="inspector">Inspector</option>
+                                    <option value="usuario">Usuario Final</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="ubicacion_falla" class="form-label">Ubicación Específica</label>
+                                <input type="text" class="form-control" id="ubicacion_falla" name="ubicacion_falla" placeholder="Ej: Brazo excavador, bomba hidráulica...">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="sintomas" class="form-label">Síntomas Observados</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sintoma_ruido" name="sintomas" value="ruido">
+                                    <label class="form-check-label" for="sintoma_ruido">Ruidos anómalos</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sintoma_vibracion" name="sintomas" value="vibracion">
+                                    <label class="form-check-label" for="sintoma_vibracion">Vibraciones excesivas</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sintoma_fuga" name="sintomas" value="fuga">
+                                    <label class="form-check-label" for="sintoma_fuga">Fugas de fluidos</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sintoma_temperatura" name="sintomas" value="temperatura">
+                                    <label class="form-check-label" for="sintoma_temperatura">Temperatura elevada</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sintoma_rendimiento" name="sintomas" value="rendimiento">
+                                    <label class="form-check-label" for="sintoma_rendimiento">Bajo rendimiento</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción Detallada *</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required
+                                  placeholder="Describe detalladamente el problema, condiciones en las que ocurrió, y cualquier información relevante..."></textarea>
+                        <div class="form-text">
+                            <span id="charCount">0</span>/500 caracteres
+                        </div>
+                    </div>
+
+                    <!-- Impact Assessment -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="impacto_operacional" class="form-label">Impacto Operacional</label>
+                            <select class="form-select" id="impacto_operacional" name="impacto_operacional">
+                                <option value="">Seleccionar...</option>
+                                <option value="nulo">Sin impacto</option>
+                                <option value="minimo">Mínimo - Operación normal</option>
+                                <option value="reducido">Reducido - Capacidad limitada</option>
+                                <option value="severo">Severo - Operación suspendida</option>
+                                <option value="critico">Crítico - Máquina fuera de servicio</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="riesgo_seguridad" class="form-label">Riesgo de Seguridad</label>
+                            <select class="form-select" id="riesgo_seguridad" name="riesgo_seguridad">
+                                <option value="">Evaluar riesgo...</option>
+                                <option value="nulo">Sin riesgo</option>
+                                <option value="bajo">Bajo - Precauciones menores</option>
+                                <option value="medio">Medio - Requiere atención</option>
+                                <option value="alto">Alto - Riesgo significativo</option>
+                                <option value="critico">Crítico - Peligro inmediato</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Assignment -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="tecnico_asignado" class="form-label">Técnico Asignado</label>
+                            <select class="form-select" id="tecnico_asignado" name="tecnico_asignado">
+                                <option value="">Asignar automáticamente</option>
+                                {% for tecnico in usuarios_tecnicos %}
+                                    <option value="{{ tecnico.id }}">{{ tecnico.nombre_completo }} - {{ tecnico.cargo|default:"Técnico" }}</option>
+                                {% empty %}
+                                    <option value="" disabled>No hay técnicos disponibles</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fecha_estimada" class="form-label">Fecha Estimada de Resolución</label>
+                            <input type="datetime-local" class="form-control" id="fecha_estimada" name="fecha_estimada">
+                        </div>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div class="mb-3">
+                        <label for="adjuntos" class="form-label">Archivos Adjuntos</label>
+                        <input type="file" class="form-control" id="adjuntos" name="adjuntos" multiple accept="image/*,.pdf,.doc,.docx">
+                        <div class="form-text">Fotos, documentos o reportes. Máximo 10MB por archivo.</div>
+                    </div>
+
+                    <!-- Immediate Actions -->
+                    <div class="mb-4">
+                        <label class="form-label">Acciones Inmediatas</label>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="suspender_operacion" name="acciones_inmediatas" value="suspender">
+                                    <label class="form-check-label" for="suspender_operacion">
+                                        <strong>Suspender operación de la máquina</strong>
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="aislar_area" name="acciones_inmediatas" value="aislar">
+                                    <label class="form-check-label" for="aislar_area">
+                                        Aislar área de trabajo
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="notificar_supervision" name="acciones_inmediatas" value="notificar">
+                                    <label class="form-check-label" for="notificar_supervision">
+                                        Notificar a supervisión
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="solicitar_repuestos" name="acciones_inmediatas" value="repuestos">
+                                    <label class="form-check-label" for="solicitar_repuestos">
+                                        Solicitar repuestos inmediatamente
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vista Previa Completa -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-eye me-2"></i>Vista Previa de la Alerta
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div><strong>Tipo:</strong> <span id="preview-tipo">-</span></div>
+                                    <div><strong>Máquina:</strong> <span id="preview-maquina">-</span></div>
+                                    <div><strong>Título:</strong> <span id="preview-titulo">-</span></div>
+                                    <div><strong>Prioridad:</strong> <span id="preview-prioridad-badge">-</span></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div><strong>Categoría:</strong> <span id="preview-categoria-alert">-</span></div>
+                                    <div><strong>Fecha Detección:</strong> <span id="preview-fecha">-</span></div>
+                                    <div><strong>Impacto:</strong> <span id="preview-impacto">-</span></div>
+                                    <div><strong>Técnico:</strong> <span id="preview-tecnico-alert">-</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'maquinaria:alertas' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-primary me-2" onclick="updateAlertPreview()">
+                                <i class="bi bi-eye me-2"></i>Vista Previa
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="saveDraft()">
+                                <i class="bi bi-save me-2"></i>Guardar Borrador
+                            </button>
+                            <button type="submit" class="btn btn-danger" id="submitBtn">
+                                <i class="bi bi-exclamation-triangle me-2"></i>Crear Alerta
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Templates Modal -->
+<div class="modal fade" id="templatesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Plantillas de Alerta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card template-card" onclick="loadTemplate('hidraulico')">
+                            <div class="card-body text-center">
+                                <i class="bi bi-droplet-half display-4 text-primary"></i>
+                                <h6 class="mt-2">Falla Hidráulica</h6>
+                                <small class="text-muted">Sistema hidráulico, fugas, presión</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card template-card" onclick="loadTemplate('motor')">
+                            <div class="card-body text-center">
+                                <i class="bi bi-gear-fill display-4 text-warning"></i>
+                                <h6 class="mt-2">Problema Motor</h6>
+                                <small class="text-muted">Motor, combustible, refrigeración</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card template-card" onclick="loadTemplate('electrico')">
+                            <div class="card-body text-center">
+                                <i class="bi bi-lightning-charge display-4 text-danger"></i>
+                                <h6 class="mt-2">Falla Eléctrica</h6>
+                                <small class="text-muted">Sistema eléctrico, batería, cableado</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card template-card" onclick="loadTemplate('mantenimiento')">
+                            <div class="card-body text-center">
+                                <i class="bi bi-wrench display-4 text-info"></i>
+                                <h6 class="mt-2">Mantenimiento</h6>
+                                <small class="text-muted">Programado, preventivo, correctivo</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-check:checked + .btn-outline-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .btn-check:checked + .btn-outline-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: black;
+    }
+
+    .btn-check:checked + .btn-outline-info {
+        background-color: #0dcaf0;
+        border-color: #0dcaf0;
+        color: black;
+    }
+
+    .template-card {
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .alert.alert-baja { border-left: 4px solid #28a745; }
+    .alert.alert-media { border-left: 4px solid #ffc107; }
+    .alert.alert-alta { border-left: 4px solid #fd7e14; }
+    .alert.alert-critica { border-left: 4px solid #dc3545; }
+    .alert.alert-emergencia { border-left: 4px solid #6f42c1; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current datetime
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('fecha_deteccion').value = now.toISOString().slice(0, 16);
+
+    // Character counter
+    const descripcionField = document.getElementById('descripcion');
+    const charCount = document.getElementById('charCount');
+
+    descripcionField.addEventListener('input', function() {
+        const length = this.value.length;
+        charCount.textContent = length;
+
+        if (length > 450) {
+            charCount.className = 'text-warning';
+        } else if (length > 480) {
+            charCount.className = 'text-danger';
+        } else {
+            charCount.className = 'text-muted';
+        }
+    });
+});
+
+function loadMachineInfo() {
+    const maquinaSelect = document.getElementById('maquina');
+    const selectedOption = maquinaSelect.options[maquinaSelect.selectedIndex];
+    const machineInfo = document.getElementById('machineInfo');
+
+    if (selectedOption && selectedOption.value) {
+        // Obtener datos reales del option seleccionado
+        const codigo = selectedOption.getAttribute('data-codigo');
+        const ubicacion = selectedOption.getAttribute('data-ubicacion');
+        const estado = selectedOption.getAttribute('data-estado');
+        const nombre = selectedOption.textContent;
+
+        // Mapear estados a clases CSS
+        const statusMapping = {
+            'disponible': { class: 'bg-success', text: 'Disponible' },
+            'operativa': { class: 'bg-primary', text: 'Operativa' },
+            'mantenimiento': { class: 'bg-warning text-dark', text: 'Mantenimiento' },
+            'reparacion': { class: 'bg-danger', text: 'Reparación' },
+            'fuera_servicio': { class: 'bg-secondary', text: 'Fuera de Servicio' },
+            'retirada': { class: 'bg-dark', text: 'Retirada' }
+        };
+
+        const statusInfo = statusMapping[estado] || { class: 'bg-secondary', text: 'Sin Estado' };
+
+        // Actualizar información en el DOM
+        document.getElementById('machineName').textContent = nombre;
+        document.getElementById('machineLocation').textContent = ubicacion || 'Ubicación no especificada';
+        document.getElementById('machineStatus').textContent = statusInfo.text;
+        document.getElementById('machineStatus').className = 'badge ' + statusInfo.class;
+
+        // Usar placeholder por ahora
+        document.getElementById('machineImage').src = '/static/images/machine-placeholder.png';
+
+        machineInfo.classList.remove('d-none');
+    } else {
+        machineInfo.classList.add('d-none');
+    }
+}
+
+function updatePriorityInfo() {
+    const prioridad = document.getElementById('prioridad').value;
+    const priorityInfo = document.getElementById('priorityInfo');
+    const priorityTitle = document.getElementById('priorityTitle');
+    const priorityDescription = document.getElementById('priorityDescription');
+
+    const priorities = {
+        'baja': {
+            title: 'Prioridad Baja',
+            description: 'No afecta la operación inmediata. Puede programarse para mantenimiento regular.',
+            class: 'alert-success'
+        },
+        'media': {
+            title: 'Prioridad Media',
+            description: 'Requiere atención en las próximas 24-48 horas. Puede afectar el rendimiento.',
+            class: 'alert-info'
+        },
+        'alta': {
+            title: 'Prioridad Alta',
+            description: 'Requiere atención inmediata. Afecta la operación normal de la máquina.',
+            class: 'alert-warning'
+        },
+        'critica': {
+            title: 'Prioridad Crítica',
+            description: 'Requiere atención urgente. La máquina debe suspender operaciones.',
+            class: 'alert-danger'
+        },
+        'emergencia': {
+            title: 'Emergencia',
+            description: 'Situación de emergencia que requiere respuesta inmediata y puede involucrar riesgos de seguridad.',
+            class: 'alert-dark'
+        }
+    };
+
+    if (prioridad && priorities[prioridad]) {
+        const priority = priorities[prioridad];
+        priorityTitle.textContent = priority.title;
+        priorityDescription.textContent = priority.description;
+        priorityInfo.className = 'alert ' + priority.class;
+        priorityInfo.classList.remove('d-none');
+    } else {
+        priorityInfo.classList.add('d-none');
+    }
+}
+
+function showTemplates() {
+    const modal = new bootstrap.Modal(document.getElementById('templatesModal'));
+    modal.show();
+}
+
+function loadTemplate(type) {
+    const templates = {
+        'hidraulico': {
+            tipo: 'falla',
+            titulo: 'Falla en Sistema Hidráulico',
+            categoria: 'hidraulico',
+            prioridad: 'alta',
+            descripcion: 'Se detectó una anomalía en el sistema hidráulico. Los síntomas incluyen pérdida de presión, movimientos lentos y posible fuga de fluido hidráulico.',
+            sintomas: ['fuga', 'rendimiento']
+        },
+        'motor': {
+            tipo: 'falla',
+            titulo: 'Problema en Motor',
+            categoria: 'motor',
+            prioridad: 'critica',
+            descripcion: 'El motor presenta anomalías que requieren atención inmediata. Se recomienda suspender la operación hasta completar la revisión.',
+            sintomas: ['ruido', 'temperatura']
+        },
+        'electrico': {
+            tipo: 'falla',
+            titulo: 'Falla Eléctrica',
+            categoria: 'electrico',
+            prioridad: 'media',
+            descripcion: 'Se detectó una falla en el sistema eléctrico que puede afectar el funcionamiento de componentes críticos.',
+            sintomas: ['rendimiento']
+        },
+        'mantenimiento': {
+            tipo: 'mantenimiento',
+            titulo: 'Mantenimiento Preventivo Programado',
+            categoria: 'otros',
+            prioridad: 'media',
+            descripcion: 'Mantenimiento preventivo programado según el cronograma establecido. Incluye inspección general y reemplazo de componentes según especificaciones.',
+            sintomas: []
+        }
+    };
+
+    const template = templates[type];
+    if (template) {
+        // Load template data into form
+        document.getElementById('tipo_' + template.tipo).checked = true;
+        document.getElementById('titulo').value = template.titulo;
+        document.getElementById('categoria').value = template.categoria;
+        document.getElementById('prioridad').value = template.prioridad;
+        document.getElementById('descripcion').value = template.descripcion;
+
+        // Update priority info
+        updatePriorityInfo();
+
+        // Check symptoms
+        template.sintomas.forEach(sintoma => {
+            const checkbox = document.getElementById('sintoma_' + sintoma);
+            if (checkbox) checkbox.checked = true;
+        });
+
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('templatesModal')).hide();
+    }
+}
+
+function saveDraft() {
+    alert('Borrador guardado exitosamente');
+}
+
+function updateAlertPreview() {
+    // Tipo de alerta
+    const tipoRadio = document.querySelector('input[name="tipo_alerta"]:checked');
+    const tipo = tipoRadio ? tipoRadio.nextElementSibling.querySelector('strong').textContent : '-';
+    document.getElementById('preview-tipo').textContent = tipo;
+
+    // Máquina
+    const maquinaSelect = document.getElementById('maquina');
+    const maquina = maquinaSelect?.selectedOptions[0]?.textContent || '-';
+    document.getElementById('preview-maquina').textContent = maquina;
+
+    // Título
+    const titulo = document.getElementById('titulo')?.value || '-';
+    document.getElementById('preview-titulo').textContent = titulo;
+
+    // Prioridad con badge
+    const prioridadSelect = document.getElementById('prioridad');
+    const prioridad = prioridadSelect?.value || '';
+    const prioridadText = prioridadSelect?.selectedOptions[0]?.textContent || '-';
+
+    const prioridadBadges = {
+        'baja': '<span class="badge bg-success">Baja</span>',
+        'media': '<span class="badge bg-info">Media</span>',
+        'alta': '<span class="badge bg-warning text-dark">Alta</span>',
+        'critica': '<span class="badge bg-danger">Crítica</span>',
+        'emergencia': '<span class="badge bg-dark">Emergencia</span>'
+    };
+    document.getElementById('preview-prioridad-badge').innerHTML = prioridadBadges[prioridad] || prioridadText;
+
+    // Categoría
+    const categoriaSelect = document.getElementById('categoria');
+    const categoria = categoriaSelect?.selectedOptions[0]?.textContent || '-';
+    document.getElementById('preview-categoria-alert').textContent = categoria;
+
+    // Fecha
+    const fechaInput = document.getElementById('fecha_deteccion');
+    if (fechaInput?.value) {
+        const fecha = new Date(fechaInput.value);
+        document.getElementById('preview-fecha').textContent = fecha.toLocaleString('es-ES');
+    } else {
+        document.getElementById('preview-fecha').textContent = '-';
+    }
+
+    // Impacto
+    const impactoSelect = document.getElementById('impacto_operacional');
+    const impacto = impactoSelect?.selectedOptions[0]?.textContent || '-';
+    document.getElementById('preview-impacto').textContent = impacto;
+
+    // Técnico
+    const tecnicoSelect = document.getElementById('tecnico_asignado');
+    const tecnico = tecnicoSelect?.selectedOptions[0]?.textContent || 'Asignar automáticamente';
+    document.getElementById('preview-tecnico-alert').textContent = tecnico;
+
+    alert('Vista previa actualizada. Revisa el cuadro debajo del formulario.');
+}
+
+// Form submission - submit real form
+document.getElementById('alertForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
+
+    // Validar campos requeridos
+    const maquina = document.getElementById('maquina').value;
+    const titulo = document.getElementById('titulo').value;
+    const descripcion = document.getElementById('descripcion').value;
+    const tipoAlerta = document.querySelector('input[name="tipo_alerta"]:checked');
+
+    if (!maquina || !titulo || !descripcion || !tipoAlerta) {
+        alert('Por favor complete todos los campos requeridos (Máquina, Tipo de Alerta, Título y Descripción)');
+        return false;
+    }
+
+    // Mostrar loading
+    submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Creando Alerta...';
+    submitBtn.disabled = true;
+
+    // Permitir que el formulario se envíe normalmente
+    return true;
+});
+</script>
+{% endblock %}

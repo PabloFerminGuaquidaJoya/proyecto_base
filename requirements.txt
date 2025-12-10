@@ -1,0 +1,11 @@
+Django
+djangorestframework
+django-cors-headers
+Pillow
+python-dateutil
+openpyxl
+reportlab
+requests
+django-environ
+celery
+redis

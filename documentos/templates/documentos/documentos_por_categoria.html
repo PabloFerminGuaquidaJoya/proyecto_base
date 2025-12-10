@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - SENA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>
+                        <i class="{{ categoria.icono }}" style="color: {{ categoria.color }}"></i>
+                        {{ categoria.nombre }}
+                    </h2>
+                    <p class="text-muted">{{ categoria.descripcion }}</p>
+                </div>
+                <a href="{% url 'documentos:categorias_documentos' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a categorías
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if documentos %}
+    <div class="row">
+        {% for documento in documentos %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">
+                            <i class="{{ documento.tipo_documento.icono }}" style="color: {{ documento.tipo_documento.color }}"></i>
+                            {{ documento.titulo|truncatewords:10 }}
+                        </h6>
+                        <span class="badge bg-{{ documento.estado }}" style="background-color: {% if documento.estado == 'publicado' %}#28a745{% elif documento.estado == 'borrador' %}#6c757d{% else %}#007bff{% endif %} !important;">
+                            {{ documento.get_estado_display }}
+                        </span>
+                    </div>
+
+                    <p class="card-text text-muted small">
+                        {{ documento.descripcion|truncatewords:15 }}
+                    </p>
+
+                    <div class="small mb-2">
+                        <div><i class="bi bi-file-earmark"></i> {{ documento.tipo_documento.nombre }}</div>
+                        <div><i class="bi bi-person"></i> {{ documento.creado_por.nombre_completo }}</div>
+                        <div><i class="bi bi-calendar"></i> {{ documento.fecha_creacion|date:"d/m/Y" }}</div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-sm btn-primary flex-fill">
+                            <i class="bi bi-eye"></i> Ver
+                        </a>
+                        <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-sm btn-success">
+                            <i class="bi bi-download"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if documentos.has_other_pages %}
+    <nav aria-label="Paginación" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if documentos.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documentos.previous_page_number }}">Anterior</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ documentos.number }} de {{ documentos.paginator.num_pages }}</span>
+            </li>
+
+            {% if documentos.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documentos.next_page_number }}">Siguiente</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+        <h5>No hay documentos en esta categoría</h5>
+        <p>Sube el primer documento para esta categoría.</p>
+        <a href="{% url 'documentos:subir_documento' %}" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Subir documento
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

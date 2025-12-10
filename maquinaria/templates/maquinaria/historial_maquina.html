@@ -1,0 +1,646 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial Máquina - SENA{% endblock %}
+{% block page_title %}Historial de Máquina{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Machine Header -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <img src="/static/images/machine-placeholder.png" class="img-fluid rounded" alt="Máquina" style="max-height: 80px;">
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="mb-1">Excavadora Caterpillar 320</h4>
+                        <p class="text-muted mb-2">Código: <strong>EXC-001</strong></p>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'maquinaria:lista_maquinas' %}">Máquinas</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'maquinaria:detalle_maquina' pk=1 %}">EXC-001</a></li>
+                                <li class="breadcrumb-item active">Historial</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'maquinaria:detalle_maquina' pk=1 %}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="exportHistory()">
+                                <i class="bi bi-download"></i> Exportar
+                            </button>
+                            <button class="btn btn-outline-info" onclick="printHistory()">
+                                <i class="bi bi-printer"></i> Imprimir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Timeline and Filters -->
+    <div class="col-lg-9">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterType">
+                            <option value="">Todos los eventos</option>
+                            <option value="mantenimiento">Mantenimiento</option>
+                            <option value="operacion">Operación</option>
+                            <option value="alerta">Alertas</option>
+                            <option value="modificacion">Modificaciones</option>
+                            <option value="documento">Documentos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterPeriod">
+                            <option value="all">Todo el historial</option>
+                            <option value="30">Últimos 30 días</option>
+                            <option value="90">Últimos 3 meses</option>
+                            <option value="365">Último año</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchHistory" placeholder="Buscar en historial...">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-primary w-100" onclick="refreshHistory()">
+                            <i class="bi bi-arrow-clockwise"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Línea de Tiempo Completa</h6>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="compactView">
+                    <label class="form-check-label" for="compactView">Vista Compacta</label>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="timeline-container" id="timelineContainer">
+
+                    <!-- Event: Recent Operation -->
+                    <div class="timeline-event" data-type="operacion" data-date="2024-01-25">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h6>Sesión de Operación Finalizada</h6>
+                                <small class="text-muted">25 de Enero, 2024 - 14:30</small>
+                                <span class="badge bg-primary ms-2">Operación</span>
+                            </div>
+                            <div class="timeline-body">
+                                <p class="mb-2">Operación de excavación en sector norte completada exitosamente.</p>
+                                <div class="row text-center">
+                                    <div class="col-3">
+                                        <strong>4.5 hrs</strong><br>
+                                        <small class="text-muted">Duración</small>
+                                    </div>
+                                    <div class="col-3">
+                                        <strong>18.2 L</strong><br>
+                                        <small class="text-muted">Combustible</small>
+                                    </div>
+                                    <div class="col-3">
+                                        <strong>45.2 m³</strong><br>
+                                        <small class="text-muted">Material</small>
+                                    </div>
+                                    <div class="col-3">
+                                        <strong>98%</strong><br>
+                                        <small class="text-muted">Eficiencia</small>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-person me-1"></i>Operador: Carlos Mendoza
+                                        <i class="bi bi-geo-alt ms-3 me-1"></i>Ubicación: Sector Norte
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event: Maintenance Completed -->
+                    <div class="timeline-event" data-type="mantenimiento" data-date="2024-01-20">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h6>Mantenimiento Preventivo Completado</h6>
+                                <small class="text-muted">20 de Enero, 2024 - 09:15</small>
+                                <span class="badge bg-success ms-2">Mantenimiento</span>
+                            </div>
+                            <div class="timeline-body">
+                                <p class="mb-2">Mantenimiento preventivo de 250 horas realizado según cronograma.</p>
+                                <div class="alert alert-success alert-sm">
+                                    <strong>Servicios realizados:</strong>
+                                    <ul class="mb-0">
+                                        <li>Cambio de aceite motor y hidráulico</li>
+                                        <li>Reemplazo de filtros (aire, combustible, hidráulico)</li>
+                                        <li>Inspección de sistemas principales</li>
+                                        <li>Calibración de presiones</li>
+                                    </ul>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <i class="bi bi-person-gear me-1"></i>Técnico: Juan Pérez
+                                        </small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <i class="bi bi-currency-dollar me-1"></i>Costo: $450,000
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="viewMaintenanceDetail('mant_001')">
+                                        <i class="bi bi-eye"></i> Ver Detalles
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="downloadCertificate('mant_001')">
+                                        <i class="bi bi-download"></i> Certificado
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event: Alert Resolved -->
+                    <div class="timeline-event" data-type="alerta" data-date="2024-01-18">
+                        <div class="timeline-marker bg-warning"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h6>Alerta de Presión Hidráulica Resuelta</h6>
+                                <small class="text-muted">18 de Enero, 2024 - 16:22</small>
+                                <span class="badge bg-warning ms-2">Alerta</span>
+                            </div>
+                            <div class="timeline-body">
+                                <p class="mb-2">Alerta por baja presión en sistema hidráulico identificada y corregida.</p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Problema identificado:</strong><br>
+                                        <small class="text-muted">Conexión suelta en línea principal</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Solución aplicada:</strong><br>
+                                        <small class="text-muted">Ajuste de conexiones y cambio de sellos</small>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>Tiempo de resolución: 2.5 horas
+                                        <i class="bi bi-person ms-3 me-1"></i>Resuelto por: María García
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event: Document Added -->
+                    <div class="timeline-event" data-type="documento" data-date="2024-01-15">
+                        <div class="timeline-marker bg-info"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h6>Documento Agregado</h6>
+                                <small class="text-muted">15 de Enero, 2024 - 11:30</small>
+                                <span class="badge bg-info ms-2">Documento</span>
+                            </div>
+                            <div class="timeline-body">
+                                <p class="mb-2">Manual de operación actualizado agregado al sistema.</p>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-pdf text-danger fs-4 me-2"></i>
+                                    <div>
+                                        <strong>Manual_Operacion_CAT320_v2.1.pdf</strong><br>
+                                        <small class="text-muted">2.4 MB - Agregado por Admin Sistema</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary ms-auto" onclick="downloadDocument('doc_001')">
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event: Machine Modified -->
+                    <div class="timeline-event" data-type="modificacion" data-date="2024-01-10">
+                        <div class="timeline-marker bg-secondary"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h6>Información de Máquina Actualizada</h6>
+                                <small class="text-muted">10 de Enero, 2024 - 13:45</small>
+                                <span class="badge bg-secondary ms-2">Modificación</span>
+                            </div>
+                            <div class="timeline-body">
+                                <p class="mb-2">Actualización de datos técnicos y ubicación.</p>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Campo</th>
+                                            <th>Valor Anterior</th>
+                                            <th>Valor Nuevo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Ubicación</td>
+                                            <td>Taller A</td>
+                                            <td>Sede Principal</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Horas de Operación</td>
+                                            <td>1,200</td>
+                                            <td>1,250</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <small class="text-muted">
+                                    <i class="bi bi-person me-1"></i>Modificado por: Admin Sistema
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event: Machine Created -->
+                    <div class="timeline-event" data-type="modificacion" data-date="2020-03-15">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h6>Máquina Registrada en el Sistema</h6>
+                                <small class="text-muted">15 de Marzo, 2020 - 10:00</small>
+                                <span class="badge bg-primary ms-2">Creación</span>
+                            </div>
+                            <div class="timeline-body">
+                                <p class="mb-0">Excavadora Caterpillar 320 registrada oficialmente en el inventario SENA.</p>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar me-1"></i>Fecha de adquisición: 15 de Marzo, 2020
+                                        <i class="bi bi-currency-dollar ms-3 me-1"></i>Valor: $450,000,000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Load More Button -->
+                <div class="text-center p-3 border-top">
+                    <button class="btn btn-outline-primary" onclick="loadMoreHistory()">
+                        <i class="bi bi-arrow-down-circle me-2"></i>Cargar Más Eventos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Stats -->
+    <div class="col-lg-3">
+        <!-- Summary Stats -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Resumen de Actividad</h6>
+            </div>
+            <div class="card-body">
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total de Eventos</span>
+                        <strong>142</strong>
+                    </div>
+                    <div class="progress mt-1" style="height: 4px;">
+                        <div class="progress-bar bg-primary" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Mantenimientos</span>
+                        <strong>35</strong>
+                    </div>
+                    <div class="progress mt-1" style="height: 4px;">
+                        <div class="progress-bar bg-success" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Alertas Resueltas</span>
+                        <strong>18</strong>
+                    </div>
+                    <div class="progress mt-1" style="height: 4px;">
+                        <div class="progress-bar bg-warning" style="width: 13%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Horas Operación</span>
+                        <strong>1,250</strong>
+                    </div>
+                    <div class="progress mt-1" style="height: 4px;">
+                        <div class="progress-bar bg-info" style="width: 62%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="d-flex justify-content-between">
+                        <span>Documentos</span>
+                        <strong>23</strong>
+                    </div>
+                    <div class="progress mt-1" style="height: 4px;">
+                        <div class="progress-bar bg-secondary" style="width: 16%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-success" onclick="scheduleMaintenances()">
+                        <i class="bi bi-calendar-plus me-2"></i>Programar Mantenimiento
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="createAlert()">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Crear Alerta
+                    </button>
+                    <button class="btn btn-outline-info" onclick="addDocument()">
+                        <i class="bi bi-file-plus me-2"></i>Agregar Documento
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="generateReport()">
+                        <i class="bi bi-file-text me-2"></i>Generar Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Próximos Eventos</h6>
+            </div>
+            <div class="card-body">
+                <div class="upcoming-event mb-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-1">Mantenimiento 500 hrs</h6>
+                            <small class="text-muted">En 25 horas de operación</small>
+                        </div>
+                        <span class="badge bg-warning">Próximo</span>
+                    </div>
+                </div>
+
+                <div class="upcoming-event mb-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-1">Inspección Anual</h6>
+                            <small class="text-muted">15 de Marzo, 2024</small>
+                        </div>
+                        <span class="badge bg-info">Programado</span>
+                    </div>
+                </div>
+
+                <div class="upcoming-event">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-1">Renovación Seguro</h6>
+                            <small class="text-muted">30 de Abril, 2024</small>
+                        </div>
+                        <span class="badge bg-secondary">Pendiente</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline-container {
+        padding: 1rem;
+    }
+
+    .timeline-event {
+        display: flex;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .timeline-event::before {
+        content: '';
+        position: absolute;
+        left: 18px;
+        top: 40px;
+        bottom: -20px;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+    .timeline-event:last-child::before {
+        display: none;
+    }
+
+    .timeline-marker {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .timeline-content {
+        flex: 1;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .timeline-header {
+        border-bottom: 1px solid #f8f9fa;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .timeline-header h6 {
+        margin-bottom: 0.25rem;
+        color: #495057;
+    }
+
+    .alert-sm {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .stat-item .progress {
+        background-color: #f8f9fa;
+    }
+
+    .upcoming-event {
+        border-left: 3px solid #dee2e6;
+        padding-left: 0.75rem;
+    }
+
+    /* Compact View */
+    .timeline-container.compact .timeline-content {
+        padding: 0.75rem;
+    }
+
+    .timeline-container.compact .timeline-event {
+        margin-bottom: 1rem;
+    }
+
+    .timeline-container.compact .timeline-body {
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter functionality
+document.getElementById('filterType').addEventListener('change', filterHistory);
+document.getElementById('filterPeriod').addEventListener('change', filterHistory);
+document.getElementById('searchHistory').addEventListener('input', searchHistory);
+
+// Compact view toggle
+document.getElementById('compactView').addEventListener('change', function() {
+    const container = document.getElementById('timelineContainer');
+    if (this.checked) {
+        container.classList.add('compact');
+    } else {
+        container.classList.remove('compact');
+    }
+});
+
+function filterHistory() {
+    const typeFilter = document.getElementById('filterType').value;
+    const periodFilter = document.getElementById('filterPeriod').value;
+    const events = document.querySelectorAll('.timeline-event');
+
+    events.forEach(event => {
+        let showEvent = true;
+
+        // Type filter
+        if (typeFilter && event.dataset.type !== typeFilter) {
+            showEvent = false;
+        }
+
+        // Period filter
+        if (periodFilter && periodFilter !== 'all') {
+            const eventDate = new Date(event.dataset.date);
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - parseInt(periodFilter));
+
+            if (eventDate < cutoffDate) {
+                showEvent = false;
+            }
+        }
+
+        event.style.display = showEvent ? 'flex' : 'none';
+    });
+}
+
+function searchHistory() {
+    const searchTerm = document.getElementById('searchHistory').value.toLowerCase();
+    const events = document.querySelectorAll('.timeline-event');
+
+    events.forEach(event => {
+        const text = event.textContent.toLowerCase();
+        const shouldShow = text.includes(searchTerm);
+        event.style.display = shouldShow ? 'flex' : 'none';
+    });
+}
+
+function refreshHistory() {
+    // Simulate refresh
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="spinner-border spinner-border-sm"></i> Actualizando...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        // Here you would reload the timeline data
+        alert('Historial actualizado');
+    }, 1500);
+}
+
+function loadMoreHistory() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Cargando...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert('Se cargarían más eventos aquí');
+    }, 1000);
+}
+
+function exportHistory() {
+    alert('Exportando historial completo...');
+}
+
+function printHistory() {
+    window.print();
+}
+
+function viewMaintenanceDetail(id) {
+    alert(`Ver detalles del mantenimiento ${id}`);
+}
+
+function downloadCertificate(id) {
+    alert(`Descargando certificado ${id}...`);
+}
+
+function downloadDocument(id) {
+    alert(`Descargando documento ${id}...`);
+}
+
+function scheduleMaintenances() {
+    window.location.href = '{% url "maquinaria:programar_mantenimiento" pk=1 %}';
+}
+
+function createAlert() {
+    window.location.href = '{% url "maquinaria:crear_alerta" %}';
+}
+
+function addDocument() {
+    alert('Redirigiendo a agregar documento...');
+}
+
+function generateReport() {
+    alert('Generando reporte de historial...');
+}
+</script>
+{% endblock %}

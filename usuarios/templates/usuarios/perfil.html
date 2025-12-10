@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil - SENA{% endblock %}
+{% block page_title %}Mi Perfil{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, var(--sena-primary) 0%, var(--sena-secondary) 100%);
+        color: white;
+        padding: 3rem 0;
+        margin: -2rem -2rem 2rem;
+        border-radius: 12px;
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        object-fit: cover;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: var(--sena-primary);
+    }
+
+    .profile-info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--sena-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--sena-primary);
+        box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.25);
+    }
+
+    .btn-primary {
+        background: var(--sena-primary);
+        border-color: var(--sena-primary);
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+    }
+
+    .btn-primary:hover {
+        background: #2d7a00;
+        border-color: #2d7a00;
+    }
+
+    .info-badge {
+        background: rgba(57, 169, 0, 0.1);
+        color: var(--sena-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        display: inline-block;
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+        font-weight: 700;
+        color: var(--sena-secondary);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid var(--sena-primary);
+        display: inline-block;
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--sena-primary);
+    }
+
+    .stats-label {
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<div class="profile-header">
+    <div class="container-fluid text-center">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                {% if usuario.foto_perfil %}
+                    <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <h2 class="mt-3 mb-1">{{ usuario.nombre_completo }}</h2>
+        <p class="mb-2">{{ usuario.email }}</p>
+        <div class="mb-0">
+            <span class="info-badge">
+                <i class="bi bi-briefcase me-1"></i>{{ usuario.cargo|default:"Sin cargo" }}
+            </span>
+            <span class="info-badge">
+                <i class="bi bi-building me-1"></i>{{ usuario.centro_formacion }}
+            </span>
+            {% if usuario.especialidad %}
+            <span class="info-badge">
+                <i class="bi bi-mortarboard me-1"></i>{{ usuario.especialidad }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulario de Edición -->
+    <div class="col-lg-8">
+        <div class="profile-info-card">
+            <h4 class="section-title"><i class="bi bi-pencil-square me-2"></i>Editar Información Personal</h4>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Información Personal -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="text-muted mb-3"><i class="bi bi-person me-2"></i>Datos Personales</h5>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.nombres.label }}</label>
+                        {{ form.nombres }}
+                        {% if form.nombres.errors %}
+                            <div class="text-danger small">{{ form.nombres.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.apellidos.label }}</label>
+                        {{ form.apellidos }}
+                        {% if form.apellidos.errors %}
+                            <div class="text-danger small">{{ form.apellidos.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.telefono.label }}</label>
+                        {{ form.telefono }}
+                        {% if form.telefono.errors %}
+                            <div class="text-danger small">{{ form.telefono.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">{{ form.foto_perfil.label }}</label>
+                        {{ form.foto_perfil }}
+                        {% if form.foto_perfil.errors %}
+                            <div class="text-danger small">{{ form.foto_perfil.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">Formatos permitidos: JPG, PNG. Tamaño máximo: 5MB</small>
+                    </div>
+                </div>
+
+                <!-- Información Institucional -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="text-muted mb-3"><i class="bi bi-building me-2"></i>Información Institucional</h5>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.centro_formacion.label }}</label>
+                        {{ form.centro_formacion }}
+                        {% if form.centro_formacion.errors %}
+                            <div class="text-danger small">{{ form.centro_formacion.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ form.especialidad.label }}</label>
+                        {{ form.especialidad }}
+                        {% if form.especialidad.errors %}
+                            <div class="text-danger small">{{ form.especialidad.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">{{ form.cargo.label }}</label>
+                        {{ form.cargo }}
+                        {% if form.cargo.errors %}
+                            <div class="text-danger small">{{ form.cargo.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Preferencias -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="text-muted mb-3"><i class="bi bi-gear me-2"></i>Preferencias</h5>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">{{ form.idioma.label }}</label>
+                        {{ form.idioma }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check mt-4">
+                            {{ form.notificaciones_email }}
+                            <label class="form-check-label" for="{{ form.notificaciones_email.id_for_label }}">
+                                {{ form.notificaciones_email.label }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check mt-4">
+                            {{ form.tema_oscuro }}
+                            <label class="form-check-label" for="{{ form.tema_oscuro.id_for_label }}">
+                                {{ form.tema_oscuro.label }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>Guardar Cambios
+                    </button>
+                    <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-key me-2"></i>Cambiar Contraseña
+                    </a>
+                    <a href="{% url 'usuarios:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar con Estadísticas -->
+    <div class="col-lg-4">
+        <!-- Información de Cuenta -->
+        <div class="profile-info-card">
+            <h5 class="section-title"><i class="bi bi-info-circle me-2"></i>Información de Cuenta</h5>
+            <div class="mb-3">
+                <small class="text-muted d-block">Tipo de Documento</small>
+                <strong>{{ usuario.get_tipo_documento_display }}</strong>
+            </div>
+            <div class="mb-3">
+                <small class="text-muted d-block">Número de Documento</small>
+                <strong>{{ usuario.numero_documento }}</strong>
+            </div>
+            <div class="mb-3">
+                <small class="text-muted d-block">Tipo de Usuario</small>
+                <strong>{{ usuario.tipo_usuario.nombre }}</strong>
+            </div>
+            <div class="mb-3">
+                <small class="text-muted d-block">Estado</small>
+                {% if usuario.estado == 'activo' %}
+                    <span class="badge bg-success">{{ usuario.get_estado_display }}</span>
+                {% elif usuario.estado == 'pendiente' %}
+                    <span class="badge bg-warning">{{ usuario.get_estado_display }}</span>
+                {% else %}
+                    <span class="badge bg-secondary">{{ usuario.get_estado_display }}</span>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <small class="text-muted d-block">Miembro desde</small>
+                <strong>{{ usuario.fecha_registro|date:"d/m/Y" }}</strong>
+            </div>
+            {% if usuario.ultimo_acceso %}
+            <div class="mb-0">
+                <small class="text-muted d-block">Último acceso</small>
+                <strong>{{ usuario.ultimo_acceso|date:"d/m/Y H:i" }}</strong>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="profile-info-card">
+            <h5 class="section-title"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</h5>
+            <div class="d-grid gap-2">
+                <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-shield-lock me-2"></i>Cambiar Contraseña
+                </a>
+                <a href="{% url 'usuarios:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-house me-2"></i>Ir al Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview de imagen antes de subir
+    const fotoInput = document.querySelector('input[name="foto_perfil"]');
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const profileAvatar = document.querySelector('.profile-avatar');
+                    if (profileAvatar) {
+                        profileAvatar.innerHTML = `<img src="${e.target.result}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

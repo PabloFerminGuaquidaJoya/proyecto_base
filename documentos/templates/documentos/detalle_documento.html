@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ documento.titulo }} - SENA{% endblock %}
+{% block page_title %}Detalle del Documento{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Información Principal -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-text me-2"></i>{{ documento.titulo }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong><i class="bi bi-folder me-2"></i>Tipo:</strong><br>
+                            <span class="badge bg-info">{{ documento.tipo_documento.nombre }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong><i class="bi bi-tag me-2"></i>Categoría:</strong><br>
+                            <span class="badge bg-warning text-dark">{{ documento.categoria.nombre }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong><i class="bi bi-flag me-2"></i>Estado:</strong><br>
+                            {% if documento.estado == 'publicado' %}
+                                <span class="badge bg-success">{{ documento.get_estado_display }}</span>
+                            {% elif documento.estado == 'aprobado' %}
+                                <span class="badge bg-primary">{{ documento.get_estado_display }}</span>
+                            {% elif documento.estado == 'revision' %}
+                                <span class="badge bg-warning">{{ documento.get_estado_display }}</span>
+                            {% elif documento.estado == 'borrador' %}
+                                <span class="badge bg-secondary">{{ documento.get_estado_display }}</span>
+                            {% elif documento.estado == 'obsoleto' %}
+                                <span class="badge bg-danger">{{ documento.get_estado_display }}</span>
+                            {% else %}
+                                <span class="badge bg-dark">{{ documento.get_estado_display }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong><i class="bi bi-shield-lock me-2"></i>Nivel de Acceso:</strong><br>
+                            {% if documento.nivel_acceso == 'publico' %}
+                                <span class="badge bg-success">{{ documento.get_nivel_acceso_display }}</span>
+                            {% elif documento.nivel_acceso == 'interno' %}
+                                <span class="badge bg-info">{{ documento.get_nivel_acceso_display }}</span>
+                            {% elif documento.nivel_acceso == 'confidencial' %}
+                                <span class="badge bg-warning">{{ documento.get_nivel_acceso_display }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ documento.get_nivel_acceso_display }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                {% if documento.descripcion %}
+                <div class="mb-3">
+                    <strong><i class="bi bi-text-paragraph me-2"></i>Descripción:</strong>
+                    <p class="text-muted mt-2">{{ documento.descripcion }}</p>
+                </div>
+                {% endif %}
+
+                <hr>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <p class="mb-2">
+                            <strong><i class="bi bi-person me-2"></i>Creado por:</strong><br>
+                            {{ documento.creado_por.nombre_completo }}
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-2">
+                            <strong><i class="bi bi-calendar me-2"></i>Fecha:</strong><br>
+                            {{ documento.fecha_creacion|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-2">
+                            <strong><i class="bi bi-clock-history me-2"></i>Modificado:</strong><br>
+                            {{ documento.fecha_modificacion|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                </div>
+
+                {% if documento.maquina_relacionada %}
+                <div class="mb-3">
+                    <strong><i class="bi bi-gear me-2"></i>Máquina Relacionada:</strong><br>
+                    <a href="{% url 'maquinaria:detalle_maquina' documento.maquina_relacionada.pk %}" class="btn btn-sm btn-outline-primary mt-2">
+                        <i class="bi bi-box-seam me-2"></i>{{ documento.maquina_relacionada.codigo_inventario }} - {{ documento.maquina_relacionada.nombre }}
+                    </a>
+                </div>
+                {% endif %}
+
+                <hr>
+
+                <h6 class="mb-3"><i class="bi bi-info-circle me-2"></i>Información del Archivo</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p class="mb-2">
+                            <strong>Extensión:</strong><br>
+                            <span class="badge bg-secondary">{{ documento.extension|upper }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-2">
+                            <strong>Tamaño:</strong><br>
+                            {{ documento.tamaño_mb }} MB
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-2">
+                            <strong>Versión:</strong><br>
+                            {{ documento.version }}
+                        </p>
+                    </div>
+                </div>
+
+                {% if documento.autor_original %}
+                <div class="mt-3">
+                    <strong>Autor Original:</strong> {{ documento.autor_original }}
+                </div>
+                {% endif %}
+
+                {% if documento.fecha_vencimiento %}
+                <div class="mt-3">
+                    <strong><i class="bi bi-calendar-x me-2"></i>Fecha de Vencimiento:</strong>
+                    {{ documento.fecha_vencimiento|date:"d/m/Y" }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-tools me-2"></i>Acciones</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary">
+                        <i class="bi bi-download me-2"></i>Descargar
+                    </a>
+
+                    <a href="{% url 'documentos:ver_documento' documento.pk %}" class="btn btn-info text-white" target="_blank">
+                        <i class="bi bi-eye me-2"></i>Ver en Navegador
+                    </a>
+
+                    {% if user.is_staff %}
+                    <a href="{% url 'documentos:editar_documento' documento.pk %}" class="btn btn-warning">
+                        <i class="bi bi-pencil me-2"></i>Editar
+                    </a>
+
+                    <button class="btn btn-danger" onclick="eliminarDocumento()">
+                        <i class="bi bi-trash me-2"></i>Eliminar
+                    </button>
+                    {% endif %}
+
+                    <a href="{% url 'documentos:repositorio' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Volver al Repositorio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Estadísticas -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Estadísticas</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span><i class="bi bi-download me-2"></i>Descargas:</span>
+                        <span class="badge bg-primary">{{ documento.total_descargas }}</span>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ documento.total_descargas|default:0 }}%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span><i class="bi bi-eye me-2"></i>Visualizaciones:</span>
+                        <span class="badge bg-info">{{ documento.total_visualizaciones }}</span>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ documento.total_visualizaciones|default:0 }}%"></div>
+                    </div>
+                </div>
+
+                {% if documento.ultima_descarga %}
+                <p class="mb-0 text-muted small">
+                    <i class="bi bi-clock me-2"></i>Última descarga:<br>
+                    {{ documento.ultima_descarga|date:"d/m/Y H:i" }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Vista Previa -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-image me-2"></i>Vista Previa</h6>
+            </div>
+            <div class="card-body text-center">
+                {% if documento.extension == '.pdf' %}
+                    <i class="bi bi-file-earmark-pdf fs-1 text-danger"></i>
+                    <p class="mt-2 mb-0">Documento PDF</p>
+                {% elif documento.extension in '.doc,.docx' %}
+                    <i class="bi bi-file-earmark-word fs-1 text-primary"></i>
+                    <p class="mt-2 mb-0">Documento Word</p>
+                {% elif documento.extension in '.xls,.xlsx' %}
+                    <i class="bi bi-file-earmark-excel fs-1 text-success"></i>
+                    <p class="mt-2 mb-0">Hoja de Cálculo</p>
+                {% elif documento.extension in '.ppt,.pptx' %}
+                    <i class="bi bi-file-earmark-ppt fs-1 text-warning"></i>
+                    <p class="mt-2 mb-0">Presentación</p>
+                {% else %}
+                    <i class="bi bi-file-earmark-text fs-1 text-secondary"></i>
+                    <p class="mt-2 mb-0">Documento</p>
+                {% endif %}
+
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-file-earmark me-1"></i>
+                        {{ documento.archivo.name|slice:"50:" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este documento?</p>
+                <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{% url 'documentos:eliminar_documento' documento.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function eliminarDocumento() {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

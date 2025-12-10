@@ -1,0 +1,504 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Alerta - SENA{% endblock %}
+{% block page_title %}Detalle de Alerta{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1 text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Falla en Sistema Hidráulico
+                    </h2>
+                    <p class="text-muted">Alerta #ALT-2024-001 • Generada el 25 de Enero, 2024</p>
+                </div>
+                <div>
+                    <span class="badge bg-danger fs-6 me-2">CRÍTICA</span>
+                    <span class="badge bg-warning text-dark fs-6">ACTIVA</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'maquinaria:alertas' %}">Alertas</a></li>
+            <li class="breadcrumb-item active">ALT-2024-001</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Alert Overview -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Información de la Alerta
+                    </h5>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="editAlert()"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="assignTechnician()"><i class="bi bi-person-plus me-2"></i>Asignar Técnico</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-success" href="#" onclick="resolveAlert()"><i class="bi bi-check-circle me-2"></i>Marcar como Resuelta</a></li>
+                            <li><a class="dropdown-item text-warning" href="#" onclick="escalateAlert()"><i class="bi bi-arrow-up me-2"></i>Escalar</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Máquina Afectada</label>
+                                <div class="d-flex align-items-center">
+                                    <img src="/static/images/machine-placeholder.png" alt="Máquina" class="me-3" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <a href="{% url 'maquinaria:detalle_maquina' pk=1 %}" class="text-decoration-none">
+                                                Excavadora Caterpillar 320
+                                            </a>
+                                        </h6>
+                                        <small class="text-muted">EXC-001 • Sede Principal</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Tipo de Alerta</label>
+                                <div>
+                                    <span class="badge bg-danger me-2">
+                                        <i class="bi bi-wrench me-1"></i>Falla Mecánica
+                                    </span>
+                                    <small class="text-muted">Sistema Hidráulico</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Prioridad</label>
+                                <div>
+                                    <span class="badge bg-danger fs-6">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>CRÍTICA
+                                    </span>
+                                    <small class="text-muted ms-2">Requiere atención inmediata</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Fecha y Hora de Detección</label>
+                                <div>
+                                    <i class="bi bi-calendar-event me-2"></i>
+                                    <strong>25 de Enero, 2024</strong>
+                                </div>
+                                <div>
+                                    <i class="bi bi-clock me-2"></i>
+                                    <strong>14:30:25</strong>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Técnico Asignado</label>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <div>
+                                        <div><strong>Juan Carlos Pérez</strong></div>
+                                        <small class="text-muted">Especialista Hidráulico</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Estado</label>
+                                <div>
+                                    <span class="badge bg-warning text-dark fs-6">
+                                        <i class="bi bi-hourglass-split me-1"></i>EN PROCESO
+                                    </span>
+                                    <small class="text-muted ms-2">Desde hace 2 horas</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Descripción Detallada</label>
+                        <div class="alert alert-light">
+                            <p class="mb-2">Se detectó una pérdida significativa de presión en el sistema hidráulico principal durante la operación. Los síntomas incluyen:</p>
+                            <ul class="mb-2">
+                                <li>Movimientos lentos en el brazo excavador</li>
+                                <li>Pérdida de fuerza en la cuchara</li>
+                                <li>Ruidos anómalos en la bomba hidráulica</li>
+                                <li>Fuga visible de aceite hidráulico en la base</li>
+                            </ul>
+                            <p class="mb-0"><strong>Recomendación:</strong> Suspender operaciones inmediatamente hasta completar la reparación.</p>
+                        </div>
+                    </div>
+
+                    <!-- Sensors Data -->
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-danger text-white rounded">
+                                <i class="bi bi-speedometer2 fs-3"></i>
+                                <div class="mt-2">
+                                    <strong>85 PSI</strong>
+                                    <small class="d-block">Presión Actual</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-warning text-dark rounded">
+                                <i class="bi bi-thermometer-high fs-3"></i>
+                                <div class="mt-2">
+                                    <strong>78°C</strong>
+                                    <small class="d-block">Temperatura</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-info text-white rounded">
+                                <i class="bi bi-droplet fs-3"></i>
+                                <div class="mt-2">
+                                    <strong>65%</strong>
+                                    <small class="d-block">Nivel Aceite</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-secondary text-white rounded">
+                                <i class="bi bi-activity fs-3"></i>
+                                <div class="mt-2">
+                                    <strong>1.2L/min</strong>
+                                    <small class="d-block">Flujo</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>Línea de Tiempo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-danger"></div>
+                            <div class="timeline-content">
+                                <h6>Alerta Generada</h6>
+                                <p class="mb-1">Sistema detectó anomalía en presión hidráulica</p>
+                                <small class="text-muted">25 Ene 2024, 14:30 - Sistema Automático</small>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning"></div>
+                            <div class="timeline-content">
+                                <h6>Técnico Asignado</h6>
+                                <p class="mb-1">Juan Carlos Pérez fue asignado para la revisión</p>
+                                <small class="text-muted">25 Ene 2024, 14:45 - María González</small>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6>Inspección Inicial</h6>
+                                <p class="mb-1">Confirmada fuga en manguera principal del circuito hidráulico</p>
+                                <small class="text-muted">25 Ene 2024, 15:15 - Juan Carlos Pérez</small>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6>Repuestos Solicitados</h6>
+                                <p class="mb-1">Manguera hidráulica CAT-HD-450 y sellos de repuesto</p>
+                                <small class="text-muted">25 Ene 2024, 15:45 - Juan Carlos Pérez</small>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-secondary"></div>
+                            <div class="timeline-content">
+                                <h6>En Espera de Repuestos</h6>
+                                <p class="mb-1">Máquina fuera de servicio hasta recibir componentes</p>
+                                <small class="text-muted">25 Ene 2024, 16:30 - Actualización Automática</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-dots me-2"></i>Comentarios y Notas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Add Comment Form -->
+                    <form class="mb-4">
+                        <div class="mb-3">
+                            <label for="nuevo_comentario" class="form-label">Agregar Comentario</label>
+                            <textarea class="form-control" id="nuevo_comentario" rows="3" placeholder="Escribe tu comentario o actualización..."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addComment()">
+                            <i class="bi bi-plus-circle me-2"></i>Agregar Comentario
+                        </button>
+                    </form>
+
+                    <!-- Existing Comments -->
+                    <div class="comments-list">
+                        <div class="comment mb-3 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Juan Carlos Pérez</h6>
+                                        <p class="mb-2">He identificado que la fuga está en la conexión principal. Necesitamos reemplazar toda la manguera ya que presenta desgaste avanzado. ETA de reparación: 4-6 horas una vez tengamos los repuestos.</p>
+                                        <small class="text-muted">Hace 1 hora</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comment mb-3 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex">
+                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">María González</h6>
+                                        <p class="mb-2">Los repuestos ya fueron solicitados al proveedor. Tiempo estimado de entrega: mañana por la mañana.</p>
+                                        <small class="text-muted">Hace 30 minutos</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Acciones Rápidas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success" onclick="resolveAlert()">
+                            <i class="bi bi-check-circle me-2"></i>Marcar como Resuelta
+                        </button>
+                        <button class="btn btn-warning" onclick="escalateAlert()">
+                            <i class="bi bi-arrow-up me-2"></i>Escalar Prioridad
+                        </button>
+                        <button class="btn btn-info" onclick="reassignAlert()">
+                            <i class="bi bi-person-gear me-2"></i>Reasignar Técnico
+                        </button>
+                        <button class="btn btn-secondary" onclick="generateReport()">
+                            <i class="bi bi-file-earmark-text me-2"></i>Generar Reporte
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Estadísticas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 border-end">
+                            <strong class="text-primary fs-5">2h 15m</strong>
+                            <small class="d-block text-muted">Tiempo Activa</small>
+                        </div>
+                        <div class="col-6">
+                            <strong class="text-warning fs-5">$2,450</strong>
+                            <small class="d-block text-muted">Costo Estimado</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6 border-end">
+                            <strong class="text-danger fs-5">3</strong>
+                            <small class="d-block text-muted">Alertas Similares</small>
+                        </div>
+                        <div class="col-6">
+                            <strong class="text-info fs-5">85%</strong>
+                            <small class="d-block text-muted">Disponibilidad</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Alerts -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Alertas Relacionadas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Mantenimiento Preventivo</h6>
+                                    <small class="text-muted">Programado para la próxima semana</small>
+                                </div>
+                                <span class="badge bg-info">INFO</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Filtro de Aceite</h6>
+                                    <small class="text-muted">Cambio requerido</small>
+                                </div>
+                                <span class="badge bg-warning text-dark">MEDIA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Machine Status -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Estado de la Máquina</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center p-3">
+                        <i class="bi bi-exclamation-triangle display-4 text-danger"></i>
+                        <h5 class="mt-3 text-danger">FUERA DE SERVICIO</h5>
+                        <p class="text-muted">Desde el 25 de Enero</p>
+
+                        <div class="mt-4">
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 60%"></div>
+                            </div>
+                            <small class="text-muted">Reparación en progreso (60%)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -22px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        z-index: 1;
+    }
+
+    .timeline-content {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .comment {
+        border-left: 4px solid #0066cc;
+    }
+
+    .badge.fs-6 {
+        font-size: 0.9rem !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editAlert() {
+    alert('Función de edición en desarrollo');
+}
+
+function assignTechnician() {
+    alert('Función de asignación en desarrollo');
+}
+
+function resolveAlert() {
+    if (confirm('¿Estás seguro de que quieres marcar esta alerta como resuelta?')) {
+        alert('Alerta marcada como resuelta');
+        // Redirect or update UI
+    }
+}
+
+function escalateAlert() {
+    if (confirm('¿Deseas escalar la prioridad de esta alerta?')) {
+        alert('Alerta escalada');
+    }
+}
+
+function reassignAlert() {
+    alert('Función de reasignación en desarrollo');
+}
+
+function generateReport() {
+    alert('Generando reporte...');
+}
+
+function addComment() {
+    const comentario = document.getElementById('nuevo_comentario').value.trim();
+    if (comentario) {
+        alert('Comentario agregado');
+        document.getElementById('nuevo_comentario').value = '';
+        // Add comment to list
+    } else {
+        alert('Por favor, escribe un comentario antes de enviarlo.');
+    }
+}
+</script>
+{% endblock %}

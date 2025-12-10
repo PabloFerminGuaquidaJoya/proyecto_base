@@ -1,0 +1,551 @@
+{% extends 'base.html' %}
+
+{% block title %}Información QR - SENA{% endblock %}
+{% block page_title %}Información de Máquina via QR{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Mobile Optimized Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-1">
+                        <i class="bi bi-qr-code-scan me-2 text-primary"></i>
+                        <span class="d-none d-md-inline">Información de Máquina</span>
+                        <span class="d-md-none">Info QR</span>
+                    </h3>
+                    <p class="text-muted mb-0">Código: <strong>EXC-001</strong></p>
+                </div>
+                <div>
+                    <button class="btn btn-primary btn-sm" onclick="shareInfo()">
+                        <i class="bi bi-share"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Status Alert -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-success d-flex align-items-center" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <div>
+                    <strong>Estado: OPERATIVA</strong>
+                    <div class="small">Última actualización: Hoy, 14:30</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Information -->
+        <div class="col-lg-8">
+            <!-- Machine Card -->
+            <div class="card mb-4">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="/static/images/machine-placeholder.png" class="img-fluid rounded-start h-100 object-cover" alt="Excavadora Caterpillar 320">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Excavadora Caterpillar 320</h5>
+                            <p class="text-muted mb-2">Máquina de construcción pesada para excavación</p>
+
+                            <div class="row text-center mb-3">
+                                <div class="col-4">
+                                    <div class="border-end">
+                                        <strong class="text-primary">2020</strong>
+                                        <small class="d-block text-muted">Año</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border-end">
+                                        <strong class="text-success">1,250</strong>
+                                        <small class="d-block text-muted">Horas</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <strong class="text-info">98%</strong>
+                                    <small class="d-block text-muted">Disponibilidad</small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted">Ubicación actual</small>
+                                    <div><i class="bi bi-geo-alt me-1"></i>Sede Principal - Taller A</div>
+                                </div>
+                                <span class="badge bg-success fs-6">Operativa</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Info Cards -->
+            <div class="row mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="bi bi-gear text-primary fs-3"></i>
+                            <div class="mt-2">
+                                <strong>130 HP</strong>
+                                <small class="d-block text-muted">Potencia</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="bi bi-speedometer2 text-success fs-3"></i>
+                            <div class="mt-2">
+                                <strong>20.5 T</strong>
+                                <small class="d-block text-muted">Peso</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="bi bi-droplet text-info fs-3"></i>
+                            <div class="mt-2">
+                                <strong>Diésel</strong>
+                                <small class="d-block text-muted">Combustible</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="bi bi-tools text-warning fs-3"></i>
+                            <div class="mt-2">
+                                <strong>1.2 T</strong>
+                                <small class="d-block text-muted">Capacidad</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>Actividad Reciente
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline-compact">
+                        <div class="timeline-item-compact">
+                            <div class="timeline-marker-compact bg-success"></div>
+                            <div class="timeline-content-compact">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>Mantenimiento Completado</strong>
+                                        <div class="small text-muted">Cambio de aceite hidráulico</div>
+                                    </div>
+                                    <small class="text-muted">2h</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item-compact">
+                            <div class="timeline-marker-compact bg-info"></div>
+                            <div class="timeline-content-compact">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>Inspección Realizada</strong>
+                                        <div class="small text-muted">Revisión sistema hidráulico</div>
+                                    </div>
+                                    <small class="text-muted">1d</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item-compact">
+                            <div class="timeline-marker-compact bg-primary"></div>
+                            <div class="timeline-content-compact">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>Operación Completada</strong>
+                                        <div class="small text-muted">8 horas de excavación</div>
+                                    </div>
+                                    <small class="text-muted">2d</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- QR Code -->
+            <div class="card mb-4 text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Código QR</h6>
+                    <div class="qr-container mb-3">
+                        <img src="/static/images/qr-placeholder.png" alt="QR Code" class="qr-code">
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm me-2" onclick="downloadQR()">
+                        <i class="bi bi-download me-1"></i>Descargar
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="printQR()">
+                        <i class="bi bi-printer me-1"></i>Imprimir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Technical Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Detalles Técnicos
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-5 text-muted">Serie:</div>
+                        <div class="col-7"><strong>CAT320-2020-001</strong></div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-5 text-muted">Modelo:</div>
+                        <div class="col-7">320</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-5 text-muted">Fabricación:</div>
+                        <div class="col-7">2020</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-5 text-muted">Proveedor:</div>
+                        <div class="col-7">Caterpillar Colombia</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5 text-muted">Valor:</div>
+                        <div class="col-7">$450,000,000 COP</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Status -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-wrench me-2"></i>Estado de Mantenimiento
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Último Mantenimiento</small>
+                            <small class="text-success">15 Dic 2023</small>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-success" style="width: 85%"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Próximo Servicio</small>
+                            <small class="text-warning">1,500 hrs</small>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-warning" style="width: 75%"></div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light p-2">
+                        <div class="small">
+                            <i class="bi bi-check-circle text-success me-1"></i>
+                            <strong>Todo en orden</strong>
+                            <div class="text-muted">Próxima revisión en 250 horas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Acciones Rápidas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-danger btn-sm" onclick="reportIssue()">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Reportar Problema
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="viewManual()">
+                            <i class="bi bi-book me-2"></i>Manual de Usuario
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="contactSupport()">
+                            <i class="bi bi-telephone me-2"></i>Soporte Técnico
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Contacto de Emergencia
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="mb-2">
+                            <strong>Centro de Control SENA</strong>
+                        </div>
+                        <div class="mb-2">
+                            <i class="bi bi-telephone me-1"></i>
+                            <a href="tel:+5713430000" class="btn btn-outline-danger btn-sm">
+                                (571) 343-0000
+                            </a>
+                        </div>
+                        <div>
+                            <small class="text-muted">Disponible 24/7</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Issue Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reportar Problema</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="issue_type" class="form-label">Tipo de Problema</label>
+                        <select class="form-select" id="issue_type">
+                            <option>Falla mecánica</option>
+                            <option>Problema eléctrico</option>
+                            <option>Fuga de fluidos</option>
+                            <option>Ruido anormal</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="issue_description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="issue_description" rows="3" placeholder="Describe el problema detalladamente..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reporter_name" class="form-label">Tu Nombre</label>
+                        <input type="text" class="form-control" id="reporter_name" placeholder="Nombre del reportante">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="submitReport()">
+                    <i class="bi bi-send me-2"></i>Enviar Reporte
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .object-cover {
+        object-fit: cover;
+    }
+
+    .qr-container {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .qr-code {
+        width: 150px;
+        height: 150px;
+        border-radius: 8px;
+    }
+
+    .timeline-compact {
+        position: relative;
+    }
+
+    .timeline-item-compact {
+        display: flex;
+        margin-bottom: 1rem;
+        align-items: center;
+    }
+
+    .timeline-marker-compact {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .timeline-content-compact {
+        flex: 1;
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border-left: 3px solid #dee2e6;
+    }
+
+    .card-body .row:last-child {
+        margin-bottom: 0;
+    }
+
+    .progress {
+        height: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .qr-code {
+            width: 120px;
+            height: 120px;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+    }
+
+    .badge.fs-6 {
+        font-size: 0.9rem !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function shareInfo() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Excavadora Caterpillar 320 - EXC-001',
+            text: 'Información de máquina SENA',
+            url: window.location.href
+        });
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(window.location.href);
+        alert('Enlace copiado al portapapeles');
+    }
+}
+
+function downloadQR() {
+    // Simulate QR download
+    const link = document.createElement('a');
+    link.href = '/static/images/qr-placeholder.png';
+    link.download = 'QR_EXC-001.png';
+    link.click();
+}
+
+function printQR() {
+    // Open print dialog focused on QR section
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>QR Code - EXC-001</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+                    .qr-print { max-width: 300px; margin: 20px auto; }
+                    h2 { color: #333; }
+                </style>
+            </head>
+            <body>
+                <h2>Excavadora Caterpillar 320</h2>
+                <h3>Código: EXC-001</h3>
+                <div class="qr-print">
+                    <img src="/static/images/qr-placeholder.png" style="width: 200px; height: 200px;">
+                </div>
+                <p>Escanea este código QR para obtener información detallada de la máquina</p>
+                <p><small>Sistema de Gestión de Maquinaria - SENA</small></p>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function reportIssue() {
+    const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+    modal.show();
+}
+
+function submitReport() {
+    const issueType = document.getElementById('issue_type').value;
+    const description = document.getElementById('issue_description').value.trim();
+    const reporter = document.getElementById('reporter_name').value.trim();
+
+    if (!description) {
+        alert('Por favor, describe el problema antes de enviarlo.');
+        return;
+    }
+
+    // Simulate report submission
+    alert('¡Reporte enviado exitosamente! Un técnico se comunicará contigo pronto.\n\nID del reporte: REP-' + Math.random().toString(36).substr(2, 9).toUpperCase());
+
+    bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+
+    // Clear form
+    document.getElementById('issue_description').value = '';
+    document.getElementById('reporter_name').value = '';
+}
+
+function viewManual() {
+    alert('Abriendo manual de usuario de la Excavadora Caterpillar 320...');
+    // In real implementation, this would open a PDF or link to documentation
+}
+
+function contactSupport() {
+    if (confirm('¿Deseas llamar al soporte técnico ahora?')) {
+        window.location.href = 'tel:+5713430000';
+    }
+}
+
+// Auto-refresh data every 5 minutes
+setInterval(() => {
+    console.log('Actualizando información de la máquina...');
+    // In real implementation, this would fetch updated machine status
+}, 300000);
+
+// Handle offline status
+window.addEventListener('offline', () => {
+    document.body.insertAdjacentHTML('afterbegin',
+        '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
+        '<i class="bi bi-wifi-off me-2"></i>Modo sin conexión: La información puede no estar actualizada.' +
+        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+        '</div>'
+    );
+});
+
+window.addEventListener('online', () => {
+    const offlineAlert = document.querySelector('.alert-warning');
+    if (offlineAlert) {
+        offlineAlert.remove();
+    }
+});
+</script>
+{% endblock %}
