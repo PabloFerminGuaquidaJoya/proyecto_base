@@ -31,4 +31,10 @@ urlpatterns = [
     # API endpoints para AJAX
     path('api/buscar/', views.buscar_usuarios_api, name='api_buscar'),
     path('api/estadisticas/', views.estadisticas_usuarios_api, name='api_estadisticas'),
+
+    # API Reconocimiento facial
+    path('api/registrar-rostro/', views.registrar_rostro_view, name='api_registrar_rostro'),
+    path('api/login-facial/', views.login_facial_view, name='api_login_facial'),
+    path('api/verificar-reconocimiento/', views.verificar_tiene_reconocimiento_facial, name='api_verificar_reconocimiento'),
+    path('api/eliminar-reconocimiento/', views.eliminar_reconocimiento_facial, name='api_eliminar_reconocimiento'),
 ]

@@ -131,3 +131,99 @@ class TokenRecuperacionPassword(models.Model):
     def es_valido(self):
         """Verifica si el token es válido (no usado y no expirado)"""
         return not self.usado and not self.esta_expirado()
+
+
+class ReconocimientoFacial(models.Model):
+    """
+    Modelo para almacenar embeddings faciales de usuarios.
+    No almacena imágenes, solo vectores numéricos para privacidad.
+    """
+    usuario = models.OneToOneField(
+        Usuario,
+        on_delete=models.CASCADE,
+        related_name='reconocimiento_facial'
+    )
+
+    # Embedding facial (vector de 128 dimensiones de MediaPipe)
+    embedding = models.JSONField(
+        help_text='Vector de características faciales (128 dimensiones)'
+    )
+
+    # Metadatos
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    activo = models.BooleanField(
+        default=True,
+        help_text='Indica si el reconocimiento facial está activo para este usuario'
+    )
+
+    # Datos de calidad
+    confianza_registro = models.FloatField(
+        help_text='Nivel de confianza de la detección facial durante el registro (0-1)'
+    )
+
+    # Auditoría
+    ip_registro = models.GenericIPAddressField(null=True, blank=True)
+    user_agent_registro = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Reconocimiento Facial"
+        verbose_name_plural = "Reconocimientos Faciales"
+        ordering = ['-fecha_registro']
+
+    def __str__(self):
+        return f"Reconocimiento facial de {self.usuario.nombre_completo}"
+
+
+class IntentoReconocimientoFacial(models.Model):
+    """
+    Modelo para registrar todos los intentos de autenticación facial.
+    Importante para seguridad y detección de intentos de acceso no autorizado.
+    """
+    TIPO_INTENTO_CHOICES = [
+        ('registro', 'Registro de rostro'),
+        ('login', 'Inicio de sesión'),
+        ('actualizacion', 'Actualización de rostro'),
+    ]
+
+    RESULTADO_CHOICES = [
+        ('exitoso', 'Exitoso'),
+        ('fallido', 'Fallido'),
+        ('error', 'Error técnico'),
+    ]
+
+    usuario = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE,
+        related_name='intentos_reconocimiento',
+        null=True,
+        blank=True
+    )
+    tipo_intento = models.CharField(max_length=20, choices=TIPO_INTENTO_CHOICES)
+    resultado = models.CharField(max_length=20, choices=RESULTADO_CHOICES)
+
+    # Detalles del intento
+    similitud = models.FloatField(
+        null=True,
+        blank=True,
+        help_text='Nivel de similitud calculado (0-1)'
+    )
+    mensaje_error = models.TextField(blank=True)
+
+    # Auditoría
+    fecha_intento = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField()
+
+    class Meta:
+        verbose_name = "Intento de Reconocimiento Facial"
+        verbose_name_plural = "Intentos de Reconocimiento Facial"
+        ordering = ['-fecha_intento']
+        indexes = [
+            models.Index(fields=['usuario', '-fecha_intento']),
+            models.Index(fields=['resultado', '-fecha_intento']),
+        ]
+
+    def __str__(self):
+        usuario_str = self.usuario.nombre_completo if self.usuario else "Desconocido"
+        return f"{self.get_tipo_intento_display()} - {usuario_str} - {self.resultado}"

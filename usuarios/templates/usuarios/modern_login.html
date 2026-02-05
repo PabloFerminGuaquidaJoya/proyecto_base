@@ -514,6 +514,47 @@
         .footer a:hover {
             color: #2E8000;
         }
+
+        /* Estilos de reconocimiento facial */
+        .face-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 250px;
+            border: 3px solid #39A900;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(57, 169, 0, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(57, 169, 0, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(57, 169, 0, 0.8);
+            }
+        }
+
+        .overlay-deteccion {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #video-facial {
+            background: #000;
+        }
+
+        .facial-step {
+            min-height: 200px;
+        }
     </style>
 </head>
 <body>
@@ -618,7 +659,17 @@
                     <i class="bi bi-box-arrow-in-right me-2"></i>
                     Iniciar Sesión
                 </button>
-                
+
+                <!-- Separador -->
+                <div class="text-center my-3">
+                    <span class="text-muted">- O -</span>
+                </div>
+
+                <!-- Botón de reconocimiento facial -->
+                <button type="button" id="btn-login-facial" class="btn btn-outline-success w-100 mb-3">
+                    <i class="bi bi-person-badge me-2"></i> Iniciar con Reconocimiento Facial
+                </button>
+
                 <!-- Forgot Password -->
                 <div class="forgot-password">
                     <a href="{% url 'usuarios:recuperar_password' %}">
@@ -634,6 +685,74 @@
                     <a href="{% url 'usuarios:register' %}">Registrarse</a>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de reconocimiento facial -->
+    <div class="modal fade" id="modalReconocimientoFacial" tabindex="-1" aria-labelledby="modalReconocimientoFacialLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalReconocimientoFacialLabel">
+                        <i class="bi bi-person-badge"></i> Reconocimiento Facial
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Paso 1: Solicitar documento -->
+                    <div id="paso-documento" class="facial-step">
+                        <div class="mb-3">
+                            <label for="numero_documento_facial" class="form-label">Número de Documento</label>
+                            <input type="text" class="form-control" id="numero_documento_facial" placeholder="Ingrese su número de documento">
+                        </div>
+                        <button type="button" class="btn btn-success w-100" id="btn-continuar-facial">
+                            Continuar <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Paso 2: Captura facial -->
+                    <div id="paso-captura" class="facial-step" style="display: none;">
+                        <div class="text-center mb-3">
+                            <p class="text-muted">Posicione su rostro frente a la cámara</p>
+                        </div>
+
+                        <!-- Video preview -->
+                        <div class="position-relative" style="width: 100%; max-width: 400px; margin: 0 auto;">
+                            <video id="video-facial" autoplay playsinline style="width: 100%; border-radius: 10px; transform: scaleX(-1); background: #000;"></video>
+                            <!-- Canvas para captura (oculto) -->
+                            <canvas id="canvas-facial" style="display: none;"></canvas>
+
+                            <!-- Overlay de detección -->
+                            <div class="overlay-deteccion">
+                                <div class="face-frame"></div>
+                            </div>
+                        </div>
+
+                        <!-- Estado de detección -->
+                        <div class="alert alert-info mt-3" id="estado-deteccion">
+                            <i class="bi bi-camera-video"></i> Iniciando cámara...
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="button" class="btn btn-success" id="btn-capturar-facial">
+                                <i class="bi bi-camera-fill"></i> Capturar y Autenticar
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="btn-volver-documento">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3: Procesando -->
+                    <div id="paso-procesando" class="facial-step text-center" style="display: none;">
+                        <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Procesando...</span>
+                        </div>
+                        <p class="text-muted">Verificando su identidad...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -666,20 +785,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div>
-           <li> © 2025 SENA - Sistema de Gestión de Maquinaria </li>
-            Ilich Esteban Reyes Botia |
-            Andres Santiago Sandoval Corzo |
-            Pablo Fermin Guaquida Joya |
-            Eliana Alejandra Gamboa Velandia |
-           <li> <a href="#" onclick="showPrivacyPolicy()">Política de Privacidad</a> |
-            <a href="#" onclick="showTerms()">Términos de Uso</a> |
-            <a href="#" onclick="showSupport()">Soporte Técnico</a></li>
-        </div>
-    </footer>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay" style="display: none;">
@@ -995,6 +1100,144 @@
         // Cargar preferencias cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', function() {
             loadAccessibilityPreferences();
+        });
+
+        // ========================================
+        // RECONOCIMIENTO FACIAL
+        // ========================================
+        let stream = null;
+        let videoElement = document.getElementById('video-facial');
+        let canvasElement = document.getElementById('canvas-facial');
+
+        // Abrir modal
+        document.getElementById('btn-login-facial').addEventListener('click', function() {
+            let modal = new bootstrap.Modal(document.getElementById('modalReconocimientoFacial'));
+            modal.show();
+
+            // Reset
+            document.getElementById('paso-documento').style.display = 'block';
+            document.getElementById('paso-captura').style.display = 'none';
+            document.getElementById('paso-procesando').style.display = 'none';
+            document.getElementById('numero_documento_facial').value = '';
+        });
+
+        // Continuar a captura
+        document.getElementById('btn-continuar-facial').addEventListener('click', async function() {
+            const numeroDocumento = document.getElementById('numero_documento_facial').value.trim();
+
+            if (!numeroDocumento) {
+                alert('Por favor ingrese su número de documento');
+                return;
+            }
+
+            // Cambiar a paso de captura
+            document.getElementById('paso-documento').style.display = 'none';
+            document.getElementById('paso-captura').style.display = 'block';
+
+            // Iniciar cámara
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    }
+                });
+                videoElement.srcObject = stream;
+
+                document.getElementById('estado-deteccion').innerHTML =
+                    '<i class="bi bi-check-circle"></i> Cámara activa. Centre su rostro y capture';
+                document.getElementById('estado-deteccion').className = 'alert alert-success mt-3';
+
+            } catch (error) {
+                console.error('Error accediendo a la cámara:', error);
+                document.getElementById('estado-deteccion').innerHTML =
+                    '<i class="bi bi-exclamation-triangle"></i> Error: No se pudo acceder a la cámara. Por favor verifique los permisos.';
+                document.getElementById('estado-deteccion').className = 'alert alert-danger mt-3';
+            }
+        });
+
+        // Volver a documento
+        document.getElementById('btn-volver-documento').addEventListener('click', function() {
+            // Detener cámara
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            document.getElementById('paso-captura').style.display = 'none';
+            document.getElementById('paso-documento').style.display = 'block';
+        });
+
+        // Capturar y autenticar
+        document.getElementById('btn-capturar-facial').addEventListener('click', async function() {
+            const numeroDocumento = document.getElementById('numero_documento_facial').value.trim();
+
+            // Capturar frame del video
+            const context = canvasElement.getContext('2d');
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+
+            // Voltear horizontalmente para corregir mirror effect
+            context.translate(canvasElement.width, 0);
+            context.scale(-1, 1);
+            context.drawImage(videoElement, 0, 0);
+
+            // Convertir a base64
+            const imagenBase64 = canvasElement.toDataURL('image/jpeg', 0.8);
+
+            // Mostrar paso de procesando
+            document.getElementById('paso-captura').style.display = 'none';
+            document.getElementById('paso-procesando').style.display = 'block';
+
+            // Detener cámara
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            // Enviar al backend
+            try {
+                const response = await fetch('/usuarios/api/login-facial/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        numero_documento: numeroDocumento,
+                        imagen: imagenBase64
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Éxito - redirigir
+                    window.location.href = data.redirect_url || '/usuarios/dashboard/';
+                } else {
+                    // Error
+                    alert('Error: ' + data.error);
+
+                    // Volver a paso documento
+                    document.getElementById('paso-procesando').style.display = 'none';
+                    document.getElementById('paso-documento').style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Error en autenticación facial:', error);
+                alert('Error de conexión. Por favor intente nuevamente.');
+
+                document.getElementById('paso-procesando').style.display = 'none';
+                document.getElementById('paso-documento').style.display = 'block';
+            }
+        });
+
+        // Limpiar al cerrar modal
+        document.getElementById('modalReconocimientoFacial').addEventListener('hidden.bs.modal', function() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
         });
     </script>
 </body>

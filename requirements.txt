@@ -9,3 +9,9 @@ requests
 django-environ
 celery
 redis
+
+# Reconocimiento facial
+opencv-python
+numpy
+deepface
+tf-keras

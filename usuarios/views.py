@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -13,14 +13,25 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.core.cache import cache
 import secrets
+import json
+import logging
 from datetime import timedelta
 
-from .models import Usuario, TipoUsuario, SesionUsuario, TokenRecuperacionPassword
+from .models import Usuario, TipoUsuario, SesionUsuario, TokenRecuperacionPassword, ReconocimientoFacial, IntentoReconocimientoFacial
 from .forms import (
     LoginForm, UsuarioForm, RegistroUsuarioForm, PerfilUsuarioForm,
     CambiarPasswordForm, BuscarUsuariosForm, RecuperarPasswordForm, ResetPasswordForm
 )
+from .facial_recognition import facial_service
+
+# Configuración de logging
+logger = logging.getLogger(__name__)
+
+# Rate limiting - Constantes
+RATE_LIMIT_FACIAL_LOGIN = 5  # máximo 5 intentos
+RATE_LIMIT_WINDOW = 300  # en 5 minutos (300 segundos)
 
 def login_view(request):
     """Vista de inicio de sesión"""
@@ -528,3 +539,339 @@ def reset_password_view(request, token):
     except TokenRecuperacionPassword.DoesNotExist:
         messages.error(request, 'Enlace de recuperación inválido.')
         return redirect('usuarios:recuperar_password')
+
+
+# ========================================
+# VISTAS DE RECONOCIMIENTO FACIAL
+# ========================================
+
+def get_client_ip(request):
+    """Obtiene la IP del cliente"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+@require_POST
+@csrf_exempt  # TODO: Remover en producción, usar CSRF token correctamente
+def registrar_rostro_view(request):
+    """
+    API endpoint para registrar el rostro de un usuario.
+    Usado tanto en registro como para actualizar rostro de usuario existente.
+    """
+    try:
+        # Verificar autenticación
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'Debe estar autenticado'
+            }, status=401)
+
+        # Obtener imagen en base64
+        data = json.loads(request.body)
+        imagen_base64 = data.get('imagen')
+
+        if not imagen_base64:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se recibió imagen'
+            }, status=400)
+
+        # Decodificar imagen
+        imagen = facial_service.decode_base64_image(imagen_base64)
+        if imagen is None:
+            return JsonResponse({
+                'success': False,
+                'error': 'Error decodificando imagen'
+            }, status=400)
+
+        # Validar calidad
+        calidad_ok, mensaje_calidad = facial_service.validar_calidad_imagen(imagen)
+        if not calidad_ok:
+            return JsonResponse({
+                'success': False,
+                'error': mensaje_calidad
+            }, status=400)
+
+        # Extraer embedding
+        exito, embedding, mensaje = facial_service.extraer_embedding(imagen)
+
+        if not exito:
+            return JsonResponse({
+                'success': False,
+                'error': mensaje
+            }, status=400)
+
+        # Obtener usuario
+        try:
+            usuario = Usuario.objects.get(numero_documento=request.user.username)
+        except Usuario.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuario no encontrado'
+            }, status=404)
+
+        # Guardar o actualizar reconocimiento facial
+        reconocimiento, created = ReconocimientoFacial.objects.update_or_create(
+            usuario=usuario,
+            defaults={
+                'embedding': embedding,
+                'confianza_registro': 0.95,  # Placeholder, ajustar según necesidad
+                'activo': True,
+                'ip_registro': get_client_ip(request),
+                'user_agent_registro': request.META.get('HTTP_USER_AGENT', '')
+            }
+        )
+
+        # Registrar intento exitoso
+        IntentoReconocimientoFacial.objects.create(
+            usuario=usuario,
+            tipo_intento='registro' if created else 'actualizacion',
+            resultado='exitoso',
+            ip_address=get_client_ip(request),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Rostro registrado correctamente' if created else 'Rostro actualizado correctamente'
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Datos JSON inválidos'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Error en registro de rostro: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Error interno: {str(e)}'
+        }, status=500)
+
+
+@require_POST
+@csrf_exempt  # TODO: Remover en producción
+def login_facial_view(request):
+    """
+    API endpoint para autenticación mediante reconocimiento facial.
+    """
+    try:
+        # Obtener datos
+        data = json.loads(request.body)
+        numero_documento = data.get('numero_documento')
+        imagen_base64 = data.get('imagen')
+
+        if not numero_documento or not imagen_base64:
+            return JsonResponse({
+                'success': False,
+                'error': 'Faltan datos requeridos'
+            }, status=400)
+
+        # Rate limiting por IP
+        ip_cliente = get_client_ip(request)
+        rate_limit_key = f'facial_login_attempts_{ip_cliente}'
+        intentos = cache.get(rate_limit_key, 0)
+
+        if intentos >= RATE_LIMIT_FACIAL_LOGIN:
+            return JsonResponse({
+                'success': False,
+                'error': f'Demasiados intentos. Intente nuevamente en {RATE_LIMIT_WINDOW // 60} minutos'
+            }, status=429)
+
+        # Incrementar contador
+        cache.set(rate_limit_key, intentos + 1, RATE_LIMIT_WINDOW)
+
+        # Buscar usuario
+        try:
+            usuario = Usuario.objects.get(numero_documento=numero_documento)
+        except Usuario.DoesNotExist:
+            # Registrar intento fallido sin revelar que el usuario no existe
+            IntentoReconocimientoFacial.objects.create(
+                usuario=None,
+                tipo_intento='login',
+                resultado='fallido',
+                mensaje_error='Usuario no encontrado',
+                ip_address=ip_cliente,
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            return JsonResponse({
+                'success': False,
+                'error': 'Credenciales inválidas'
+            }, status=401)
+
+        # Verificar si tiene reconocimiento facial activo
+        try:
+            reconocimiento = ReconocimientoFacial.objects.get(
+                usuario=usuario,
+                activo=True
+            )
+        except ReconocimientoFacial.DoesNotExist:
+            IntentoReconocimientoFacial.objects.create(
+                usuario=usuario,
+                tipo_intento='login',
+                resultado='fallido',
+                mensaje_error='Reconocimiento facial no configurado',
+                ip_address=ip_cliente,
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            return JsonResponse({
+                'success': False,
+                'error': 'Reconocimiento facial no configurado para este usuario'
+            }, status=400)
+
+        # Verificar estado del usuario
+        if usuario.estado != 'activo':
+            IntentoReconocimientoFacial.objects.create(
+                usuario=usuario,
+                tipo_intento='login',
+                resultado='fallido',
+                mensaje_error=f'Usuario en estado: {usuario.estado}',
+                ip_address=ip_cliente,
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            return JsonResponse({
+                'success': False,
+                'error': f'Usuario {usuario.get_estado_display()}'
+            }, status=403)
+
+        # Decodificar y validar imagen
+        imagen = facial_service.decode_base64_image(imagen_base64)
+        if imagen is None:
+            return JsonResponse({
+                'success': False,
+                'error': 'Error decodificando imagen'
+            }, status=400)
+
+        # Validar calidad
+        calidad_ok, mensaje_calidad = facial_service.validar_calidad_imagen(imagen)
+        if not calidad_ok:
+            return JsonResponse({
+                'success': False,
+                'error': mensaje_calidad
+            }, status=400)
+
+        # Extraer embedding
+        exito, embedding_capturado, mensaje = facial_service.extraer_embedding(imagen)
+        if not exito:
+            IntentoReconocimientoFacial.objects.create(
+                usuario=usuario,
+                tipo_intento='login',
+                resultado='error',
+                mensaje_error=mensaje,
+                ip_address=ip_cliente,
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            return JsonResponse({
+                'success': False,
+                'error': mensaje
+            }, status=400)
+
+        # Verificar autenticación
+        autenticado, similitud, mensaje_auth = facial_service.verificar_autenticacion(
+            embedding_capturado,
+            reconocimiento.embedding
+        )
+
+        # Registrar intento
+        IntentoReconocimientoFacial.objects.create(
+            usuario=usuario,
+            tipo_intento='login',
+            resultado='exitoso' if autenticado else 'fallido',
+            similitud=similitud,
+            mensaje_error='' if autenticado else mensaje_auth,
+            ip_address=ip_cliente,
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+
+        if not autenticado:
+            return JsonResponse({
+                'success': False,
+                'error': 'Rostro no coincide con el registrado'
+            }, status=401)
+
+        # AUTENTICACIÓN EXITOSA
+        # Crear sesión de Django
+        django_user = User.objects.get(username=numero_documento)
+        login(request, django_user)
+
+        # Registrar sesión en SesionUsuario
+        SesionUsuario.objects.create(
+            usuario=usuario,
+            token_sesion=request.session.session_key or '',
+            ip_address=ip_cliente,
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+
+        # Actualizar último acceso
+        usuario.ultimo_acceso = timezone.now()
+        usuario.save()
+
+        # Limpiar rate limit en caso de éxito
+        cache.delete(rate_limit_key)
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Autenticación exitosa',
+            'similitud': round(similitud * 100, 2),
+            'redirect_url': '/usuarios/dashboard/'
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Datos JSON inválidos'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Error en login facial: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'Error interno del servidor'
+        }, status=500)
+
+
+@login_required
+def verificar_tiene_reconocimiento_facial(request):
+    """
+    API endpoint para verificar si el usuario tiene reconocimiento facial activo.
+    """
+    try:
+        usuario = Usuario.objects.get(numero_documento=request.user.username)
+        tiene_reconocimiento = ReconocimientoFacial.objects.filter(
+            usuario=usuario,
+            activo=True
+        ).exists()
+
+        return JsonResponse({
+            'tiene_reconocimiento': tiene_reconocimiento
+        })
+    except Usuario.DoesNotExist:
+        return JsonResponse({
+            'tiene_reconocimiento': False
+        }, status=404)
+
+
+@login_required
+@require_POST
+def eliminar_reconocimiento_facial(request):
+    """
+    Permite al usuario eliminar su reconocimiento facial.
+    """
+    try:
+        usuario = Usuario.objects.get(numero_documento=request.user.username)
+        reconocimiento = ReconocimientoFacial.objects.get(usuario=usuario)
+        reconocimiento.activo = False
+        reconocimiento.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Reconocimiento facial desactivado'
+        })
+    except (Usuario.DoesNotExist, ReconocimientoFacial.DoesNotExist):
+        return JsonResponse({
+            'success': False,
+            'error': 'No se encontró reconocimiento facial activo'
+        }, status=404)
