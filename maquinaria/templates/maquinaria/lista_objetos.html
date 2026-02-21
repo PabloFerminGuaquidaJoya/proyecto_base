@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Objetos Registrados - SENA{% endblock %}
+{% block page_title %}Objetos / Piezas Registradas{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Maquinaria</a></li>
+                <li class="breadcrumb-item active">Objetos</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small">Buscar</label>
+                <input type="text" name="busqueda" class="form-control form-control-sm" placeholder="Nombre, modelo, serie..." value="{{ request.GET.busqueda|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Estado</label>
+                <select name="estado" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="nuevo" {% if request.GET.estado == 'nuevo' %}selected{% endif %}>Nuevo</option>
+                    <option value="usado" {% if request.GET.estado == 'usado' %}selected{% endif %}>Usado</option>
+                    <option value="desgastado" {% if request.GET.estado == 'desgastado' %}selected{% endif %}>Desgastado</option>
+                    <option value="danado" {% if request.GET.estado == 'danado' %}selected{% endif %}>Dañado</option>
+                    <option value="reparado" {% if request.GET.estado == 'reparado' %}selected{% endif %}>Reparado</option>
+                    <option value="obsoleto" {% if request.GET.estado == 'obsoleto' %}selected{% endif %}>Obsoleto</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Máquina</label>
+                <select name="maquina" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    {% for m in maquinas %}
+                    <option value="{{ m.id }}" {% if request.GET.maquina == m.id|stringformat:"d" %}selected{% endif %}>{{ m.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
+                    <i class="bi bi-search me-1"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Acciones -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">{{ objetos.paginator.count }} objeto{{ objetos.paginator.count|pluralize:"s" }} encontrado{{ objetos.paginator.count|pluralize:"s" }}</span>
+    <a href="{% url 'maquinaria:registrar_objeto' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i>Registrar Objeto
+    </a>
+</div>
+
+<!-- Lista de objetos -->
+{% if objetos %}
+<div class="row g-3">
+    {% for objeto in objetos %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="card-title mb-0">{{ objeto.nombre }}</h6>
+                    <span class="badge
+                        {% if objeto.estado == 'nuevo' %}bg-success
+                        {% elif objeto.estado == 'usado' %}bg-primary
+                        {% elif objeto.estado == 'desgastado' %}bg-warning text-dark
+                        {% elif objeto.estado == 'danado' %}bg-danger
+                        {% elif objeto.estado == 'reparado' %}bg-info
+                        {% else %}bg-secondary{% endif %}">
+                        {{ objeto.get_estado_display }}
+                    </span>
+                </div>
+
+                <!-- Thumbnail de fotos -->
+                <div class="d-flex gap-1 mb-2 flex-wrap">
+                    {% if objeto.foto_frontal %}
+                    <img src="{{ objeto.foto_frontal.url }}" class="rounded" style="width:40px; height:40px; object-fit:cover;" alt="Frontal">
+                    {% endif %}
+                    {% if objeto.foto_lateral_derecha %}
+                    <img src="{{ objeto.foto_lateral_derecha.url }}" class="rounded" style="width:40px; height:40px; object-fit:cover;" alt="Lat. Der.">
+                    {% endif %}
+                    {% if objeto.foto_lateral_izquierda %}
+                    <img src="{{ objeto.foto_lateral_izquierda.url }}" class="rounded" style="width:40px; height:40px; object-fit:cover;" alt="Lat. Izq.">
+                    {% endif %}
+                    {% if objeto.foto_trasera %}
+                    <img src="{{ objeto.foto_trasera.url }}" class="rounded" style="width:40px; height:40px; object-fit:cover;" alt="Trasera">
+                    {% endif %}
+                    {% if objeto.foto_superior %}
+                    <img src="{{ objeto.foto_superior.url }}" class="rounded" style="width:40px; height:40px; object-fit:cover;" alt="Superior">
+                    {% endif %}
+                    {% if objeto.foto_inferior %}
+                    <img src="{{ objeto.foto_inferior.url }}" class="rounded" style="width:40px; height:40px; object-fit:cover;" alt="Inferior">
+                    {% endif %}
+                    {% if objeto.total_fotos == 0 %}
+                    <span class="text-muted small"><i class="bi bi-image"></i> Sin fotos</span>
+                    {% endif %}
+                </div>
+
+                <div class="small text-muted">
+                    {% if objeto.modelo %}<div><strong>Modelo:</strong> {{ objeto.modelo }}</div>{% endif %}
+                    {% if objeto.maquina %}<div><strong>Máquina:</strong> {{ objeto.maquina.nombre }}</div>{% endif %}
+                    {% if objeto.ubicacion_almacen %}<div><strong>Ubicación:</strong> {{ objeto.ubicacion_almacen }}</div>{% endif %}
+                    <div><strong>Fotos:</strong> {{ objeto.total_fotos }}/6</div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent d-flex gap-1">
+                <a href="{% url 'maquinaria:detalle_objeto' objeto.pk %}" class="btn btn-outline-primary btn-sm flex-fill">
+                    <i class="bi bi-eye"></i> Ver
+                </a>
+                <a href="{% url 'maquinaria:editar_objeto' objeto.pk %}" class="btn btn-outline-warning btn-sm flex-fill">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a href="{% url 'maquinaria:eliminar_objeto' objeto.pk %}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Paginación -->
+{% if objetos.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if objetos.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ objetos.previous_page_number }}&busqueda={{ request.GET.busqueda|default:'' }}&estado={{ request.GET.estado|default:'' }}&maquina={{ request.GET.maquina|default:'' }}">&laquo;</a>
+        </li>
+        {% endif %}
+        {% for num in objetos.paginator.page_range %}
+            {% if objetos.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > objetos.number|add:"-3" and num < objetos.number|add:"3" %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}&busqueda={{ request.GET.busqueda|default:'' }}&estado={{ request.GET.estado|default:'' }}&maquina={{ request.GET.maquina|default:'' }}">{{ num }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        {% if objetos.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ objetos.next_page_number }}&busqueda={{ request.GET.busqueda|default:'' }}&estado={{ request.GET.estado|default:'' }}&maquina={{ request.GET.maquina|default:'' }}">&raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-box-seam text-muted" style="font-size:3rem;"></i>
+        <h5 class="mt-3 text-muted">No hay objetos registrados</h5>
+        <p class="text-muted">Registre el primer objeto capturando sus fotos desde la cámara.</p>
+        <a href="{% url 'maquinaria:registrar_objeto' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Registrar Objeto
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

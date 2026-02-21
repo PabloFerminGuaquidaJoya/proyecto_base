@@ -43,6 +43,13 @@ urlpatterns = [
     path('qr/<int:pk>/', views.generar_qr_maquina, name='generar_qr'),
     path('qr-info/<str:codigo>/', views.info_qr_maquina, name='info_qr'),
 
+    # Objetos / Reconocimiento de objetos
+    path('objetos/', views.lista_objetos_view, name='lista_objetos'),
+    path('objetos/registrar/', views.registrar_objeto_view, name='registrar_objeto'),
+    path('objetos/detalle/<int:pk>/', views.detalle_objeto_view, name='detalle_objeto'),
+    path('objetos/editar/<int:pk>/', views.editar_objeto_view, name='editar_objeto'),
+    path('objetos/eliminar/<int:pk>/', views.eliminar_objeto_view, name='eliminar_objeto'),
+
     # API endpoints para AJAX
     path('api/buscar/', views.buscar_maquinas_api, name='api_buscar'),
     path('api/estadisticas/', views.estadisticas_maquinaria_api, name='api_estadisticas'),

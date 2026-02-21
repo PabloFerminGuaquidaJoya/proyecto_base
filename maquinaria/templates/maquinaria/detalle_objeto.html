@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ objeto.nombre }} - Detalle Objeto{% endblock %}
+{% block page_title %}Detalle del Objeto{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Maquinaria</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'maquinaria:lista_objetos' %}">Objetos</a></li>
+                <li class="breadcrumb-item active">{{ objeto.nombre }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Galería de fotos -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-images me-2"></i>Fotos del Objeto ({{ objeto.total_fotos }}/6)
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <!-- Foto Frontal -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header text-center py-2"><small class="fw-bold">Frontal</small></div>
+                    <div class="card-body text-center p-2">
+                        {% if objeto.foto_frontal %}
+                        <a href="{{ objeto.foto_frontal.url }}" target="_blank">
+                            <img src="{{ objeto.foto_frontal.url }}" class="img-fluid rounded" style="max-height:200px; object-fit:cover;">
+                        </a>
+                        {% else %}
+                        <div class="py-4"><i class="bi bi-image text-muted" style="font-size:2rem;"></i><br><small class="text-muted">Sin foto</small></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto Lateral Derecha -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header text-center py-2"><small class="fw-bold">Lateral Derecha</small></div>
+                    <div class="card-body text-center p-2">
+                        {% if objeto.foto_lateral_derecha %}
+                        <a href="{{ objeto.foto_lateral_derecha.url }}" target="_blank">
+                            <img src="{{ objeto.foto_lateral_derecha.url }}" class="img-fluid rounded" style="max-height:200px; object-fit:cover;">
+                        </a>
+                        {% else %}
+                        <div class="py-4"><i class="bi bi-image text-muted" style="font-size:2rem;"></i><br><small class="text-muted">Sin foto</small></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto Lateral Izquierda -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header text-center py-2"><small class="fw-bold">Lateral Izquierda</small></div>
+                    <div class="card-body text-center p-2">
+                        {% if objeto.foto_lateral_izquierda %}
+                        <a href="{{ objeto.foto_lateral_izquierda.url }}" target="_blank">
+                            <img src="{{ objeto.foto_lateral_izquierda.url }}" class="img-fluid rounded" style="max-height:200px; object-fit:cover;">
+                        </a>
+                        {% else %}
+                        <div class="py-4"><i class="bi bi-image text-muted" style="font-size:2rem;"></i><br><small class="text-muted">Sin foto</small></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto Trasera -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header text-center py-2"><small class="fw-bold">Trasera</small></div>
+                    <div class="card-body text-center p-2">
+                        {% if objeto.foto_trasera %}
+                        <a href="{{ objeto.foto_trasera.url }}" target="_blank">
+                            <img src="{{ objeto.foto_trasera.url }}" class="img-fluid rounded" style="max-height:200px; object-fit:cover;">
+                        </a>
+                        {% else %}
+                        <div class="py-4"><i class="bi bi-image text-muted" style="font-size:2rem;"></i><br><small class="text-muted">Sin foto</small></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto Superior -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header text-center py-2"><small class="fw-bold">Superior</small></div>
+                    <div class="card-body text-center p-2">
+                        {% if objeto.foto_superior %}
+                        <a href="{{ objeto.foto_superior.url }}" target="_blank">
+                            <img src="{{ objeto.foto_superior.url }}" class="img-fluid rounded" style="max-height:200px; object-fit:cover;">
+                        </a>
+                        {% else %}
+                        <div class="py-4"><i class="bi bi-image text-muted" style="font-size:2rem;"></i><br><small class="text-muted">Sin foto</small></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto Inferior -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header text-center py-2"><small class="fw-bold">Inferior</small></div>
+                    <div class="card-body text-center p-2">
+                        {% if objeto.foto_inferior %}
+                        <a href="{{ objeto.foto_inferior.url }}" target="_blank">
+                            <img src="{{ objeto.foto_inferior.url }}" class="img-fluid rounded" style="max-height:200px; object-fit:cover;">
+                        </a>
+                        {% else %}
+                        <div class="py-4"><i class="bi bi-image text-muted" style="font-size:2rem;"></i><br><small class="text-muted">Sin foto</small></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Datos del objeto -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-clipboard-data me-2"></i>Información del Objeto
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr><th class="text-muted" style="width:40%">Nombre</th><td>{{ objeto.nombre }}</td></tr>
+                    <tr><th class="text-muted">Modelo</th><td>{{ objeto.modelo|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Serie</th><td>{{ objeto.serie|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Fabricante</th><td>{{ objeto.fabricante|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Medidas</th><td>{{ objeto.medidas|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Peso (kg)</th><td>{{ objeto.peso_kg|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Color</th><td>{{ objeto.color|default:"-" }}</td></tr>
+                    <tr>
+                        <th class="text-muted">Estado</th>
+                        <td>
+                            <span class="badge
+                                {% if objeto.estado == 'nuevo' %}bg-success
+                                {% elif objeto.estado == 'usado' %}bg-primary
+                                {% elif objeto.estado == 'desgastado' %}bg-warning text-dark
+                                {% elif objeto.estado == 'danado' %}bg-danger
+                                {% elif objeto.estado == 'reparado' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {{ objeto.get_estado_display }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr><th class="text-muted" style="width:40%">Máquina asociada</th><td>{{ objeto.maquina.nombre|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Costo</th><td>{% if objeto.costo %}${{ objeto.costo|floatformat:2 }}{% else %}-{% endif %}</td></tr>
+                    <tr><th class="text-muted">Ubicación almacén</th><td>{{ objeto.ubicacion_almacen|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Tiempo de uso</th><td>{{ objeto.tiempo_uso|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Fecha de compra</th><td>{{ objeto.fecha_compra|date:"d/m/Y"|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Fecha de uso</th><td>{{ objeto.fecha_uso|date:"d/m/Y"|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Fecha de cambio</th><td>{{ objeto.fecha_cambio|date:"d/m/Y"|default:"-" }}</td></tr>
+                    <tr><th class="text-muted">Registrado</th><td>{{ objeto.created_at|date:"d/m/Y H:i" }}</td></tr>
+                </table>
+            </div>
+        </div>
+        {% if objeto.observaciones %}
+        <div class="mt-3">
+            <h6 class="text-muted">Observaciones</h6>
+            <p>{{ objeto.observaciones }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Acciones -->
+<div class="d-flex gap-2 mb-4">
+    <a href="{% url 'maquinaria:editar_objeto' objeto.pk %}" class="btn btn-warning">
+        <i class="bi bi-pencil me-1"></i>Editar
+    </a>
+    <a href="{% url 'maquinaria:eliminar_objeto' objeto.pk %}" class="btn btn-danger">
+        <i class="bi bi-trash me-1"></i>Eliminar
+    </a>
+    <a href="{% url 'maquinaria:lista_objetos' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Volver a la lista
+    </a>
+</div>
+{% endblock %}

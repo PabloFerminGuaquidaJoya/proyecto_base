@@ -19,6 +19,53 @@ logger = logging.getLogger(__name__)
 
 # ==================== UTILIDADES MySQL ====================
 
+# Rutas comunes donde MySQL instala sus herramientas en Windows
+_MYSQL_BIN_PATHS_WINDOWS = [
+    r'C:\Program Files\MySQL\MySQL Server 9.5\bin',
+    r'C:\Program Files\MySQL\MySQL Server 9.3\bin',
+    r'C:\Program Files\MySQL\MySQL Server 9.0\bin',
+    r'C:\Program Files\MySQL\MySQL Server 8.4\bin',
+    r'C:\Program Files\MySQL\MySQL Server 8.0\bin',
+    r'C:\Program Files\MySQL\MySQL Server 5.7\bin',
+    r'C:\xampp\mysql\bin',
+    r'C:\wamp64\bin\mysql\mysql8.0\bin',
+    r'C:\wamp\bin\mysql\mysql8.0\bin',
+    r'C:\laragon\bin\mysql\mysql-8.0\bin',
+]
+
+
+def _encontrar_ejecutable(nombre):
+    """
+    Busca el ejecutable de MySQL (mysqldump o mysql) en el PATH y en rutas
+    comunes de instalación de Windows. Retorna la ruta completa o el nombre
+    simple si está en el PATH.
+    """
+    import shutil
+    import platform
+
+    # Primero intentar directamente (si está en el PATH del sistema)
+    if shutil.which(nombre):
+        return nombre
+
+    # En Windows, buscar en rutas comunes de instalación de MySQL
+    if platform.system() == 'Windows':
+        exe = nombre + '.exe'
+        # También buscar dinámicamente en C:\Program Files\MySQL\
+        base = r'C:\Program Files\MySQL'
+        if os.path.isdir(base):
+            for entry in sorted(os.listdir(base), reverse=True):
+                candidate = os.path.join(base, entry, 'bin', exe)
+                if os.path.isfile(candidate):
+                    return candidate
+
+        for path in _MYSQL_BIN_PATHS_WINDOWS:
+            candidate = os.path.join(path, exe)
+            if os.path.isfile(candidate):
+                return candidate
+
+    return None  # No encontrado
+
+
 def _get_db_config():
     """Obtiene la configuración de la base de datos MySQL desde settings."""
     db = settings.DATABASES['default']
@@ -85,8 +132,15 @@ def _ejecutar_mysqldump(backup_path):
     """
     db = _get_db_config()
 
+    mysqldump_exe = _encontrar_ejecutable('mysqldump')
+    if not mysqldump_exe:
+        return False, (
+            'mysqldump no encontrado. Instale MySQL y asegúrese de que '
+            'C:\\Program Files\\MySQL\\MySQL Server X.X\\bin esté en el PATH del sistema.'
+        )
+
     cmd = [
-        'mysqldump',
+        mysqldump_exe,
         f'--user={db["user"]}',
         f'--password={db["password"]}',
         f'--host={db["host"]}',
@@ -111,17 +165,16 @@ def _ejecutar_mysqldump(backup_path):
 
         if result.returncode != 0:
             error_msg = result.stderr.decode('utf-8', errors='replace').strip()
-            # Filtrar warnings comunes de mysqldump que no son errores reales
-            if result.returncode != 0 and 'error' in error_msg.lower():
-                return False, f'Error en mysqldump: {error_msg}'
+            # Filtrar warnings de contraseña (no son errores reales)
+            lineas_error = [
+                l for l in error_msg.splitlines()
+                if 'error' in l.lower() and 'using a password' not in l.lower()
+            ]
+            if lineas_error:
+                return False, f'Error en mysqldump: {chr(10).join(lineas_error)}'
 
         return True, 'Backup creado exitosamente'
 
-    except FileNotFoundError:
-        return False, (
-            'mysqldump no encontrado. Asegúrese de que MySQL está instalado '
-            'y mysqldump está en el PATH del sistema.'
-        )
     except subprocess.TimeoutExpired:
         return False, 'El proceso de backup excedió el tiempo límite (5 minutos).'
     except Exception as e:
@@ -135,8 +188,15 @@ def _ejecutar_mysql_restore(backup_path):
     """
     db = _get_db_config()
 
+    mysql_exe = _encontrar_ejecutable('mysql')
+    if not mysql_exe:
+        return False, (
+            'mysql no encontrado. Instale MySQL y asegúrese de que '
+            'C:\\Program Files\\MySQL\\MySQL Server X.X\\bin esté en el PATH del sistema.'
+        )
+
     cmd = [
-        'mysql',
+        mysql_exe,
         f'--user={db["user"]}',
         f'--password={db["password"]}',
         f'--host={db["host"]}',
@@ -156,15 +216,15 @@ def _ejecutar_mysql_restore(backup_path):
 
         if result.returncode != 0:
             error_msg = result.stderr.decode('utf-8', errors='replace').strip()
-            return False, f'Error en restauración MySQL: {error_msg}'
+            lineas_error = [
+                l for l in error_msg.splitlines()
+                if 'error' in l.lower() and 'using a password' not in l.lower()
+            ]
+            if lineas_error:
+                return False, f'Error en restauración MySQL: {chr(10).join(lineas_error)}'
 
         return True, 'Base de datos restaurada exitosamente'
 
-    except FileNotFoundError:
-        return False, (
-            'mysql no encontrado. Asegúrese de que MySQL está instalado '
-            'y el cliente mysql está en el PATH del sistema.'
-        )
     except subprocess.TimeoutExpired:
         return False, 'El proceso de restauración excedió el tiempo límite (10 minutos).'
     except Exception as e:

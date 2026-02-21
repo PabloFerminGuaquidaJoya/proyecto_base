@@ -1,6 +1,6 @@
 from django import forms
 from django.core.validators import RegexValidator
-from .models import Maquina, CategoriaMaquina, Proveedor, AlertaMaquina, HistorialMaquina
+from .models import Maquina, CategoriaMaquina, Proveedor, AlertaMaquina, HistorialMaquina, ObjetoMaquinaria
 
 class MaquinaForm(forms.ModelForm):
     class Meta:
@@ -401,3 +401,107 @@ class ExportarMaquinasForm(forms.Form):
         widget=forms.CheckboxSelectMultiple(),
         help_text='Dejar vacío para incluir todas las categorías'
     )
+
+
+class ObjetoMaquinariaForm(forms.ModelForm):
+    class Meta:
+        model = ObjetoMaquinaria
+        exclude = ['created_at', 'updated_at', 'created_by']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre del objeto o pieza'
+            }),
+            'modelo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Modelo'
+            }),
+            'serie': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Número de serie'
+            }),
+            'fabricante': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre del fabricante'
+            }),
+            'color': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Rojo, Gris metalizado'
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'medidas': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 30cm x 15cm x 10cm'
+            }),
+            'peso_kg': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+                'placeholder': 'Peso en kilogramos'
+            }),
+            'maquina': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'costo': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+                'placeholder': 'Costo en pesos'
+            }),
+            'ubicacion_almacen': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Estante A3, Bodega 2'
+            }),
+            'fecha_compra': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'fecha_uso': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'fecha_cambio': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'tiempo_uso': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 6 meses, 2 años'
+            }),
+            'foto_frontal': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'foto_lateral_derecha': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'foto_lateral_izquierda': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'foto_trasera': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'foto_superior': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'foto_inferior': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'observaciones': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Observaciones adicionales...'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nombre'].required = True
+        self.fields['maquina'].queryset = Maquina.objects.all().order_by('codigo_inventario')

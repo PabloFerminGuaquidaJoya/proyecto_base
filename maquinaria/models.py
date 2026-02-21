@@ -469,3 +469,92 @@ class MaquinaEliminada(models.Model):
 
     def __str__(self):
         return f"{self.codigo_inventario} - {self.nombre} (Eliminada: {self.fecha_eliminacion.strftime('%d/%m/%Y')})"
+
+
+class ObjetoMaquinaria(models.Model):
+    """
+    Modelo para registrar objetos/piezas de maquinaria con fotos
+    desde múltiples ángulos para reconocimiento visual.
+    """
+    ESTADO_CHOICES = [
+        ('nuevo', 'Nuevo'),
+        ('usado', 'Usado'),
+        ('desgastado', 'Desgastado'),
+        ('danado', 'Dañado'),
+        ('reparado', 'Reparado'),
+        ('obsoleto', 'Obsoleto'),
+    ]
+
+    # Información básica
+    nombre = models.CharField(max_length=200)
+    modelo = models.CharField(max_length=100, blank=True)
+    serie = models.CharField(max_length=100, blank=True)
+    fabricante = models.CharField(max_length=200, blank=True)
+    color = models.CharField(max_length=50, blank=True)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='nuevo')
+
+    # Especificaciones físicas
+    medidas = models.CharField(max_length=200, blank=True, help_text='Ej: 30cm x 15cm x 10cm')
+    peso_kg = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    # Relación con máquina
+    maquina = models.ForeignKey(
+        Maquina,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='objetos'
+    )
+
+    # Información comercial
+    costo = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    ubicacion_almacen = models.CharField(max_length=200, blank=True)
+
+    # Fechas
+    fecha_compra = models.DateField(null=True, blank=True)
+    fecha_uso = models.DateField(null=True, blank=True)
+    fecha_cambio = models.DateField(null=True, blank=True)
+    tiempo_uso = models.CharField(max_length=100, blank=True, help_text='Ej: 6 meses, 2 años')
+
+    # Fotos desde 6 ángulos
+    foto_frontal = models.ImageField(upload_to='objetos/fotos/', blank=True, null=True)
+    foto_lateral_derecha = models.ImageField(upload_to='objetos/fotos/', blank=True, null=True)
+    foto_lateral_izquierda = models.ImageField(upload_to='objetos/fotos/', blank=True, null=True)
+    foto_trasera = models.ImageField(upload_to='objetos/fotos/', blank=True, null=True)
+    foto_superior = models.ImageField(upload_to='objetos/fotos/', blank=True, null=True)
+    foto_inferior = models.ImageField(upload_to='objetos/fotos/', blank=True, null=True)
+
+    # Metadatos
+    observaciones = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='objetos_creados'
+    )
+
+    class Meta:
+        verbose_name = "Objeto/Pieza"
+        verbose_name_plural = "Objetos/Piezas"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['nombre']),
+            models.Index(fields=['maquina']),
+            models.Index(fields=['estado']),
+        ]
+
+    def __str__(self):
+        maq = f" - {self.maquina.codigo_inventario}" if self.maquina else ""
+        return f"{self.nombre}{maq}"
+
+    @property
+    def total_fotos(self):
+        count = 0
+        for field in ['foto_frontal', 'foto_lateral_derecha', 'foto_lateral_izquierda',
+                       'foto_trasera', 'foto_superior', 'foto_inferior']:
+            if getattr(self, field):
+                count += 1
+        return count

@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Registrar{% endif %} Objeto - SENA{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Editar{% else %}Registrar{% endif %} Objeto / Pieza{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Maquinaria</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'maquinaria:lista_objetos' %}">Objetos</a></li>
+                <li class="breadcrumb-item active">{% if form.instance.pk %}Editar{% else %}Registrar{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="objetoForm">
+    {% csrf_token %}
+
+    <!-- Sección de Fotos con Webcam -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h6 class="m-0"><i class="bi bi-camera me-2"></i>Captura de Fotos del Objeto (6 ángulos)</h6>
+        </div>
+        <div class="card-body">
+
+            <!-- Estado de la cámara -->
+            <div id="camaraNoDisponible" class="alert alert-warning d-none">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Cámara no disponible.</strong> Su navegador no soporta acceso a cámara o está en una conexión no segura (se requiere HTTPS o localhost).
+                Puede subir imágenes manualmente usando el botón <i class="bi bi-upload"></i>.
+            </div>
+
+            <!-- Visor de cámara -->
+            <div class="text-center mb-4" id="seccionCamara">
+                <div class="position-relative d-inline-block" id="videoContainer">
+                    <video id="webcamVideo" width="480" height="360" autoplay playsinline muted class="rounded border" style="display:none; background:#000;"></video>
+                    <canvas id="captureCanvas" style="display:none;"></canvas>
+                    <!-- Flash overlay para efecto de captura -->
+                    <div id="flashOverlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; border-radius:0.375rem; pointer-events:none;"></div>
+                </div>
+                <div class="mt-2" id="botonesCamera">
+                    <button type="button" class="btn btn-success" id="btnIniciarCamara" onclick="iniciarCamara()">
+                        <i class="bi bi-camera-video me-1"></i>Iniciar Cámara
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btnCargando" style="display:none;" disabled>
+                        <span class="spinner-border spinner-border-sm me-1"></span>Conectando cámara...
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btnDetenerCamara" onclick="detenerCamara()" style="display:none;">
+                        <i class="bi bi-camera-video-off me-1"></i>Detener Cámara
+                    </button>
+                </div>
+                <div id="camaraActiva" class="mt-2 d-none">
+                    <span class="badge bg-success"><i class="bi bi-record-circle me-1"></i>Cámara activa - Haga clic en <i class="bi bi-camera"></i> para capturar</span>
+                </div>
+            </div>
+
+            <!-- Contador de fotos -->
+            <div class="text-center mb-3">
+                <span class="badge bg-secondary" id="contadorFotos" style="font-size:0.9rem;">
+                    Fotos capturadas: <span id="numFotos">0</span> / 6
+                </span>
+            </div>
+
+            <!-- Grid de 6 fotos -->
+            <div class="row g-3">
+                {% for campo, etiqueta in foto_campos %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="card h-100 foto-card" id="card_{{ campo }}">
+                        <div class="card-header text-center py-2">
+                            <small class="fw-bold">{{ etiqueta }}</small>
+                        </div>
+                        <div class="card-body text-center p-2">
+                            <div class="foto-preview" id="preview_{{ campo }}" style="width:100%; height:150px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                <i class="bi bi-image text-muted" style="font-size:2rem;"></i>
+                            </div>
+                            <input type="hidden" name="{{ campo }}_base64" id="base64_{{ campo }}">
+                            <input type="file" name="{{ campo }}" id="file_{{ campo }}" accept="image/*" class="d-none" onchange="previewArchivo('{{ campo }}', this)">
+                            <div class="mt-2 d-flex gap-1 justify-content-center">
+                                <button type="button" class="btn btn-outline-primary btn-sm btn-capturar" onclick="capturarFoto('{{ campo }}')" title="Capturar con cámara">
+                                    <i class="bi bi-camera"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('file_{{ campo }}').click()" title="Subir archivo">
+                                    <i class="bi bi-upload"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="limpiarFoto('{{ campo }}')" title="Eliminar foto">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de datos -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h6 class="m-0"><i class="bi bi-clipboard-data me-2"></i>Datos del Objeto</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre *</label>
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.modelo.id_for_label }}" class="form-label">Modelo</label>
+                    {{ form.modelo }}
+                    {% if form.modelo.errors %}<div class="text-danger small">{{ form.modelo.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.serie.id_for_label }}" class="form-label">Serie</label>
+                    {{ form.serie }}
+                    {% if form.serie.errors %}<div class="text-danger small">{{ form.serie.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <label for="{{ form.fabricante.id_for_label }}" class="form-label">Fabricante</label>
+                    {{ form.fabricante }}
+                    {% if form.fabricante.errors %}<div class="text-danger small">{{ form.fabricante.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.medidas.id_for_label }}" class="form-label">Medidas</label>
+                    {{ form.medidas }}
+                    {% if form.medidas.errors %}<div class="text-danger small">{{ form.medidas.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.peso_kg.id_for_label }}" class="form-label">Peso (kg)</label>
+                    {{ form.peso_kg }}
+                    {% if form.peso_kg.errors %}<div class="text-danger small">{{ form.peso_kg.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <label for="{{ form.maquina.id_for_label }}" class="form-label">Máquina asociada</label>
+                    {{ form.maquina }}
+                    {% if form.maquina.errors %}<div class="text-danger small">{{ form.maquina.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.costo.id_for_label }}" class="form-label">Costo</label>
+                    {{ form.costo }}
+                    {% if form.costo.errors %}<div class="text-danger small">{{ form.costo.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.estado.id_for_label }}" class="form-label">Estado</label>
+                    {{ form.estado }}
+                    {% if form.estado.errors %}<div class="text-danger small">{{ form.estado.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <label for="{{ form.color.id_for_label }}" class="form-label">Color</label>
+                    {{ form.color }}
+                    {% if form.color.errors %}<div class="text-danger small">{{ form.color.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.ubicacion_almacen.id_for_label }}" class="form-label">Ubicación almacén</label>
+                    {{ form.ubicacion_almacen }}
+                    {% if form.ubicacion_almacen.errors %}<div class="text-danger small">{{ form.ubicacion_almacen.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.tiempo_uso.id_for_label }}" class="form-label">Tiempo de uso</label>
+                    {{ form.tiempo_uso }}
+                    {% if form.tiempo_uso.errors %}<div class="text-danger small">{{ form.tiempo_uso.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <label for="{{ form.fecha_compra.id_for_label }}" class="form-label">Fecha de compra</label>
+                    {{ form.fecha_compra }}
+                    {% if form.fecha_compra.errors %}<div class="text-danger small">{{ form.fecha_compra.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.fecha_uso.id_for_label }}" class="form-label">Fecha de uso</label>
+                    {{ form.fecha_uso }}
+                    {% if form.fecha_uso.errors %}<div class="text-danger small">{{ form.fecha_uso.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.fecha_cambio.id_for_label }}" class="form-label">Fecha de cambio</label>
+                    {{ form.fecha_cambio }}
+                    {% if form.fecha_cambio.errors %}<div class="text-danger small">{{ form.fecha_cambio.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-12">
+                    <label for="{{ form.observaciones.id_for_label }}" class="form-label">Observaciones</label>
+                    {{ form.observaciones }}
+                    {% if form.observaciones.errors %}<div class="text-danger small">{{ form.observaciones.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="d-flex gap-2 mb-4">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-1"></i>{% if form.instance.pk %}Guardar Cambios{% else %}Registrar Objeto{% endif %}
+        </button>
+        <a href="{% url 'maquinaria:lista_objetos' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Cancelar
+        </a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .foto-card {
+        transition: all 0.3s ease;
+    }
+    .foto-card.captured {
+        border-color: var(--sena-primary) !important;
+        box-shadow: 0 0 0 2px rgba(57, 169, 0, 0.25);
+    }
+    .foto-preview img {
+        border-radius: 8px;
+    }
+    #webcamVideo {
+        border: 3px solid var(--sena-primary);
+        max-width: 100%;
+        height: auto;
+    }
+    .btn-capturar:disabled {
+        opacity: 0.5;
+    }
+    @keyframes flashEffect {
+        0% { opacity: 0.8; }
+        100% { opacity: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let stream = null;
+    let camaraDisponible = false;
+    const video = document.getElementById('webcamVideo');
+    const canvas = document.getElementById('captureCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Verificar si la API de cámara está disponible
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            // API no disponible (probablemente no es HTTPS ni localhost)
+            document.getElementById('camaraNoDisponible').classList.remove('d-none');
+            document.getElementById('seccionCamara').querySelector('#botonesCamera').style.display = 'none';
+            // Deshabilitar botones de captura
+            document.querySelectorAll('.btn-capturar').forEach(function(btn) {
+                btn.disabled = true;
+                btn.title = 'Cámara no disponible - use subir archivo';
+            });
+        } else {
+            camaraDisponible = true;
+        }
+
+        actualizarContadorFotos();
+    });
+
+    async function iniciarCamara() {
+        if (!camaraDisponible) {
+            alert('La cámara no está disponible en este navegador o conexión.');
+            return;
+        }
+
+        const btnIniciar = document.getElementById('btnIniciarCamara');
+        const btnCargando = document.getElementById('btnCargando');
+        const btnDetener = document.getElementById('btnDetenerCamara');
+
+        // Mostrar estado de carga
+        btnIniciar.style.display = 'none';
+        btnCargando.style.display = 'inline-block';
+
+        try {
+            // Intentar primero sin facingMode (funciona mejor en escritorio)
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    },
+                    audio: false
+                });
+            } catch (e) {
+                // Si falla, intentar con restricciones mínimas
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+            }
+
+            video.srcObject = stream;
+
+            // Esperar a que el video esté listo para reproducir
+            await new Promise(function(resolve, reject) {
+                video.onloadedmetadata = function() {
+                    video.play().then(resolve).catch(reject);
+                };
+                // Timeout de 5 segundos
+                setTimeout(function() { reject(new Error('Timeout esperando video')); }, 5000);
+            });
+
+            video.style.display = 'block';
+            btnCargando.style.display = 'none';
+            btnDetener.style.display = 'inline-block';
+            document.getElementById('camaraActiva').classList.remove('d-none');
+
+            console.log('Cámara iniciada correctamente:', video.videoWidth + 'x' + video.videoHeight);
+
+        } catch (err) {
+            btnCargando.style.display = 'none';
+            btnIniciar.style.display = 'inline-block';
+
+            let mensaje = 'No se pudo acceder a la cámara.';
+
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                mensaje = 'Permiso de cámara denegado.\n\nPor favor permita el acceso a la cámara en su navegador:\n'
+                    + '1. Haga clic en el icono de candado/cámara en la barra de direcciones\n'
+                    + '2. Active el permiso de cámara\n'
+                    + '3. Recargue la página';
+            } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                mensaje = 'No se encontró ninguna cámara conectada.\n\nConecte una cámara web e intente de nuevo.';
+            } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                mensaje = 'La cámara está siendo usada por otra aplicación.\n\nCierre otras aplicaciones que usen la cámara e intente de nuevo.';
+            } else if (err.name === 'OverconstrainedError') {
+                mensaje = 'La cámara no soporta la resolución solicitada. Intentando con configuración básica...';
+                // Intentar de nuevo con configuración mínima
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    video.srcObject = stream;
+                    await video.play();
+                    video.style.display = 'block';
+                    btnCargando.style.display = 'none';
+                    btnDetener.style.display = 'inline-block';
+                    document.getElementById('camaraActiva').classList.remove('d-none');
+                    return;
+                } catch (e2) {
+                    mensaje = 'No se pudo iniciar la cámara con ninguna configuración.\n\nError: ' + e2.message;
+                }
+            } else {
+                mensaje += '\n\nError: ' + err.message;
+            }
+
+            alert(mensaje);
+        }
+    }
+
+    function detenerCamara() {
+        if (stream) {
+            stream.getTracks().forEach(function(track) { track.stop(); });
+            stream = null;
+        }
+        video.style.display = 'none';
+        video.srcObject = null;
+        document.getElementById('btnIniciarCamara').style.display = 'inline-block';
+        document.getElementById('btnDetenerCamara').style.display = 'none';
+        document.getElementById('btnCargando').style.display = 'none';
+        document.getElementById('camaraActiva').classList.add('d-none');
+    }
+
+    function capturarFoto(campo) {
+        if (!stream) {
+            alert('Primero inicie la cámara haciendo clic en "Iniciar Cámara".');
+            return;
+        }
+
+        // Verificar que el video tenga dimensiones válidas
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+            alert('La cámara aún se está inicializando. Espere un momento e intente de nuevo.');
+            return;
+        }
+
+        // Configurar canvas con las dimensiones reales del video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Dibujar el frame actual del video en el canvas
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convertir a JPEG base64
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+        // Verificar que se generó correctamente (no un canvas vacío)
+        if (dataUrl === 'data:,' || dataUrl.length < 1000) {
+            alert('Error al capturar la imagen. Intente de nuevo.');
+            return;
+        }
+
+        // Guardar base64 en el hidden input
+        document.getElementById('base64_' + campo).value = dataUrl;
+
+        // Limpiar file input para evitar conflictos
+        document.getElementById('file_' + campo).value = '';
+
+        // Mostrar preview
+        var preview = document.getElementById('preview_' + campo);
+        var img = document.createElement('img');
+        img.src = dataUrl;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+        img.style.objectFit = 'cover';
+        preview.innerHTML = '';
+        preview.appendChild(img);
+
+        // Marcar tarjeta como capturada
+        document.getElementById('card_' + campo).classList.add('captured');
+
+        // Efecto flash visual
+        var flash = document.getElementById('flashOverlay');
+        flash.style.display = 'block';
+        flash.style.animation = 'flashEffect 0.3s ease-out forwards';
+        setTimeout(function() {
+            flash.style.display = 'none';
+            flash.style.animation = '';
+        }, 300);
+
+        actualizarContadorFotos();
+    }
+
+    function previewArchivo(campo, input) {
+        if (input.files && input.files[0]) {
+            var file = input.files[0];
+
+            // Validar que sea una imagen
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor seleccione un archivo de imagen válido.');
+                input.value = '';
+                return;
+            }
+
+            // Validar tamaño (máx 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('La imagen es demasiado grande. Máximo 10MB.');
+                input.value = '';
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var preview = document.getElementById('preview_' + campo);
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '100%';
+                img.style.objectFit = 'cover';
+                preview.innerHTML = '';
+                preview.appendChild(img);
+                document.getElementById('card_' + campo).classList.add('captured');
+                // Limpiar base64 si se sube archivo
+                document.getElementById('base64_' + campo).value = '';
+                actualizarContadorFotos();
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function limpiarFoto(campo) {
+        document.getElementById('preview_' + campo).innerHTML = '<i class="bi bi-image text-muted" style="font-size:2rem;"></i>';
+        document.getElementById('base64_' + campo).value = '';
+        document.getElementById('file_' + campo).value = '';
+        document.getElementById('card_' + campo).classList.remove('captured');
+        actualizarContadorFotos();
+    }
+
+    function actualizarContadorFotos() {
+        var total = document.querySelectorAll('.foto-card.captured').length;
+        var numFotos = document.getElementById('numFotos');
+        var badge = document.getElementById('contadorFotos');
+        if (numFotos) {
+            numFotos.textContent = total;
+        }
+        if (badge) {
+            badge.className = 'badge ' + (total === 6 ? 'bg-success' : total > 0 ? 'bg-primary' : 'bg-secondary');
+            badge.style.fontSize = '0.9rem';
+        }
+    }
+
+    // Detener cámara al salir de la página
+    window.addEventListener('beforeunload', function() {
+        detenerCamara();
+    });
+
+    // Pre-cargar fotos existentes al editar
+    {% if fotos_existentes %}
+    document.addEventListener('DOMContentLoaded', function() {
+        var fotosExistentes = {
+            {% for campo, url in fotos_existentes.items %}
+            '{{ campo }}': '{{ url }}',
+            {% endfor %}
+        };
+        for (var campo in fotosExistentes) {
+            if (fotosExistentes.hasOwnProperty(campo)) {
+                var url = fotosExistentes[campo];
+                var preview = document.getElementById('preview_' + campo);
+                if (preview) {
+                    var img = document.createElement('img');
+                    img.src = url;
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '100%';
+                    img.style.objectFit = 'cover';
+                    preview.innerHTML = '';
+                    preview.appendChild(img);
+                    document.getElementById('card_' + campo).classList.add('captured');
+                }
+            }
+        }
+        actualizarContadorFotos();
+    });
+    {% endif %}
+</script>
+{% endblock %}

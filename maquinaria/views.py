@@ -910,3 +910,216 @@ def alertas_activas_api(request):
 @login_required
 def datos_maquina_api(request, pk):
     return JsonResponse({'data': {}})
+
+
+# ==================== OBJETOS / PIEZAS ====================
+
+@login_required
+def registrar_objeto_view(request):
+    """Registrar un nuevo objeto/pieza con fotos desde múltiples ángulos"""
+    from .forms import ObjetoMaquinariaForm
+    from .models import ObjetoMaquinaria
+    import base64
+    from django.core.files.base import ContentFile
+
+    if request.method == 'POST':
+        form = ObjetoMaquinariaForm(request.POST, request.FILES)
+        if form.is_valid():
+            objeto = form.save(commit=False)
+
+            # Asignar usuario creador
+            try:
+                usuario = Usuario.objects.get(numero_documento=request.user.username)
+                objeto.created_by = usuario
+            except Usuario.DoesNotExist:
+                pass
+
+            # Procesar fotos capturadas por webcam (base64)
+            campos_foto = [
+                'foto_frontal', 'foto_lateral_derecha', 'foto_lateral_izquierda',
+                'foto_trasera', 'foto_superior', 'foto_inferior'
+            ]
+            for campo in campos_foto:
+                b64_data = request.POST.get(f'{campo}_base64', '')
+                if b64_data and b64_data.startswith('data:image'):
+                    # Extraer datos base64 (eliminar header "data:image/png;base64,")
+                    try:
+                        header, imgstr = b64_data.split(';base64,')
+                        ext = header.split('/')[-1]
+                        filename = f'{campo}_{objeto.nombre[:20].replace(" ", "_")}.{ext}'
+                        setattr(objeto, campo, ContentFile(
+                            base64.b64decode(imgstr), name=filename
+                        ))
+                    except Exception:
+                        pass
+
+            objeto.save()
+
+            # Registrar en historial si tiene máquina asociada
+            if objeto.maquina:
+                HistorialMaquina.objects.create(
+                    maquina=objeto.maquina,
+                    tipo_evento='actualizacion',
+                    descripcion=f'Objeto/pieza registrado: {objeto.nombre}',
+                    usuario=objeto.created_by
+                )
+
+            messages.success(request, f'Objeto "{objeto.nombre}" registrado exitosamente con {objeto.total_fotos} foto(s)')
+            return redirect('maquinaria:detalle_objeto', pk=objeto.pk)
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario')
+    else:
+        form = ObjetoMaquinariaForm()
+
+    foto_campos = [
+        ('foto_frontal', 'Frontal'),
+        ('foto_lateral_derecha', 'Lateral Derecha'),
+        ('foto_lateral_izquierda', 'Lateral Izquierda'),
+        ('foto_trasera', 'Trasera'),
+        ('foto_superior', 'Superior'),
+        ('foto_inferior', 'Inferior'),
+    ]
+    context = {
+        'title': 'Registrar Objeto/Pieza',
+        'form': form,
+        'foto_campos': foto_campos,
+    }
+    return render(request, 'maquinaria/registrar_objeto.html', context)
+
+
+@login_required
+def lista_objetos_view(request):
+    """Lista todos los objetos/piezas registrados"""
+    from .models import ObjetoMaquinaria
+
+    objetos_list = ObjetoMaquinaria.objects.select_related('maquina').all()
+
+    # Filtros
+    estado_filtro = request.GET.get('estado')
+    busqueda = request.GET.get('busqueda')
+    maquina_filtro = request.GET.get('maquina')
+
+    if estado_filtro:
+        objetos_list = objetos_list.filter(estado=estado_filtro)
+    if maquina_filtro:
+        objetos_list = objetos_list.filter(maquina_id=maquina_filtro)
+    if busqueda:
+        objetos_list = objetos_list.filter(
+            Q(nombre__icontains=busqueda) |
+            Q(modelo__icontains=busqueda) |
+            Q(serie__icontains=busqueda) |
+            Q(fabricante__icontains=busqueda)
+        )
+
+    paginator = Paginator(objetos_list, 20)
+    page = request.GET.get('page')
+    objetos = paginator.get_page(page)
+
+    context = {
+        'title': 'Objetos y Piezas',
+        'objetos': objetos,
+        'estado_filtro': estado_filtro,
+        'busqueda': busqueda,
+        'maquina_filtro': maquina_filtro,
+        'maquinas': Maquina.objects.all().order_by('codigo_inventario'),
+    }
+    return render(request, 'maquinaria/lista_objetos.html', context)
+
+
+@login_required
+def detalle_objeto_view(request, pk):
+    """Detalle de un objeto/pieza"""
+    from .models import ObjetoMaquinaria
+
+    objeto = get_object_or_404(ObjetoMaquinaria, pk=pk)
+
+    context = {
+        'title': f'Objeto - {objeto.nombre}',
+        'objeto': objeto,
+    }
+    return render(request, 'maquinaria/detalle_objeto.html', context)
+
+
+@login_required
+def editar_objeto_view(request, pk):
+    """Editar un objeto/pieza existente"""
+    from .forms import ObjetoMaquinariaForm
+    from .models import ObjetoMaquinaria
+    import base64
+    from django.core.files.base import ContentFile
+
+    objeto = get_object_or_404(ObjetoMaquinaria, pk=pk)
+
+    if request.method == 'POST':
+        form = ObjetoMaquinariaForm(request.POST, request.FILES, instance=objeto)
+        if form.is_valid():
+            obj = form.save(commit=False)
+
+            campos_foto = [
+                'foto_frontal', 'foto_lateral_derecha', 'foto_lateral_izquierda',
+                'foto_trasera', 'foto_superior', 'foto_inferior'
+            ]
+            for campo in campos_foto:
+                b64_data = request.POST.get(f'{campo}_base64', '')
+                if b64_data and b64_data.startswith('data:image'):
+                    try:
+                        header, imgstr = b64_data.split(';base64,')
+                        ext = header.split('/')[-1]
+                        filename = f'{campo}_{obj.nombre[:20].replace(" ", "_")}.{ext}'
+                        setattr(obj, campo, ContentFile(
+                            base64.b64decode(imgstr), name=filename
+                        ))
+                    except Exception:
+                        pass
+
+            obj.save()
+            messages.success(request, f'Objeto "{obj.nombre}" actualizado exitosamente')
+            return redirect('maquinaria:detalle_objeto', pk=pk)
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario')
+    else:
+        form = ObjetoMaquinariaForm(instance=objeto)
+
+    foto_campos = [
+        ('foto_frontal', 'Frontal'),
+        ('foto_lateral_derecha', 'Lateral Derecha'),
+        ('foto_lateral_izquierda', 'Lateral Izquierda'),
+        ('foto_trasera', 'Trasera'),
+        ('foto_superior', 'Superior'),
+        ('foto_inferior', 'Inferior'),
+    ]
+    # Build photo URLs for existing photos
+    fotos_existentes = {}
+    for campo, _ in foto_campos:
+        foto = getattr(objeto, campo)
+        if foto:
+            fotos_existentes[campo] = foto.url
+
+    context = {
+        'title': f'Editar - {objeto.nombre}',
+        'form': form,
+        'objeto': objeto,
+        'foto_campos': foto_campos,
+        'fotos_existentes': fotos_existentes,
+    }
+    return render(request, 'maquinaria/registrar_objeto.html', context)
+
+
+@login_required
+def eliminar_objeto_view(request, pk):
+    """Eliminar un objeto/pieza"""
+    from .models import ObjetoMaquinaria
+
+    objeto = get_object_or_404(ObjetoMaquinaria, pk=pk)
+
+    if request.method == 'POST':
+        nombre = objeto.nombre
+        objeto.delete()
+        messages.success(request, f'Objeto "{nombre}" eliminado exitosamente')
+        return redirect('maquinaria:lista_objetos')
+
+    context = {
+        'title': f'Eliminar - {objeto.nombre}',
+        'objeto': objeto,
+    }
+    return render(request, 'maquinaria/eliminar_objeto.html', context)
