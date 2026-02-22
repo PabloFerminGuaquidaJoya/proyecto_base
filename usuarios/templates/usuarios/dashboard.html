@@ -262,6 +262,42 @@
         transform: translateY(-2px);
         transition: all 0.3s ease;
     }
+
+    /* Dark mode - Actividad Reciente */
+    body.dark-theme .timeline::before {
+        background: #444 !important;
+    }
+    body.dark-theme .timeline-content {
+        background: #3a3a3a !important;
+        border-color: #555 !important;
+        color: #e0e0e0 !important;
+    }
+    body.dark-theme .timeline-content h6 {
+        color: #e0e0e0 !important;
+    }
+    body.dark-theme .timeline-content p,
+    body.dark-theme .timeline-content small {
+        color: #bbb !important;
+    }
+    body.dark-theme .timeline-marker {
+        border-color: #2d2d2d !important;
+    }
+
+    /* Dark mode - Stat cards */
+    body.dark-theme .text-gray-800 {
+        color: #e0e0e0 !important;
+    }
+    body.dark-theme .text-gray-300 {
+        color: #666 !important;
+    }
+    body.dark-theme .border-left-primary,
+    body.dark-theme .border-left-success,
+    body.dark-theme .border-left-info,
+    body.dark-theme .border-left-warning,
+    body.dark-theme .border-left-danger,
+    body.dark-theme .border-left-secondary {
+        background: #2d2d2d !important;
+    }
 </style>
 {% endblock %}
 
