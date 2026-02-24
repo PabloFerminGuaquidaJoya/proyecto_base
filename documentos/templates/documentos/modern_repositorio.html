@@ -844,10 +844,6 @@
                         <input type="checkbox" class="filter-checkbox" checked>
                         Activos
                     </div>
-                    <div class="filter-option" data-status="ai-processed">
-                        <input type="checkbox" class="filter-checkbox">
-                        Procesados con IA
-                    </div>
                     <div class="filter-option" data-status="recent">
                         <input type="checkbox" class="filter-checkbox">
                         Subidos recientemente
@@ -866,10 +862,7 @@
                         <input type="checkbox" class="filter-checkbox">
                         Inglés
                     </div>
-                    <div class="filter-option" data-language="fr">
-                        <input type="checkbox" class="filter-checkbox">
-                        Francés
-                    </div>
+
                 </div>
             </div>
             
@@ -963,12 +956,7 @@
                             <i class="bi bi-download"></i>
                             Descargar
                         </a>
-                        {% if manual.procesado_ia %}
-                        <button class="document-btn primary" onclick="askAI('{{ manual.pk }}', '{{ manual.titulo }}')">
-                            <i class="bi bi-robot"></i>
-                            Consultar IA
-                        </button>
-                        {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -997,45 +985,11 @@
     </div>
 </div>
 
-<!-- Quick AI Chat Modal -->
-<div class="modal fade" id="quickAIModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-robot me-2"></i>Consulta Rápida con IA
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    Pregunta específicamente sobre: <strong id="aiDocumentTitle"></strong>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Tu pregunta:</label>
-                    <textarea class="form-control" id="aiQuestion" rows="3" 
-                              placeholder="Ej: ¿Cómo realizar el mantenimiento preventivo de esta máquina?"></textarea>
-                </div>
-                <div id="aiResponse" style="display: none;">
-                    <label class="form-label">Respuesta de la IA:</label>
-                    <div class="border rounded p-3 bg-light" id="aiResponseContent"></div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="submitAIQuestion()">
-                    <i class="bi bi-send me-2"></i>Preguntar
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-let currentDocumentId = null;
 let searchTimeout = null;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1243,12 +1197,6 @@ function showSearchSuggestions(query) {
             icon: 'bi-file-text',
             action: () => openDocument(1)
         },
-        {
-            title: 'Pregunta a la IA',
-            subtitle: `"${query}"`,
-            icon: 'bi-robot',
-            action: () => askAIGeneral(query)
-        }
     ];
     
     suggestionsContainer.innerHTML = suggestions.map(suggestion => `
@@ -1440,58 +1388,6 @@ function sortDocuments(criteria) {
     cards.forEach(card => grid.appendChild(card));
 }
 
-function askAI(documentId, documentTitle) {
-    currentDocumentId = documentId;
-    document.getElementById('aiDocumentTitle').textContent = documentTitle;
-    document.getElementById('aiQuestion').value = '';
-    document.getElementById('aiResponse').style.display = 'none';
-    
-    const modal = new bootstrap.Modal(document.getElementById('quickAIModal'));
-    modal.show();
-}
-
-function submitAIQuestion() {
-    const question = document.getElementById('aiQuestion').value.trim();
-    if (!question) {
-        alert('Por favor escribe una pregunta');
-        return;
-    }
-    
-    const responseDiv = document.getElementById('aiResponse');
-    const responseContent = document.getElementById('aiResponseContent');
-    
-    responseContent.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando pregunta...';
-    responseDiv.style.display = 'block';
-    
-    // Make API call to IA
-    fetch('/ia/api/consulta/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        },
-        body: JSON.stringify({
-            pregunta: question,
-            documento_id: currentDocumentId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.respuesta) {
-            responseContent.innerHTML = data.respuesta.replace(/\n/g, '<br>');
-        } else {
-            responseContent.innerHTML = 'No se pudo procesar la pregunta. Intenta de nuevo.';
-        }
-    })
-    .catch(error => {
-        console.error('AI Error:', error);
-        responseContent.innerHTML = 'Error de conexión. Por favor intenta nuevamente.';
-    });
-}
-
-function askAIGeneral(query) {
-    window.location.href = `/ia/chat/?q=${encodeURIComponent(query)}`;
-}
 
 function openDocument(documentId) {
     window.location.href = `/documentos/manuales/${documentId}/`;
