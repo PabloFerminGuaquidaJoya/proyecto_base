@@ -150,13 +150,12 @@
 
                         <div class="mb-3">
                             <label for="{{ form.fecha_vencimiento.id_for_label }}" class="form-label">
-                                Fecha de Vencimiento
+                                Fecha de Registro
                             </label>
                             {{ form.fecha_vencimiento }}
                             {% if form.fecha_vencimiento.errors %}
                                 <div class="invalid-feedback d-block">{{ form.fecha_vencimiento.errors.0 }}</div>
                             {% endif %}
-                            <small class="form-text text-muted">Fecha en que este documento se vuelve obsoleto</small>
                         </div>
                     </div>
 
@@ -189,35 +188,12 @@
                         </div>
                     </div>
 
-                    <!-- Vista Previa del Documento -->
-                    <div class="card bg-light mb-4">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                <i class="bi bi-eye me-2"></i>Vista Previa del Documento
-                            </h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div><strong>Título:</strong> <span id="preview-doc-titulo">-</span></div>
-                                    <div><strong>Tipo:</strong> <span id="preview-doc-tipo">-</span></div>
-                                    <div><strong>Categoría:</strong> <span id="preview-doc-categoria">-</span></div>
-                                    <div><strong>Archivo:</strong> <span id="preview-doc-archivo">-</span></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div><strong>Nivel de Acceso:</strong> <span id="preview-doc-acceso">-</span></div>
-                                    <div><strong>Estado:</strong> <span id="preview-doc-estado">-</span></div>
-                                    <div><strong>Máquina:</strong> <span id="preview-doc-maquina">-</span></div>
-                                    <div><strong>Versión:</strong> <span id="preview-doc-version">-</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Botones -->
                     <div class="d-flex gap-2 justify-content-end">
                         <a href="{% url 'documentos:repositorio' %}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar
                         </a>
-                        <button type="button" class="btn btn-outline-primary" onclick="updateDocPreview()">
+                        <button type="button" class="btn btn-outline-primary" onclick="abrirVistaPrevia()">
                             <i class="bi bi-eye me-2"></i>Vista Previa
                         </button>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
@@ -225,6 +201,82 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Vista Previa -->
+<div class="modal fade" id="modalVistaPrevia" tabindex="-1" aria-labelledby="modalVistaPreviaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalVistaPreviaLabel">
+                    <i class="bi bi-eye me-2"></i>Vista Previa del Documento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Tarjeta de documento simulada -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header d-flex align-items-center gap-3" id="prev-header" style="background: linear-gradient(135deg,#0d6efd,#0a58ca); color:#fff; border-radius:8px 8px 0 0;">
+                        <i class="bi bi-file-earmark-text fs-2" id="prev-icono"></i>
+                        <div>
+                            <div class="fw-bold fs-5" id="prev-titulo">—</div>
+                            <span class="badge bg-white text-primary mt-1" id="prev-tipo-badge">—</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Categoría</small>
+                                <span id="prev-categoria" class="fw-semibold">—</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Archivo</small>
+                                <span id="prev-archivo" class="fw-semibold text-truncate d-block">—</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Máquina relacionada</small>
+                                <span id="prev-maquina" class="fw-semibold">—</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Autor original</small>
+                                <span id="prev-autor" class="fw-semibold">—</span>
+                            </div>
+                            <div class="col-sm-4">
+                                <small class="text-muted d-block">Versión</small>
+                                <span id="prev-version" class="fw-semibold">—</span>
+                            </div>
+                            <div class="col-sm-4">
+                                <small class="text-muted d-block">Estado</small>
+                                <span id="prev-estado" class="badge bg-secondary">—</span>
+                            </div>
+                            <div class="col-sm-4">
+                                <small class="text-muted d-block">Nivel de acceso</small>
+                                <span id="prev-acceso" class="badge bg-info text-dark">—</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Fecha de Registro</small>
+                                <span id="prev-fecha" class="fw-semibold">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="prev-alerta-incompleto" class="alert alert-warning d-none">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Algunos campos obligatorios están vacíos: <span id="prev-campos-faltantes"></span>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-pencil me-2"></i>Seguir editando
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitDesdePrevia()">
+                    <i class="bi bi-cloud-upload me-2"></i>Subir Documento
+                </button>
             </div>
         </div>
     </div>
@@ -381,52 +433,90 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Subiendo...';
     });
 
-    // Actualizar vista previa en tiempo real
-    const formFields = document.querySelectorAll('#uploadForm input, #uploadForm select, #uploadForm textarea');
-    formFields.forEach(field => {
-        field.addEventListener('change', updateDocPreview);
-        field.addEventListener('input', updateDocPreview);
-    });
 });
 
-function updateDocPreview() {
-    // Título
-    const titulo = document.getElementById('id_titulo')?.value || '-';
-    document.getElementById('preview-doc-titulo').textContent = titulo;
+function getSelectText(id, fallback) {
+    const sel = document.getElementById(id);
+    if (!sel) return fallback;
+    const text = sel.options[sel.selectedIndex]?.text?.trim() || '';
+    return (text === '' || text.startsWith('-')) ? fallback : text;
+}
 
-    // Tipo
-    const tipoSelect = document.getElementById('id_tipo_documento');
-    const tipo = tipoSelect?.selectedOptions[0]?.textContent || '-';
-    document.getElementById('preview-doc-tipo').textContent = tipo;
+function getIconoArchivo(nombre) {
+    if (!nombre) return 'bi-file-earmark';
+    const ext = nombre.split('.').pop().toLowerCase();
+    const map = {
+        pdf: 'bi-file-earmark-pdf',
+        doc: 'bi-file-earmark-word', docx: 'bi-file-earmark-word',
+        xls: 'bi-file-earmark-excel', xlsx: 'bi-file-earmark-excel',
+        ppt: 'bi-file-earmark-ppt', pptx: 'bi-file-earmark-ppt',
+        txt: 'bi-file-earmark-text',
+    };
+    return map[ext] || 'bi-file-earmark';
+}
 
-    // Categoría
-    const categoriaSelect = document.getElementById('id_categoria');
-    const categoria = categoriaSelect?.selectedOptions[0]?.textContent || '-';
-    document.getElementById('preview-doc-categoria').textContent = categoria;
-
-    // Archivo
+function abrirVistaPrevia() {
+    // Recoger valores
+    const titulo   = document.getElementById('id_titulo')?.value?.trim() || '';
+    const tipo     = getSelectText('id_tipo_documento', '');
+    const categoria = getSelectText('id_categoria', '');
     const archivoInput = document.getElementById('id_archivo');
-    const archivo = archivoInput?.files[0]?.name || '-';
-    document.getElementById('preview-doc-archivo').textContent = archivo;
+    const archivo  = archivoInput?.files[0]?.name || '';
+    const maquina  = getSelectText('id_maquina_relacionada', 'Sin máquina asociada');
+    const autor    = document.getElementById('id_autor_original')?.value?.trim() || 'No especificado';
+    const version  = document.getElementById('id_version')?.value?.trim() || '1.0';
+    const estado   = getSelectText('id_estado', 'Borrador');
+    const acceso   = getSelectText('id_nivel_acceso', 'Interno');
+    const fecha    = document.getElementById('id_fecha_vencimiento')?.value || '';
 
-    // Nivel de acceso
-    const accesoSelect = document.getElementById('id_nivel_acceso');
-    const acceso = accesoSelect?.selectedOptions[0]?.textContent || '-';
-    document.getElementById('preview-doc-acceso').textContent = acceso;
+    // Poblar el modal
+    document.getElementById('prev-titulo').textContent      = titulo || 'Sin título';
+    document.getElementById('prev-tipo-badge').textContent  = tipo   || 'Sin tipo';
+    document.getElementById('prev-categoria').textContent   = categoria || 'Sin categoría';
+    document.getElementById('prev-archivo').textContent     = archivo  || 'Sin archivo seleccionado';
+    document.getElementById('prev-maquina').textContent     = maquina;
+    document.getElementById('prev-autor').textContent       = autor;
+    document.getElementById('prev-version').textContent     = version;
+    document.getElementById('prev-estado').textContent      = estado;
+    document.getElementById('prev-acceso').textContent      = acceso;
+    document.getElementById('prev-fecha').textContent       = fecha || 'No especificada';
 
-    // Estado
-    const estadoSelect = document.getElementById('id_estado');
-    const estado = estadoSelect?.selectedOptions[0]?.textContent || '-';
-    document.getElementById('preview-doc-estado').textContent = estado;
+    // Ícono según extensión del archivo
+    const icono = document.getElementById('prev-icono');
+    icono.className = getIconoArchivo(archivo) + ' fs-2';
 
-    // Máquina relacionada
-    const maquinaSelect = document.getElementById('id_maquina_relacionada');
-    const maquina = maquinaSelect?.selectedOptions[0]?.textContent || 'Ninguna';
-    document.getElementById('preview-doc-maquina').textContent = maquina;
+    // Color del header según tipo
+    const header = document.getElementById('prev-header');
+    const colores = {
+        'manual de operacion':     'linear-gradient(135deg,#0d6efd,#0a58ca)',
+        'manual de mantenimiento': 'linear-gradient(135deg,#198754,#146c43)',
+        'documentos tecnicos':     'linear-gradient(135deg,#0dcaf0,#0aa2c0)',
+        'procedimientos':          'linear-gradient(135deg,#ffc107,#cc9a06)',
+    };
+    header.style.background = colores[tipo.toLowerCase()] || 'linear-gradient(135deg,#6c757d,#495057)';
 
-    // Versión
-    const version = document.getElementById('id_version')?.value || '-';
-    document.getElementById('preview-doc-version').textContent = version;
+    // Validar campos obligatorios
+    const faltantes = [];
+    if (!titulo)   faltantes.push('Título');
+    if (!tipo)     faltantes.push('Tipo de Documento');
+    if (!categoria) faltantes.push('Categoría');
+    if (!archivo)  faltantes.push('Archivo');
+
+    const alerta = document.getElementById('prev-alerta-incompleto');
+    if (faltantes.length > 0) {
+        document.getElementById('prev-campos-faltantes').textContent = faltantes.join(', ');
+        alerta.classList.remove('d-none');
+    } else {
+        alerta.classList.add('d-none');
+    }
+
+    // Abrir modal
+    new bootstrap.Modal(document.getElementById('modalVistaPrevia')).show();
+}
+
+function submitDesdePrevia() {
+    bootstrap.Modal.getInstance(document.getElementById('modalVistaPrevia'))?.hide();
+    document.getElementById('uploadForm').requestSubmit();
 }
 </script>
 {% endblock %}
