@@ -826,10 +826,10 @@
             </div>
             
             <div class="filter-group">
-                <label class="filter-label">Categoría de Máquina</label>
+                <label class="filter-label">Categoría</label>
                 <div class="filter-options">
                     {% for categoria in categorias %}
-                    <div class="filter-option" data-category="{{ categoria.id }}">
+                    <div class="filter-option" data-category="{{ categoria.nombre|lower }}">
                         <input type="checkbox" class="filter-checkbox">
                         {{ categoria.nombre }}
                     </div>
@@ -901,6 +901,7 @@
         <div class="documents-grid" id="documentsGrid">
             {% for manual in documentos %}
             <div class="document-card" data-type="{{ manual.tipo_documento.nombre|lower }}"
+                 data-categoria="{{ manual.categoria.nombre|lower }}"
                  data-machine="{% if manual.maquina_relacionada %}{{ manual.maquina_relacionada.categoria.nombre|lower }}{% endif %}">
                 <div class="document-preview">
                     <div class="document-icon">
@@ -1295,8 +1296,8 @@ function applyFilters() {
         
         // Apply category filter
         if (activeFilters.categories.length > 0) {
-            const cardMachine = card.dataset.machine;
-            if (!activeFilters.categories.some(cat => cardMachine.includes(cat))) {
+            const cardCategoria = card.dataset.categoria || '';
+            if (!activeFilters.categories.includes(cardCategoria)) {
                 visible = false;
             }
         }
