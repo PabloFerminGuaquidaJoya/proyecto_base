@@ -165,9 +165,12 @@ def perfil_view(request):
             messages.success(request, 'Perfil actualizado correctamente')
             return redirect('usuarios:perfil')
 
+    tiene_reconocimiento_facial = ReconocimientoFacial.objects.filter(usuario=usuario, activo=True).exists()
+
     return render(request, 'usuarios/perfil.html', {
         'form': form,
         'usuario': usuario,
+        'tiene_reconocimiento_facial': tiene_reconocimiento_facial,
         'title': 'Mi Perfil - SENA'
     })
 
