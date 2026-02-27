@@ -35,6 +35,7 @@
         }
 
         .sidebar-header {
+            position: relative;
             padding: 1.5rem;
             text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -871,27 +872,122 @@
             color: var(--sena-primary);
         }
 
+        /* ── Sidebar close button (mobile only) ─── */
+        .sidebar-close-btn {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 34px;
+            height: 34px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            transition: background 0.2s;
+            z-index: 1;
+            padding: 0;
+        }
+        .sidebar-close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ── Sidebar backdrop (mobile) ─── */
+        #sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+            cursor: pointer;
+        }
+        #sidebar-backdrop.show {
+            display: block;
+        }
+
         @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
             .sidebar {
                 transform: translateX(-100%);
+                z-index: 1050;
+                width: min(280px, 85vw);
             }
             .sidebar.show {
                 transform: translateX(0);
             }
+            .sidebar-header {
+                padding-top: 2.2rem;
+            }
+            .sidebar-close-btn {
+                display: flex !important;
+            }
             .main-content {
                 margin-left: 0;
             }
+            .top-navbar {
+                padding: 0.5rem 0.75rem;
+            }
+            .top-navbar h1 {
+                font-size: 1.05rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 42vw;
+            }
+            .content {
+                padding: 0.75rem;
+                padding-bottom: 70px;
+            }
             .accessibility-panel {
-                right: 10px;
+                right: 5px;
+            }
+            .accessibility-menu {
+                min-width: 220px;
+                max-width: calc(100vw - 20px);
+            }
+            .card {
+                margin-bottom: 0.75rem;
+            }
+            /* Touch-friendly hamburger button */
+            .btn.btn-link[onclick="toggleSidebar()"] {
+                padding: 6px 8px;
+                min-width: 40px;
+                min-height: 40px;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+            /* Tables scroll horizontally inside cards */
+            .card-body {
+                overflow-x: auto;
+            }
+            /* Ensure content area doesn't overflow */
+            .main-content {
+                overflow-x: hidden;
             }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Sidebar Backdrop (mobile) -->
+    <div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
+            <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Cerrar menú" aria-label="Cerrar menú">
+                <i class="bi bi-x-lg"></i>
+            </button>
             <div class="logo">
                 <i class="bi bi-gear-wide-connected fs-1"></i>
             </div>
@@ -984,7 +1080,7 @@
                     </div>
                 </div>
 
-                <div class="me-3">
+                <div class="me-3 d-none d-md-block">
                     <small class="text-muted">{{ user.get_full_name|default:user.username }}</small>
                 </div>
                 <div class="user-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
@@ -1042,17 +1138,22 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
             sidebar.classList.toggle('show');
+            if (backdrop) backdrop.classList.toggle('show');
         }
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(e) {
             const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.querySelector('[onclick="toggleSidebar()"]');
+            const backdrop = document.getElementById('sidebar-backdrop');
 
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(e.target) && e.target !== toggleBtn) {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('show')) {
+                const isInsideSidebar = sidebar.contains(e.target);
+                const isBackdrop = backdrop && backdrop.contains(e.target);
+                if (!isInsideSidebar && !isBackdrop) {
                     sidebar.classList.remove('show');
+                    if (backdrop) backdrop.classList.remove('show');
                 }
             }
         });

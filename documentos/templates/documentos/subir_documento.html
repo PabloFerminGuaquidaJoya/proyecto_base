@@ -337,6 +337,21 @@
         background-color: white;
         font-size: 1rem;
     }
+
+    @media (max-width: 768px) {
+        .upload-zone {
+            padding: 1.25rem 1rem;
+        }
+        /* Action buttons stack on mobile */
+        #uploadForm .d-flex.justify-content-end {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+        #uploadForm .d-flex.justify-content-end .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
 </style>
 {% endblock %}
 

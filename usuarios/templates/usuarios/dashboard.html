@@ -8,11 +8,11 @@
 <div class="stats-grid mb-4">
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Total Máquinas</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_maquinas }}</div>
                         </div>
@@ -42,11 +42,11 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 En Mantenimiento</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_mantenimiento }}</div>
                         </div>
@@ -59,11 +59,11 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Alertas Activas</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_activas }}</div>
                         </div>
@@ -125,7 +125,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-4 mb-3">
-                <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-outline-primary w-100 py-3">
+                <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-outline-success w-100 py-3">
                     <i class="bi bi-plus-circle d-block fs-2 mb-2"></i>
                     <strong>Nueva Máquina</strong>
                     <small class="d-block text-muted">Registrar equipamiento</small>
@@ -141,7 +141,7 @@
             </div>
 
             <div class="col-md-4 mb-3">
-                <a href="{% url 'maquinaria:alertas' %}" class="btn btn-outline-warning w-100 py-3">
+                <a href="{% url 'maquinaria:alertas' %}" class="btn btn-outline-success w-100 py-3">
                     <i class="bi bi-bell d-block fs-2 mb-2"></i>
                     <strong>Ver Alertas</strong>
                     <small class="d-block text-muted">Notificaciones del sistema</small>

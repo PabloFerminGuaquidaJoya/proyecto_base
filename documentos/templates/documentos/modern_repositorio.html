@@ -527,13 +527,48 @@
         opacity: 0.5;
     }
     
+    /* Filter sidebar collapsible on screens below lg (< 992px) */
+    @media (max-width: 991px) {
+        .filter-sidebar {
+            position: relative;
+            top: 0;
+            margin-bottom: 1.5rem;
+        }
+        .filter-sidebar-body {
+            display: none;
+        }
+        .filter-sidebar-body.show {
+            display: block;
+        }
+        .filter-toggle-btn {
+            display: flex !important;
+        }
+    }
+
     @media (max-width: 768px) {
+        .documents-hero {
+            margin: -0.75rem -0.75rem 1.5rem;
+            padding: 1.5rem 1rem;
+        }
+
         .hero-title {
-            font-size: 2rem;
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
         }
 
         .hero-subtitle {
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .hero-search-input {
+            padding: 0.75rem 1rem 0.75rem 3rem;
             font-size: 1rem;
+        }
+
+        .hero-search-icon {
+            left: 1rem;
+            font-size: 1.1rem;
         }
 
         .documents-grid {
@@ -542,13 +577,41 @@
 
         .quick-stats-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
         }
 
-        .filter-sidebar {
-            position: relative;
-            top: 0;
-            margin-bottom: 2rem;
+        .stat-card {
+            padding: 1rem;
         }
+
+        .document-card {
+            padding: 1rem !important;
+        }
+
+        .upload-zone {
+            padding: 1.5rem 1rem;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+        }
+
+        .upload-text {
+            font-size: 1rem;
+        }
+    }
+
+    /* Filter toggle button (hidden on desktop) */
+    .filter-toggle-btn {
+        display: none;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        color: inherit;
     }
 
     /* ===== MODO OSCURO - Documentos ===== */
@@ -795,10 +858,16 @@
     <div class="col-lg-3 mb-4">
         <div class="filter-sidebar">
             <h6 class="filter-title">
-                <i class="bi bi-funnel"></i>
-                Filtros
+                <button class="filter-toggle-btn" onclick="toggleFilterSidebar()" aria-expanded="false" id="filterToggleBtn">
+                    <span><i class="bi bi-funnel me-2"></i>Filtros</span>
+                    <i class="bi bi-chevron-down" id="filterToggleIcon"></i>
+                </button>
+                <span class="d-none d-lg-flex align-items-center gap-2">
+                    <i class="bi bi-funnel"></i>Filtros
+                </span>
             </h6>
-            
+
+            <div class="filter-sidebar-body" id="filterSidebarBody">
             <div class="filter-group">
                 <label class="filter-label">Tipo de Documento</label>
                 <div class="filter-options">
@@ -871,6 +940,7 @@
                     <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
                 </button>
             </div>
+            </div><!-- /.filter-sidebar-body -->
         </div>
     </div>
     
@@ -999,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupFilters();
     setupUploadZone();
     setupViewToggle();
+    initFilterSidebar();
 });
 
 function initializeDocumentInterface() {
@@ -1313,6 +1384,27 @@ function applyFilters() {
     
     // Update results count
     document.getElementById('resultsCount').textContent = visibleCount;
+}
+
+function toggleFilterSidebar() {
+    const body = document.getElementById('filterSidebarBody');
+    const icon = document.getElementById('filterToggleIcon');
+    const btn = document.getElementById('filterToggleBtn');
+    if (!body) return;
+    body.classList.toggle('show');
+    const expanded = body.classList.contains('show');
+    btn.setAttribute('aria-expanded', expanded);
+    if (icon) {
+        icon.className = expanded ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
+    }
+}
+
+// On desktop always show filter body
+function initFilterSidebar() {
+    if (window.innerWidth >= 992) {
+        const body = document.getElementById('filterSidebarBody');
+        if (body) body.classList.add('show');
+    }
 }
 
 function clearFilters() {

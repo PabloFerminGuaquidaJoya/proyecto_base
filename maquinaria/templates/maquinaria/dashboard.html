@@ -7,11 +7,11 @@
 <div class="row">
     <!-- Stats Cards -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card border-left-sena-secondary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-sena-secondary text-uppercase mb-1">
                             Total Máquinas</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_maquinas }}</div>
                     </div>
@@ -24,11 +24,11 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
+        <div class="card border-left-sena-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-sena-primary text-uppercase mb-1">
                             Operativas</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_operativas }}</div>
                     </div>
@@ -41,11 +41,11 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card border-left-sena-accent shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-sena-accent text-uppercase mb-1">
                             En Mantenimiento</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ maquinas_mantenimiento }}</div>
                     </div>
@@ -58,11 +58,11 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card border-left-sena-danger shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-sena-danger text-uppercase mb-1">
                             Alertas Activas</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_activas }}</div>
                     </div>
@@ -78,12 +78,12 @@
 <!-- Quick Actions -->
 <div class="card mb-4">
     <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-primary">Acciones Rápidas</h6>
+        <h6 class="m-0 font-weight-bold text-sena-gradient">Acciones Rápidas</h6>
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-md-3 mb-3">
-                <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-primary w-100">
+                <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-sena-gradient w-100">
                     <i class="bi bi-plus-circle me-2"></i>Nueva Máquina
                 </a>
             </div>
@@ -93,8 +93,8 @@
                 </a>
             </div>
             <div class="col-md-3 mb-3">
-                <a href="{% url 'maquinaria:alertas' %}" class="btn btn-outline-warning w-100">
-                    <i class="bi bi-bell me-2"></i>Alertas
+                <a href="{% url 'maquinaria:alertas' %}" class="btn btn-sena-accent w-100">
+                    <i class="bi bi-bell me-2"></i>Ver Alertas
                 </a>
             </div>
             <div class="col-md-3 mb-3">
@@ -121,7 +121,7 @@
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h6 class="m-0 font-weight-bold text-primary">Actividad Reciente</h6>
+                <h6 class="m-0 font-weight-bold text-sena-gradient">Actividad Reciente</h6>
             </div>
             <div class="card-body">
                 <div class="timeline">
@@ -129,15 +129,15 @@
                         {% for actividad in actividad_reciente %}
                         <div class="timeline-item">
                             {% if actividad.tipo_evento == 'mantenimiento' %}
-                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-marker bg-sena-primary"></div>
                             {% elif actividad.tipo_evento == 'reparacion' %}
-                                <div class="timeline-marker bg-danger"></div>
+                                <div class="timeline-marker bg-sena-danger"></div>
                             {% elif actividad.tipo_evento == 'creacion' %}
-                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-marker bg-sena-secondary"></div>
                             {% elif actividad.tipo_evento == 'cambio_estado' %}
-                                <div class="timeline-marker bg-warning"></div>
+                                <div class="timeline-marker bg-sena-accent"></div>
                             {% else %}
-                                <div class="timeline-marker bg-secondary"></div>
+                                <div class="timeline-marker bg-sena-secondary"></div>
                             {% endif %}
                             <div class="timeline-content">
                                 <h6>{{ actividad.maquina.codigo_inventario }} - {{ actividad.maquina.nombre }}</h6>
@@ -147,7 +147,7 @@
                         {% endfor %}
                     {% else %}
                         <div class="timeline-item">
-                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-marker bg-sena-primary"></div>
                             <div class="timeline-content">
                                 <h6>Sistema Iniciado</h6>
                                 <p class="text-muted small">No hay actividad reciente registrada</p>
@@ -174,6 +174,63 @@
 
 {% block extra_css %}
 <style>
+    /* SENA Danger color (naranja oscuro derivado del accent) */
+    :root {
+        --sena-danger: #cc4400;
+    }
+
+    /* Text colors SENA */
+    .text-sena-primary  { color: var(--sena-primary)   !important; }
+    .text-sena-secondary{ color: var(--sena-secondary) !important; }
+    .text-sena-accent   { color: var(--sena-accent)    !important; }
+    .text-sena-danger   { color: var(--sena-danger)    !important; }
+
+    /* Gradient text — igual que el degradado de la sidebar */
+    .text-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Background colors SENA */
+    .bg-sena-primary  { background-color: var(--sena-primary)   !important; }
+    .bg-sena-secondary{ background-color: var(--sena-secondary) !important; }
+    .bg-sena-accent   { background-color: var(--sena-accent)    !important; }
+    .bg-sena-danger   { background-color: var(--sena-danger)    !important; }
+
+    /* Border-left para stat cards */
+    .border-left-sena-primary  { border-left: 0.25rem solid var(--sena-primary)   !important; }
+    .border-left-sena-secondary{ border-left: 0.25rem solid var(--sena-secondary) !important; }
+    .border-left-sena-accent   { border-left: 0.25rem solid var(--sena-accent)    !important; }
+    .border-left-sena-danger   { border-left: 0.25rem solid var(--sena-danger)    !important; }
+
+    /* Botón gradiente — mismo degradado que la sidebar */
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        border: none;
+        color: white;
+        border-radius: 8px;
+    }
+    .btn-sena-gradient:hover {
+        background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%);
+        color: white;
+    }
+
+    /* Botón accent — color naranja de la sidebar */
+    .btn-sena-accent {
+        background: var(--sena-accent);
+        border-color: var(--sena-accent);
+        color: white;
+        border-radius: 8px;
+    }
+    .btn-sena-accent:hover {
+        background: #e55a25;
+        border-color: #e55a25;
+        color: white;
+    }
+
+    /* Timeline */
     .timeline {
         position: relative;
     }
@@ -188,18 +245,6 @@
         margin-right: 1rem;
         margin-top: 0.25rem;
         flex-shrink: 0;
-    }
-    .border-left-primary {
-        border-left: 0.25rem solid var(--sena-primary) !important;
-    }
-    .border-left-success {
-        border-left: 0.25rem solid #28a745 !important;
-    }
-    .border-left-warning {
-        border-left: 0.25rem solid #ffc107 !important;
-    }
-    .border-left-danger {
-        border-left: 0.25rem solid #dc3545 !important;
     }
 </style>
 {% endblock %}
