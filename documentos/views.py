@@ -20,6 +20,86 @@ from .forms import (
 from maquinaria.models import Maquina
 from usuarios.models import Usuario
 
+
+def _extraer_indice(documento):
+    """Extrae el índice/TOC del documento y lo guarda en indices_busqueda."""
+    ext = documento.extension.lower()
+    secciones = []
+    try:
+        ruta = documento.archivo.path
+
+        if ext == '.pdf':
+            import fitz  # PyMuPDF
+            doc = fitz.open(ruta)
+            toc = doc.get_toc()
+            if toc:
+                secciones = [
+                    {'nivel': t[0], 'titulo': t[1], 'pagina': t[2]}
+                    for t in toc if t[1].strip()
+                ]
+            else:
+                # Detectar encabezados por tamaño de fuente y negrita
+                vistos = set()
+                for page_num in range(len(doc)):
+                    page = doc[page_num]
+                    for block in page.get_text("dict")["blocks"]:
+                        if block.get("type") != 0:
+                            continue
+                        for line in block.get("lines", []):
+                            for span in line.get("spans", []):
+                                texto = span.get("text", "").strip()
+                                size = span.get("size", 0)
+                                flags = span.get("flags", 0)
+                                is_bold = bool(flags & 16)
+                                if not texto or len(texto) > 120 or len(texto) < 3:
+                                    continue
+                                if size >= 14 or (size >= 12 and is_bold):
+                                    key = texto[:60]
+                                    if key not in vistos:
+                                        vistos.add(key)
+                                        nivel = 1 if size >= 18 else (2 if size >= 14 else 3)
+                                        secciones.append({
+                                            'nivel': nivel,
+                                            'titulo': texto,
+                                            'pagina': page_num + 1,
+                                        })
+            doc.close()
+
+        elif ext == '.docx':
+            from docx import Document as DocxDoc
+            doc = DocxDoc(ruta)
+            chars = 0
+            for para in doc.paragraphs:
+                if para.style.name.startswith('Heading'):
+                    try:
+                        nivel = int(para.style.name.split(' ')[-1])
+                    except ValueError:
+                        nivel = 1
+                    if para.text.strip():
+                        secciones.append({
+                            'nivel': nivel,
+                            'titulo': para.text.strip(),
+                            'pagina': max(1, chars // 3000 + 1),
+                        })
+                chars += len(para.text)
+
+        elif ext == '.txt':
+            with open(ruta, 'r', encoding='utf-8', errors='ignore') as f:
+                for i, linea in enumerate(f):
+                    linea = linea.strip()
+                    if linea and (linea.isupper() or linea.startswith('#')) and len(linea) < 100:
+                        secciones.append({
+                            'nivel': 1,
+                            'titulo': linea.lstrip('#').strip(),
+                            'pagina': max(1, i // 40 + 1),
+                        })
+    except Exception:
+        pass
+
+    documento.indices_busqueda = {'secciones': secciones}
+    documento.save(update_fields=['indices_busqueda'])
+
+
 @login_required
 def repositorio_view(request):
     """Vista principal del repositorio de documentos"""
@@ -151,6 +231,12 @@ def subir_documento_view(request):
             documento.save()
             form.save_m2m()  # Guardar relaciones many-to-many
 
+            # Extraer índice del documento en segundo plano
+            try:
+                _extraer_indice(documento)
+            except Exception:
+                pass
+
             messages.success(request, f'Documento "{documento.titulo}" subido exitosamente.')
             return redirect('documentos:detalle_documento', pk=documento.pk)
         else:
@@ -268,16 +354,29 @@ def preview_documento_view(request, pk):
 
 @login_required
 def ver_documento_view(request, pk):
-    """Vista para ver el documento en el navegador"""
+    """Vista para ver el documento en el navegador con índice de contenido."""
     documento = get_object_or_404(Documento, pk=pk)
 
     # Incrementar visualizaciones
     documento.total_visualizaciones += 1
     documento.save(update_fields=['total_visualizaciones'])
 
+    # Obtener o generar el índice
+    indice = []
+    if documento.indices_busqueda:
+        indice = documento.indices_busqueda.get('secciones', [])
+    if not indice and documento.archivo:
+        try:
+            _extraer_indice(documento)
+            documento.refresh_from_db(fields=['indices_busqueda'])
+            indice = documento.indices_busqueda.get('secciones', [])
+        except Exception:
+            pass
+
     context = {
         'title': f'Ver: {documento.titulo}',
         'documento': documento,
+        'indice': indice,
     }
     return render(request, 'documentos/ver_documento.html', context)
 

@@ -11,6 +11,10 @@ django-environ
 celery
 redis
 
+# Extracción de contenido de documentos
+PyMuPDF
+python-docx
+
 # Reconocimiento facial
 opencv-python
 numpy

@@ -2,117 +2,353 @@
 {% load static %}
 
 {% block title %}Ver: {{ documento.titulo }} - SENA{% endblock %}
-{% block page_title %}Vista de Documento{% endblock %}
+{% block page_title %}Visor de Documento{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12 mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h4><i class="bi bi-file-earmark-text me-2"></i>{{ documento.titulo }}</h4>
-            <div class="btn-group">
-                <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-info-circle me-2"></i>Detalles
-                </a>
-                <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary">
-                    <i class="bi bi-download me-2"></i>Descargar
-                </a>
-            </div>
-        </div>
+<!-- Encabezado -->
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h5 class="mb-0 fw-bold">
+            <i class="bi bi-file-earmark-text me-2 text-primary"></i>{{ documento.titulo }}
+        </h5>
+        <small class="text-muted">
+            <span class="badge bg-info text-dark me-1">{{ documento.tipo_documento.nombre }}</span>
+            <span class="badge bg-warning text-dark me-1">{{ documento.categoria.nombre }}</span>
+            <span class="badge bg-secondary">v{{ documento.version }}</span>
+        </small>
+    </div>
+    <div class="btn-group">
+        <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-info-circle me-1"></i>Detalles
+        </a>
+        <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-download me-1"></i>Descargar
+        </a>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow">
-            <div class="card-body p-0">
-                {% if documento.extension == '.pdf' %}
-                    <!-- Vista de PDF -->
-                    <div class="pdf-viewer-container">
-                        <iframe
-                            src="{{ documento.archivo.url }}"
-                            width="100%"
-                            height="800px"
-                            style="border: none;">
-                            <p>Tu navegador no soporta la visualización de PDFs.
-                            <a href="{% url 'documentos:descargar_documento' documento.pk %}">Descargar el archivo</a>.</p>
-                        </iframe>
+<div class="row g-3">
+    <!-- ── SIDEBAR: ÍNDICE DE CONTENIDO ─────────────────────────────── -->
+    <div class="col-lg-3">
+        <div class="card shadow-sm h-100" id="toc-card">
+            <div class="card-header py-2 d-flex align-items-center justify-content-between">
+                <span class="fw-semibold">
+                    <i class="bi bi-list-ul me-2"></i>Índice
+                </span>
+                {% if indice %}
+                <span class="badge bg-primary">{{ indice|length }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-0" style="overflow-y: auto; max-height: 780px;">
+                {% if indice %}
+                <nav id="toc-nav">
+                    {% for item in indice %}
+                    <div class="toc-item nivel-{{ item.nivel }}"
+                         data-pagina="{{ item.pagina }}"
+                         onclick="irAPagina({{ item.pagina }})"
+                         title="Ir a página {{ item.pagina }}">
+                        <span class="toc-titulo">{{ item.titulo }}</span>
+                        <span class="toc-pagina">{{ item.pagina }}</span>
                     </div>
-                {% elif documento.extension in '.txt' %}
-                    <!-- Vista de texto -->
-                    <div class="text-viewer p-4">
-                        <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">{{ documento.contenido_texto|default:"El contenido del archivo no está disponible para visualización." }}</pre>
-                    </div>
-                {% elif documento.extension in '.jpg,.jpeg,.png,.gif,.bmp' %}
-                    <!-- Vista de imagen -->
-                    <div class="text-center p-4">
-                        <img src="{{ documento.archivo.url }}" alt="{{ documento.titulo }}" class="img-fluid" style="max-width: 100%; height: auto;">
-                    </div>
+                    {% endfor %}
+                </nav>
                 {% else %}
-                    <!-- Otros tipos de archivo -->
-                    <div class="text-center py-5">
-                        <i class="bi bi-file-earmark-text fs-1 text-muted mb-3"></i>
-                        <h5>Vista previa no disponible</h5>
-                        <p class="text-muted">
-                            Este tipo de archivo ({{ documento.extension|upper }}) no se puede visualizar directamente en el navegador.
-                        </p>
-                        <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary mt-3">
-                            <i class="bi bi-download me-2"></i>Descargar Documento
-                        </a>
-                    </div>
+                <div class="p-3 text-center text-muted">
+                    <i class="bi bi-journal-x fs-3 d-block mb-2"></i>
+                    <small>Índice no disponible para este documento</small>
+                </div>
                 {% endif %}
             </div>
         </div>
+    </div>
 
-        <!-- Información adicional -->
-        <div class="card shadow mt-3">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <small class="text-muted">Tipo:</small><br>
-                        <span class="badge bg-info">{{ documento.tipo_documento.nombre }}</span>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">Categoría:</small><br>
-                        <span class="badge bg-warning text-dark">{{ documento.categoria.nombre }}</span>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">Versión:</small><br>
-                        <code>{{ documento.version }}</code>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">Tamaño:</small><br>
-                        {{ documento.tamaño_mb }} MB
-                    </div>
+    <!-- ── VISOR PRINCIPAL ───────────────────────────────────────────── -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm">
+
+            {% if documento.extension == '.pdf' %}
+            <!-- ── PDF VIEWER (PDF.js) ── -->
+            <div class="card-header py-2 d-flex align-items-center gap-2 flex-wrap" id="pdf-toolbar">
+                <button class="btn btn-outline-secondary btn-sm" onclick="cambiarPagina(-1)" id="btn-anterior">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div class="d-flex align-items-center gap-1">
+                    <span class="text-muted small">Pág.</span>
+                    <input type="number" id="input-pagina" class="form-control form-control-sm"
+                           style="width:60px; text-align:center;" min="1" value="1"
+                           onchange="irAPagina(parseInt(this.value))">
+                    <span class="text-muted small">de <strong id="total-paginas">—</strong></span>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm" onclick="cambiarPagina(1)" id="btn-siguiente">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <div class="ms-auto d-flex gap-1">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarEscala(-0.25)" title="Reducir">
+                        <i class="bi bi-zoom-out"></i>
+                    </button>
+                    <span class="btn btn-sm btn-light" id="escala-label">100%</span>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarEscala(0.25)" title="Ampliar">
+                        <i class="bi bi-zoom-in"></i>
+                    </button>
                 </div>
             </div>
+            <div class="card-body p-0 text-center bg-secondary bg-opacity-10" id="pdf-viewer-area"
+                 style="overflow: auto; max-height: 780px;">
+                <div id="pdf-loading" class="py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Cargando documento…</p>
+                </div>
+                <canvas id="pdf-canvas" style="display:none; max-width:100%; box-shadow: 0 2px 12px rgba(0,0,0,.3);"></canvas>
+                <div id="pdf-error" class="py-5 d-none">
+                    <i class="bi bi-exclamation-circle fs-1 text-danger"></i>
+                    <p class="mt-2 text-muted">No se pudo cargar el documento.</p>
+                    <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary btn-sm mt-2">
+                        <i class="bi bi-download me-1"></i>Descargar
+                    </a>
+                </div>
+            </div>
+
+            {% elif documento.extension == '.txt' %}
+            <!-- ── TXT VIEWER ── -->
+            <div class="card-body p-0">
+                <div class="text-viewer p-4" id="txt-content">
+                    {% if indice %}
+                        <!-- El contenido se irá renderizando por secciones con anclas -->
+                        <div id="texto-con-anclas">
+                            <pre style="white-space:pre-wrap; word-wrap:break-word;">{{ documento.contenido_texto|default:"Contenido no disponible." }}</pre>
+                        </div>
+                    {% else %}
+                        <pre style="white-space:pre-wrap; word-wrap:break-word;">{{ documento.contenido_texto|default:"Contenido no disponible." }}</pre>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% else %}
+            <!-- ── OTROS FORMATOS ── -->
+            <div class="card-body text-center py-5">
+                <i class="bi bi-file-earmark fs-1 text-muted mb-3 d-block"></i>
+                <h6 class="text-muted">Vista previa no disponible para {{ documento.extension|upper }}</h6>
+                <p class="text-muted small mb-3">Descarga el archivo para abrirlo con la aplicación correspondiente.</p>
+                <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary">
+                    <i class="bi bi-download me-2"></i>Descargar Documento
+                </a>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 </div>
 {% endblock %}
 
+
 {% block extra_css %}
 <style>
-    .pdf-viewer-container {
-        position: relative;
-        width: 100%;
-        min-height: 800px;
-        background-color: #525659;
-    }
+/* ── TOC Sidebar ─────────────────────────────────────────────── */
+#toc-nav {
+    display: flex;
+    flex-direction: column;
+}
 
-    .text-viewer {
-        background-color: #f8f9fa;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        line-height: 1.6;
-        max-height: 800px;
-        overflow-y: auto;
-    }
+.toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 6px;
+    padding: 7px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    transition: background .15s;
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
 
-    .text-viewer pre {
-        background-color: white;
-        padding: 20px;
-        border-radius: 4px;
-        border: 1px solid #dee2e6;
-    }
+.toc-item:hover {
+    background: rgba(13,110,253,.08);
+}
+
+.toc-item.active {
+    background: rgba(13,110,253,.15);
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.toc-item.nivel-1 { padding-left: 14px; font-weight: 600; }
+.toc-item.nivel-2 { padding-left: 24px; color: #444; }
+.toc-item.nivel-3 { padding-left: 34px; color: #666; font-size: 0.78rem; }
+
+.toc-titulo {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.toc-pagina {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    color: #888;
+    background: rgba(0,0,0,.06);
+    padding: 1px 5px;
+    border-radius: 10px;
+}
+
+/* Dark mode */
+body.dark-theme .toc-item { border-color: #444; }
+body.dark-theme .toc-item:hover { background: rgba(100,150,255,.1); }
+body.dark-theme .toc-item.active { background: rgba(100,150,255,.2); color: #7aadff; }
+body.dark-theme .toc-item.nivel-2 { color: #bbb; }
+body.dark-theme .toc-item.nivel-3 { color: #999; }
+body.dark-theme .toc-pagina { color: #aaa; background: rgba(255,255,255,.08); }
+
+/* ── PDF Viewer ─────────────────────────────────────────────── */
+#pdf-canvas {
+    margin: 16px auto;
+    display: block;
+}
+
+#pdf-viewer-area {
+    min-height: 400px;
+}
+
+/* ── TXT Viewer ─────────────────────────────────────────────── */
+.text-viewer {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    max-height: 780px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+body.dark-theme .text-viewer { background: #2d2d2d; color: #e0e0e0; }
 </style>
+{% endblock %}
+
+
+{% block extra_js %}
+{% if documento.extension == '.pdf' %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let pdfDoc     = null;
+let paginaActual = 1;
+let totalPaginas = 0;
+let escala     = 1.5;
+let renderActivo = false;
+
+async function initPDF() {
+    try {
+        const loadingTask = pdfjsLib.getDocument('{{ documento.archivo.url }}');
+        pdfDoc = await loadingTask.promise;
+        totalPaginas = pdfDoc.numPages;
+
+        document.getElementById('total-paginas').textContent = totalPaginas;
+        document.getElementById('input-pagina').max = totalPaginas;
+
+        document.getElementById('pdf-loading').style.display = 'none';
+        document.getElementById('pdf-canvas').style.display  = 'block';
+
+        await renderPagina(1);
+    } catch (err) {
+        document.getElementById('pdf-loading').style.display = 'none';
+        document.getElementById('pdf-error').classList.remove('d-none');
+        console.error('PDF error:', err);
+    }
+}
+
+async function renderPagina(num) {
+    if (renderActivo || !pdfDoc) return;
+    if (num < 1 || num > totalPaginas) return;
+
+    renderActivo   = true;
+    paginaActual   = num;
+
+    document.getElementById('input-pagina').value = num;
+    document.getElementById('btn-anterior').disabled = (num === 1);
+    document.getElementById('btn-siguiente').disabled = (num === totalPaginas);
+
+    try {
+        const page     = await pdfDoc.getPage(num);
+        const viewport = page.getViewport({ scale: escala });
+        const canvas   = document.getElementById('pdf-canvas');
+        const ctx      = canvas.getContext('2d');
+
+        canvas.height = viewport.height;
+        canvas.width  = viewport.width;
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+    } catch (err) {
+        console.error('Render error:', err);
+    }
+
+    renderActivo = false;
+
+    // Resaltar ítem activo en TOC
+    document.querySelectorAll('.toc-item').forEach(item => {
+        const p = parseInt(item.dataset.pagina);
+        item.classList.toggle('active', p === num);
+    });
+
+    // Scroll al ítem activo del TOC
+    const activoToc = document.querySelector('.toc-item.active');
+    if (activoToc) {
+        activoToc.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+}
+
+function irAPagina(num) {
+    num = parseInt(num);
+    if (!isNaN(num)) {
+        renderPagina(num);
+        document.getElementById('pdf-viewer-area').scrollTop = 0;
+    }
+}
+
+function cambiarPagina(delta) {
+    irAPagina(paginaActual + delta);
+}
+
+function cambiarEscala(delta) {
+    escala = Math.max(0.5, Math.min(3.0, escala + delta));
+    document.getElementById('escala-label').textContent = Math.round(escala * 100) + '%';
+    renderPagina(paginaActual);
+}
+
+// Navegación con teclado
+document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') cambiarPagina(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   cambiarPagina(-1);
+});
+
+document.addEventListener('DOMContentLoaded', initPDF);
+</script>
+
+{% elif documento.extension == '.txt' %}
+<script>
+// Para TXT: scroll suave a la sección aproximada
+function irAPagina(num) {
+    const lineasPorPagina = 40;
+    const lineaObj = document.getElementById('txt-content');
+    if (!lineaObj) return;
+    const alturaTotal = lineaObj.scrollHeight;
+    const pos = ((num - 1) * lineasPorPagina / (lineaObj.querySelectorAll ? 1 : 1));
+    lineaObj.scrollTop = ((num - 1) / Math.max(1, {{ indice|length }})) * alturaTotal;
+}
+
+document.querySelectorAll('.toc-item').forEach(item => {
+    item.addEventListener('click', function() {
+        document.querySelectorAll('.toc-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+</script>
+
+{% else %}
+<script>
+function irAPagina(num) {}
+</script>
+{% endif %}
 {% endblock %}
