@@ -8,8 +8,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
+        :root {
+            --sena-primary: #39a900;
+            --sena-secondary: #00324d;
+            --sena-accent: #ff6b35;
+        }
+
         body {
-            background: linear-gradient(135deg, #b4e29eff 0%, #394234ff 100%);
+            background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -30,7 +36,7 @@
 
         .login-left {
             flex: 1;
-            background: linear-gradient(135deg, #39A900, #2E8000);
+            background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
             color: white;
             padding: 3rem;
             display: flex;
@@ -122,12 +128,12 @@
         }
 
         .form-floating > label {
-            color: #718096;
-            font-weight: 500;
+            color: var(--sena-secondary);
+            font-weight: 600;
         }
 
         .btn-login {
-            background: linear-gradient(135deg, #39A900, #2E8000);
+            background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
             border: none;
             border-radius: 12px;
             padding: 1rem 2rem;
@@ -141,8 +147,10 @@
         }
 
         .btn-login:hover {
+            background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%);
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(57, 169, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 50, 77, 0.35);
+            color: white;
         }
         
         .btn-login:active {
@@ -173,14 +181,14 @@
         }
         
         .forgot-password a {
-            color: #39A900;
+            color: var(--sena-secondary);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             transition: color 0.3s ease;
         }
 
         .forgot-password a:hover {
-            color: #2E8000;
+            color: var(--sena-primary);
             text-decoration: underline;
         }
 
@@ -193,13 +201,13 @@
         }
 
         .register-link a {
-            color: #39A900;
+            color: var(--sena-secondary);
             font-weight: 600;
             text-decoration: none;
         }
 
         .register-link a:hover {
-            color: #2E8000;
+            color: var(--sena-primary);
             text-decoration: underline;
         }
         
@@ -315,8 +323,8 @@
         }
         
         .btn-social:hover {
-            border-color: #39A900;
-            color: #39A900;
+            border-color: var(--sena-secondary);
+            color: var(--sena-secondary);
             transform: translateY(-1px);
         }
 
@@ -396,12 +404,32 @@
 
         .accessibility-option label {
             font-weight: 500;
-            color: #00324d;
+            color: var(--sena-secondary);
             margin-bottom: 0;
         }
 
+        /* Botón outline facial - marino SENA */
+        .btn-outline-facial {
+            background: transparent;
+            border: 2px solid var(--sena-secondary);
+            color: var(--sena-secondary);
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-facial:hover {
+            background: var(--sena-secondary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Modal header reconocimiento facial */
+        .modal-header.bg-success {
+            background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%) !important;
+        }
+
         .theme-toggle, .font-size-controls button, .tts-toggle {
-            background: #39A900;
+            background: var(--sena-primary);
             color: white;
             border: none;
             padding: 8px 12px;
@@ -412,7 +440,7 @@
         }
 
         .theme-toggle:hover, .font-size-controls button:hover, .tts-toggle:hover {
-            background: #2E8000;
+            background: #2d7a00;
             transform: scale(1.05);
         }
 
@@ -507,12 +535,12 @@
         }
 
         .footer a {
-            color: #39A900;
+            color: var(--sena-primary);
             text-decoration: none;
         }
 
         .footer a:hover {
-            color: #2E8000;
+            color: #2d7a00;
         }
 
         /* Estilos de reconocimiento facial */
@@ -666,7 +694,7 @@
                 </div>
 
                 <!-- Botón de reconocimiento facial -->
-                <button type="button" id="btn-login-facial" class="btn btn-outline-success w-100 mb-3">
+                <button type="button" id="btn-login-facial" class="btn btn-outline-facial w-100 mb-3">
                     <i class="bi bi-person-badge me-2"></i> Iniciar con Reconocimiento Facial
                 </button>
 

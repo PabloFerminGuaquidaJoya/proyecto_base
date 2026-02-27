@@ -163,6 +163,29 @@ class UsuarioForm(forms.ModelForm):
         return cleaned_data
 
 class RegistroUsuarioForm(forms.ModelForm):
+    centro_formacion = forms.ChoiceField(
+        choices=[('Centro Minero', 'Centro Minero')],
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Centro de formación'
+    )
+    especialidad = forms.ChoiceField(
+        choices=[
+            ('', 'Seleccione una especialidad'),
+            ('Técnico en Operación de Maquinaria Pesada', 'Técnico en Operación de Maquinaria Pesada'),
+            ('Curso complementario en Sistemas Hidráulicos en Maquinaria Pesada', 'Curso complementario en Sistemas Hidráulicos en Maquinaria Pesada'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Especialidad'
+    )
+    cargo = forms.ChoiceField(
+        choices=[
+            ('', 'Seleccione un cargo'),
+            ('Aprendiz', 'Aprendiz'),
+            ('Instructor', 'Instructor'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Cargo'
+    )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
@@ -207,18 +230,6 @@ class RegistroUsuarioForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': '+57 300 123 4567'
             }),
-            'centro_formacion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Centro de formación SENA'
-            }),
-            'especialidad': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Especialidad o programa'
-            }),
-            'cargo': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Cargo o rol'
-            })
         }
 
     def clean_numero_documento(self):
