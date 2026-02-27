@@ -203,6 +203,98 @@
             justify-content: center;
         }
 
+        /* ========== FORMULARIOS GLOBALES - COLORES SENA ========== */
+
+        /* Labels */
+        .form-label,
+        label:not(.form-check-label):not(.btn) {
+            font-weight: 600;
+            color: var(--sena-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        /* Inputs, selects, textareas */
+        .form-control,
+        .form-select,
+        textarea.form-control {
+            border-color: #ced4da;
+            border-radius: 8px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Focus: borde y sombra verde SENA */
+        .form-control:focus,
+        .form-select:focus,
+        textarea.form-control:focus {
+            border-color: var(--sena-primary);
+            box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.2);
+            outline: none;
+        }
+
+        /* Input group addon: fondo marino */
+        .input-group-text {
+            background-color: var(--sena-secondary);
+            color: white;
+            border-color: var(--sena-secondary);
+            border-radius: 8px 0 0 8px;
+        }
+
+        /* Checkbox y radio: verde al marcarse */
+        .form-check-input:checked {
+            background-color: var(--sena-primary);
+            border-color: var(--sena-primary);
+        }
+        .form-check-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.2);
+            border-color: var(--sena-primary);
+        }
+
+        /* Texto de ayuda bajo el campo */
+        .form-text {
+            color: #6c757d;
+            font-size: 0.82rem;
+        }
+
+        /* Mensajes de error inline */
+        .invalid-feedback,
+        .text-danger.small {
+            color: #cc4400 !important;
+            font-size: 0.82rem;
+        }
+
+        /* Campos inválidos */
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #cc4400;
+        }
+        .form-control.is-invalid:focus,
+        .form-select.is-invalid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(204, 68, 0, 0.2);
+        }
+
+        /* Campos válidos */
+        .form-control.is-valid,
+        .form-select.is-valid {
+            border-color: var(--sena-primary);
+        }
+        .form-control.is-valid:focus,
+        .form-select.is-valid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.2);
+        }
+
+        /* Card header de formularios */
+        .card-header {
+            background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            font-weight: 600;
+        }
+        .card-header h5,
+        .card-header h6,
+        .card-header .m-0 {
+            color: white !important;
+        }
+
         /* ========== MODO OSCURO GLOBAL ========== */
         body.dark-theme {
             background-color: #1a1a1a !important;
@@ -1081,10 +1173,12 @@
                 </div>
 
                 <div class="me-3 d-none d-md-block">
-                    <small class="text-muted">{{ user.get_full_name|default:user.username }}</small>
+                    <small class="text-muted">
+                        {% if usuario_actual %}{{ usuario_actual.primer_nombre }} {{ usuario_actual.apellidos.0 }}.{% else %}{{ user.username }}{% endif %}
+                    </small>
                 </div>
                 <div class="user-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                    {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"S" }}
+                    {% if usuario_actual %}{{ usuario_actual.iniciales }}{% else %}{{ user.username.0|upper }}{% endif %}
                 </div>
             </div>
         </div>

@@ -6,7 +6,7 @@
 {% block extra_css %}
 <style>
     .profile-header {
-        background: linear-gradient(135deg, var(--sena-primary) 0%, var(--sena-secondary) 100%);
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
         color: white;
         padding: 3rem 0;
         margin: -2rem -2rem 2rem;
@@ -47,13 +47,13 @@
         box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.25);
     }
 
+    /* Botón guardar → verde SENA */
     .btn-primary {
         background: var(--sena-primary);
         border-color: var(--sena-primary);
         padding: 0.75rem 2rem;
         font-weight: 600;
     }
-
     .btn-primary:hover {
         background: #2d7a00;
         border-color: #2d7a00;
@@ -61,7 +61,7 @@
 
     .info-badge {
         background: rgba(57, 169, 0, 0.1);
-        color: var(--sena-primary);
+        color: white;
         padding: 0.5rem 1rem;
         border-radius: 8px;
         font-weight: 600;
@@ -70,6 +70,7 @@
         margin-bottom: 0.5rem;
     }
 
+    /* Título de sección con subrayado degradado */
     .section-title {
         font-weight: 700;
         color: var(--sena-secondary);
@@ -79,6 +80,20 @@
         display: inline-block;
     }
 
+    /* Subtítulos internos de sección */
+    .subsection-title {
+        color: var(--sena-secondary) !important;
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .subsection-title i {
+        color: var(--sena-primary);
+    }
+
     .stats-card {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border-radius: 12px;
@@ -86,19 +101,55 @@
         text-align: center;
         margin-bottom: 1rem;
     }
-
     .stats-number {
         font-size: 2.5rem;
         font-weight: 700;
         color: var(--sena-primary);
     }
-
     .stats-label {
         color: #6c757d;
         font-weight: 500;
         text-transform: uppercase;
         font-size: 0.85rem;
         letter-spacing: 0.5px;
+    }
+
+    /* Badges de estado con paleta SENA */
+    .badge-sena-activo   { background-color: var(--sena-primary)   !important; color: white; }
+    .badge-sena-pendiente{ background-color: var(--sena-accent)    !important; color: white; }
+    .badge-sena-inactivo { background-color: var(--sena-secondary) !important; color: white; }
+
+    /* Botones outline SENA */
+    .btn-outline-sena-primary {
+        background: transparent;
+        border: 2px solid var(--sena-primary);
+        color: var(--sena-primary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    .btn-outline-sena-primary:hover {
+        background: var(--sena-primary);
+        color: white;
+    }
+    .btn-outline-sena-secondary {
+        background: transparent;
+        border: 2px solid var(--sena-secondary);
+        color: var(--sena-secondary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    .btn-outline-sena-secondary:hover {
+        background: var(--sena-secondary);
+        color: white;
+    }
+
+    /* Separador entre grupos del formulario */
+    .form-section-divider {
+        border: none;
+        border-top: 1px solid rgba(0, 50, 77, 0.12);
+        margin: 1.5rem 0;
     }
 </style>
 {% endblock %}
@@ -145,11 +196,11 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <!-- Información Personal -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h5 class="text-muted mb-3"><i class="bi bi-person me-2"></i>Datos Personales</h5>
-                    </div>
+                <!-- Datos Personales -->
+                <h5 class="subsection-title">
+                    <i class="bi bi-person-fill"></i>Datos Personales
+                </h5>
+                <div class="row mb-3">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">{{ form.nombres.label }}</label>
                         {{ form.nombres }}
@@ -188,11 +239,13 @@
                     </div>
                 </div>
 
+                <hr class="form-section-divider">
+
                 <!-- Información Institucional -->
+                <h5 class="subsection-title">
+                    <i class="bi bi-building-fill"></i>Información Institucional
+                </h5>
                 <div class="row mb-4">
-                    <div class="col-12">
-                        <h5 class="text-muted mb-3"><i class="bi bi-building me-2"></i>Información Institucional</h5>
-                    </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">{{ form.centro_formacion.label }}</label>
                         {{ form.centro_formacion }}
@@ -216,47 +269,20 @@
                     </div>
                 </div>
 
-                <!-- Preferencias -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h5 class="text-muted mb-3"><i class="bi bi-gear me-2"></i>Preferencias</h5>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">{{ form.idioma.label }}</label>
-                        {{ form.idioma }}
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="form-check mt-4">
-                            {{ form.notificaciones_email }}
-                            <label class="form-check-label" for="{{ form.notificaciones_email.id_for_label }}">
-                                {{ form.notificaciones_email.label }}
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="form-check mt-4">
-                            {{ form.tema_oscuro }}
-                            <label class="form-check-label" for="{{ form.tema_oscuro.id_for_label }}">
-                                {{ form.tema_oscuro.label }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
                 {% if form.non_field_errors %}
                     <div class="alert alert-danger">
                         {{ form.non_field_errors }}
                     </div>
                 {% endif %}
 
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle me-2"></i>Guardar Cambios
                     </button>
-                    <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-secondary">
+                    <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-sena-secondary">
                         <i class="bi bi-key me-2"></i>Cambiar Contraseña
                     </a>
-                    <a href="{% url 'usuarios:dashboard' %}" class="btn btn-outline-secondary">
+                    <a href="{% url 'usuarios:dashboard' %}" class="btn btn-outline-sena-secondary">
                         <i class="bi bi-x-circle me-2"></i>Cancelar
                     </a>
                 </div>
@@ -264,7 +290,7 @@
         </div>
     </div>
 
-    <!-- Sidebar con Estadísticas -->
+    <!-- Sidebar con Información de Cuenta -->
     <div class="col-lg-4">
         <!-- Información de Cuenta -->
         <div class="profile-info-card">
@@ -284,11 +310,11 @@
             <div class="mb-3">
                 <small class="text-muted d-block">Estado</small>
                 {% if usuario.estado == 'activo' %}
-                    <span class="badge bg-success">{{ usuario.get_estado_display }}</span>
+                    <span class="badge badge-sena-activo">{{ usuario.get_estado_display }}</span>
                 {% elif usuario.estado == 'pendiente' %}
-                    <span class="badge bg-warning">{{ usuario.get_estado_display }}</span>
+                    <span class="badge badge-sena-pendiente">{{ usuario.get_estado_display }}</span>
                 {% else %}
-                    <span class="badge bg-secondary">{{ usuario.get_estado_display }}</span>
+                    <span class="badge badge-sena-inactivo">{{ usuario.get_estado_display }}</span>
                 {% endif %}
             </div>
             <div class="mb-3">
@@ -307,10 +333,10 @@
         <div class="profile-info-card">
             <h5 class="section-title"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</h5>
             <div class="d-grid gap-2">
-                <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-primary">
+                <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-sena-primary">
                     <i class="bi bi-shield-lock me-2"></i>Cambiar Contraseña
                 </a>
-                <a href="{% url 'usuarios:dashboard' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'usuarios:dashboard' %}" class="btn btn-outline-sena-secondary">
                     <i class="bi bi-house me-2"></i>Ir al Dashboard
                 </a>
             </div>
@@ -322,7 +348,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Preview de imagen antes de subir
     const fotoInput = document.querySelector('input[name="foto_perfil"]');
     if (fotoInput) {
         fotoInput.addEventListener('change', function(e) {

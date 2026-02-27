@@ -7,7 +7,7 @@
 {% block extra_css %}
 <style>
     .documents-hero {
-        background: linear-gradient(135deg, #39a900 0%, #2d8500 100%);
+        background: linear-gradient(135deg, #00324d 0%, #39a900 100%);
         color: white;
         padding: 3rem 0;
         margin: -1.5rem -1.5rem 2rem;
@@ -516,6 +516,10 @@
     }
     
     .no-results {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
         padding: 4rem 2rem;
         color: #6c757d;
@@ -774,6 +778,111 @@
     body.dark-theme .activity-user {
         color: #5ba4e0 !important;
     }
+
+    /* ══════════════════════════════════════
+       SENA Color System — mismo esquema que la sidebar
+       --sena-primary:   #39a900  (verde)
+       --sena-secondary: #00324d  (azul marino)
+       --sena-accent:    #ff6b35  (naranja)
+       ══════════════════════════════════════ */
+    :root { --sena-danger: #cc4400; }
+
+    /* Borde superior de stat cards → degradado sidebar */
+    .stat-card::before {
+        background: linear-gradient(90deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    }
+
+    /* Borde hover document card → verde SENA */
+    .document-card:hover { border-color: var(--sena-primary) !important; }
+
+    /* Badge de tipo/categoría → VERDE (solicitado "con el color verde") */
+    .document-type-badge {
+        background: rgba(57, 169, 0, 0.92) !important;
+    }
+
+    /* Enlace de máquina → marino */
+    .document-machine { color: var(--sena-secondary) !important; }
+
+    /* Icono de documento → verde */
+    .document-icon { color: var(--sena-primary) !important; }
+
+    /* Botones de acción en tarjetas */
+    .document-btn:hover {
+        border-color: var(--sena-primary) !important;
+        color: var(--sena-primary) !important;
+        background: rgba(57, 169, 0, 0.05) !important;
+    }
+    .document-btn.primary {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%) !important;
+        border-color: var(--sena-primary) !important;
+    }
+    .document-btn.primary:hover {
+        background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%) !important;
+    }
+
+    /* Filter sidebar — opción activa → verde SENA */
+    .filter-option.active {
+        background: rgba(57, 169, 0, 0.1) !important;
+        color: var(--sena-primary) !important;
+        font-weight: 600;
+    }
+    .filter-option:hover {
+        background: rgba(57, 169, 0, 0.05) !important;
+        color: var(--sena-secondary) !important;
+    }
+    .filter-checkbox { accent-color: var(--sena-primary); }
+
+    /* Filter title */
+    .filter-title { color: var(--sena-secondary) !important; }
+    .filter-label  { color: var(--sena-secondary) !important; }
+
+    /* Upload zone → verde SENA */
+    .upload-zone { border-color: var(--sena-primary) !important; }
+    .upload-zone:hover, .upload-zone.dragover {
+        border-color: var(--sena-secondary) !important;
+        background: rgba(57, 169, 0, 0.03) !important;
+    }
+    .upload-icon { color: var(--sena-primary) !important; }
+
+    /* Sugerencias de búsqueda */
+    .suggestion-icon {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%) !important;
+    }
+
+    /* ── Botones SENA reutilizables ── */
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        border: none;
+        color: white;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-sena-gradient:hover {
+        background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%);
+        color: white;
+    }
+    .btn-outline-sena-primary {
+        background: transparent;
+        border: 2px solid var(--sena-primary);
+        color: var(--sena-primary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-sena-primary:hover {
+        background: var(--sena-primary);
+        color: white;
+    }
+    .btn-outline-sena-secondary {
+        background: transparent;
+        border: 2px solid var(--sena-secondary);
+        color: var(--sena-secondary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-sena-secondary:hover {
+        background: var(--sena-secondary);
+        color: white;
+    }
 </style>
 {% endblock %}
 
@@ -805,32 +914,36 @@
 
 <!-- Quick Stats -->
 <div class="quick-stats-grid">
+    <!-- Total Documentos → degradado sidebar (marino→verde) -->
     <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #00324d, #39a900);">
             <i class="bi bi-file-earmark-text"></i>
         </div>
         <div class="stat-number">{{ total_documentos|default:0 }}</div>
         <div class="stat-label">Total Documentos</div>
     </div>
 
+    <!-- Este Mes → verde SENA -->
     <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #2d7a00, #39a900);">
             <i class="bi bi-calendar-month"></i>
         </div>
         <div class="stat-number">{{ stats.documentos_mes|default:0 }}</div>
         <div class="stat-label">Este Mes</div>
     </div>
 
+    <!-- Categorías → naranja SENA -->
     <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b8, #138496);">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #cc4400, #ff6b35);">
             <i class="bi bi-folder"></i>
         </div>
         <div class="stat-number">{{ stats.categorias_activas|default:0 }}</div>
         <div class="stat-label">Categorías</div>
     </div>
 
+    <!-- Tipos de Documentos → marino SENA -->
     <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #001f30, #00324d);">
             <i class="bi bi-tags"></i>
         </div>
         <div class="stat-number">{{ stats.tipos_activos|default:0 }}</div>
@@ -847,7 +960,7 @@
     <div class="upload-hint">o haz clic para seleccionar archivos</div>
     <div class="upload-hint">Soporta: PDF, DOC, DOCX, TXT (máx. 50MB)</div>
     <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt" style="display: none;">
-    <a href="{% url 'documentos:subir_documento' %}" class="btn btn-primary mt-2">
+    <a href="{% url 'documentos:subir_documento' %}" class="btn btn-sena-gradient mt-2">
         <i class="bi bi-plus-lg me-2"></i>Subir Documento
     </a>
 </div>
@@ -936,7 +1049,7 @@
             </div>
             
             <div class="mt-3">
-                <button class="btn btn-outline-primary btn-sm w-100" onclick="clearFilters()">
+                <button class="btn btn-outline-sena-primary btn-sm w-100" onclick="clearFilters()">
                     <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
                 </button>
             </div>
@@ -1039,7 +1152,7 @@
                     </div>
                     <h5>No se encontraron documentos</h5>
                     <p>Intenta ajustar los filtros o sube el primer documento</p>
-                    <a href="{% url 'documentos:subir_documento' %}" class="btn btn-primary">
+                    <a href="{% url 'documentos:subir_documento' %}" class="btn btn-sena-gradient">
                         <i class="bi bi-plus-lg me-2"></i>Subir Documento
                     </a>
                 </div>
@@ -1049,7 +1162,7 @@
         
         <!-- Load More Button -->
         <div class="text-center mt-4">
-            <button class="btn btn-outline-primary" id="loadMoreBtn" onclick="loadMoreDocuments()">
+            <button class="btn btn-outline-sena-primary" id="loadMoreBtn" onclick="loadMoreDocuments()">
                 <i class="bi bi-arrow-down-circle me-2"></i>Cargar Más Documentos
             </button>
         </div>

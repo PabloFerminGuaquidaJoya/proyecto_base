@@ -86,6 +86,16 @@ class Usuario(models.Model):
         return f"{self.nombres} {self.apellidos}"
 
     @property
+    def primer_nombre(self):
+        return self.nombres.split()[0] if self.nombres else ''
+
+    @property
+    def iniciales(self):
+        n = self.nombres[0].upper() if self.nombres else 'U'
+        a = self.apellidos[0].upper() if self.apellidos else 'S'
+        return f"{n}{a}"
+
+    @property
     def esta_activo(self):
         return self.estado == 'activo'
 

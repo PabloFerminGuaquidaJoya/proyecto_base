@@ -7,11 +7,11 @@
 <div class="row">
     <!-- Stats Cards -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card border-left-sena-secondary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-sena-secondary text-uppercase mb-1">
                             Reportes Generados</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_reportes|default:0 }}</div>
                     </div>
@@ -24,11 +24,11 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
+        <div class="card border-left-sena-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-sena-primary text-uppercase mb-1">
                             Este Mes</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ reportes_mes|default:0 }}</div>
                     </div>
@@ -41,11 +41,11 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-info shadow h-100 py-2">
+        <div class="card border-left-sena-accent shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-sena-accent text-uppercase mb-1">
                             Tipos Disponibles</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ tipos_disponibles|default:0 }}</div>
                     </div>
@@ -58,11 +58,11 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card border-left-sena-danger shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-sena-danger text-uppercase mb-1">
                             Pendientes</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ reportes_pendientes|default:0 }}</div>
                     </div>
@@ -78,12 +78,12 @@
 <!-- Quick Actions -->
 <div class="card mb-4">
     <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-primary">Acciones Rápidas</h6>
+        <h6 class="m-0 font-weight-bold text-sena-gradient">Acciones Rápidas</h6>
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-md-12 mb-3">
-                <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-primary w-100">
+                <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-sena-gradient w-100">
                     <i class="bi bi-plus-circle me-2"></i>Nuevo Reporte
                 </a>
             </div>
@@ -94,7 +94,7 @@
 <!-- Filtros y Lista de Reportes -->
 <div class="card">
     <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-primary">Todos los Reportes</h6>
+        <h6 class="m-0 font-weight-bold text-sena-gradient">Todos los Reportes</h6>
     </div>
     <div class="card-body">
         <!-- Filtros -->
@@ -124,7 +124,7 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100">
+                    <button type="submit" class="btn btn-sena-gradient w-100">
                         <i class="bi bi-search me-2"></i>Filtrar
                     </button>
                 </div>
@@ -150,41 +150,53 @@
                         {% for reporte in reportes %}
                         <tr>
                             <td>
-                                <span class="badge bg-info">
+                                <!-- Categoría del reporte → verde SENA -->
+                                <span class="badge bg-sena-primary">
                                     {{ reporte.tipo_reporte.nombre }}
                                 </span>
                             </td>
                             <td>
-                                <a href="{% url 'reportes:detalle_reporte' reporte.id %}" class="text-decoration-none">
+                                <a href="{% url 'reportes:detalle_reporte' reporte.id %}" class="text-decoration-none text-sena-secondary">
                                     {{ reporte.titulo }}
                                 </a>
                             </td>
                             <td>{{ reporte.usuario_solicitante.nombre_completo }}</td>
                             <td>{{ reporte.fecha_solicitud|date:"d/m/Y H:i" }}</td>
                             <td>
+                                <!-- Timeline markers de estado → colores SENA -->
                                 {% if reporte.estado == 'completado' %}
-                                    <span class="badge bg-success">Completado</span>
+                                    <span class="badge badge-sena-estado bg-sena-primary">
+                                        <i class="bi bi-check-circle me-1"></i>Completado
+                                    </span>
                                 {% elif reporte.estado == 'generando' %}
-                                    <span class="badge bg-warning">Generando</span>
+                                    <span class="badge badge-sena-estado bg-sena-accent">
+                                        <i class="bi bi-arrow-repeat me-1"></i>Generando
+                                    </span>
                                 {% elif reporte.estado == 'pendiente' %}
-                                    <span class="badge bg-secondary">Pendiente</span>
+                                    <span class="badge badge-sena-estado bg-sena-secondary">
+                                        <i class="bi bi-clock me-1"></i>Pendiente
+                                    </span>
                                 {% elif reporte.estado == 'error' %}
-                                    <span class="badge bg-danger">Error</span>
+                                    <span class="badge badge-sena-estado bg-sena-danger">
+                                        <i class="bi bi-x-circle me-1"></i>Error
+                                    </span>
                                 {% else %}
-                                    <span class="badge bg-dark">{{ reporte.get_estado_display }}</span>
+                                    <span class="badge badge-sena-estado bg-sena-secondary">{{ reporte.get_estado_display }}</span>
                                 {% endif %}
                             </td>
-                            <td><span class="badge bg-secondary">{{ reporte.formato|upper }}</span></td>
+                            <td>
+                                <span class="badge bg-sena-secondary">{{ reporte.formato|upper }}</span>
+                            </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="{% url 'reportes:detalle_reporte' reporte.id %}"
-                                       class="btn btn-outline-primary"
+                                       class="btn btn-outline-sena-secondary"
                                        title="Ver detalle">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     {% if reporte.estado == 'completado' and reporte.archivo_resultado %}
                                         <a href="{% url 'reportes:descargar_reporte' reporte.id %}"
-                                           class="btn btn-outline-success"
+                                           class="btn btn-outline-sena-primary"
                                            title="Descargar">
                                             <i class="bi bi-download"></i>
                                         </a>
@@ -200,7 +212,7 @@
                                     <i class="bi bi-file-earmark-text fs-1 mb-3 d-block"></i>
                                     <h5>No hay reportes</h5>
                                     <p>Genera tu primer reporte para comenzar</p>
-                                    <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-primary mt-3">
+                                    <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-sena-gradient mt-3">
                                         <i class="bi bi-plus-circle me-2"></i>Generar Reporte
                                     </a>
                                 </div>
@@ -217,25 +229,25 @@
             <ul class="pagination justify-content-center">
                 {% if reportes.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page=1{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Primera</a>
+                        <a class="page-link sena-page-link" href="?page=1{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Primera</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ reportes.previous_page_number }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Anterior</a>
+                        <a class="page-link sena-page-link" href="?page={{ reportes.previous_page_number }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Anterior</a>
                     </li>
                 {% endif %}
 
                 <li class="page-item active">
-                    <span class="page-link">
+                    <span class="page-link sena-page-link-active">
                         Página {{ reportes.number }} de {{ reportes.paginator.num_pages }}
                     </span>
                 </li>
 
                 {% if reportes.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ reportes.next_page_number }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Siguiente</a>
+                        <a class="page-link sena-page-link" href="?page={{ reportes.next_page_number }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Siguiente</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ reportes.paginator.num_pages }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Última</a>
+                        <a class="page-link sena-page-link" href="?page={{ reportes.paginator.num_pages }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Última</a>
                     </li>
                 {% endif %}
             </ul>
@@ -247,25 +259,100 @@
 
 {% block extra_css %}
 <style>
-    .border-left-primary { border-left: 0.25rem solid var(--sena-primary) !important; }
-    .border-left-success { border-left: 0.25rem solid #28a745 !important; }
-    .border-left-info { border-left: 0.25rem solid #17a2b8 !important; }
-    .border-left-warning { border-left: 0.25rem solid #ffc107 !important; }
+    /* Color danger SENA */
+    :root { --sena-danger: #cc4400; }
 
-    .report-card {
-        transition: transform 0.2s ease-in-out;
-        cursor: pointer;
-    }
-    .report-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    /* ── Colores de texto ── */
+    .text-sena-primary   { color: var(--sena-primary)   !important; }
+    .text-sena-secondary { color: var(--sena-secondary) !important; }
+    .text-sena-accent    { color: var(--sena-accent)    !important; }
+    .text-sena-danger    { color: var(--sena-danger)    !important; }
+
+    /* Texto degradado igual que la sidebar */
+    .text-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
-    .table tbody tr {
-        transition: background-color 0.2s ease;
+    /* ── Fondos (badges / markers) ── */
+    .bg-sena-primary   { background-color: var(--sena-primary)   !important; }
+    .bg-sena-secondary { background-color: var(--sena-secondary) !important; }
+    .bg-sena-accent    { background-color: var(--sena-accent)    !important; }
+    .bg-sena-danger    { background-color: var(--sena-danger)    !important; }
+
+    /* ── Bordes izquierdos stat cards ── */
+    .border-left-sena-primary   { border-left: 0.25rem solid var(--sena-primary)   !important; }
+    .border-left-sena-secondary { border-left: 0.25rem solid var(--sena-secondary) !important; }
+    .border-left-sena-accent    { border-left: 0.25rem solid var(--sena-accent)    !important; }
+    .border-left-sena-danger    { border-left: 0.25rem solid var(--sena-danger)    !important; }
+
+    /* ── Botón gradiente (mismo degradado que sidebar) ── */
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        border: none;
+        color: white;
+        border-radius: 8px;
+        transition: all 0.3s ease;
     }
+    .btn-sena-gradient:hover {
+        background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%);
+        color: white;
+    }
+
+    /* ── Outline verde → descargar ── */
+    .btn-outline-sena-primary {
+        background: transparent;
+        border: 2px solid var(--sena-primary);
+        color: var(--sena-primary);
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-sena-primary:hover {
+        background: var(--sena-primary);
+        color: white;
+    }
+
+    /* ── Outline marino → ver detalle ── */
+    .btn-outline-sena-secondary {
+        background: transparent;
+        border: 2px solid var(--sena-secondary);
+        color: var(--sena-secondary);
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-sena-secondary:hover {
+        background: var(--sena-secondary);
+        color: white;
+    }
+
+    /* ── Badges de estado (timeline markers) ── */
+    .badge-sena-estado {
+        font-size: 0.78rem;
+        padding: 0.4em 0.75em;
+        border-radius: 20px;
+    }
+
+    /* ── Fila hover → verde suave ── */
     .table tbody tr:hover {
         background-color: rgba(57, 169, 0, 0.05);
+    }
+
+    /* ── Paginación ── */
+    .sena-page-link {
+        color: var(--sena-secondary);
+        border-color: var(--sena-secondary);
+    }
+    .sena-page-link:hover {
+        background: var(--sena-secondary);
+        color: white;
+        border-color: var(--sena-secondary);
+    }
+    .sena-page-link-active {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: white !important;
+        border-color: var(--sena-primary);
     }
 </style>
 {% endblock %}

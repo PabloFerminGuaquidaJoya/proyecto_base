@@ -88,7 +88,7 @@
                 </a>
             </div>
             <div class="col-md-3 mb-3">
-                <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-outline-primary w-100">
+                <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-outline-sena-secondary w-100">
                     <i class="bi bi-list me-2"></i>Ver Todas
                 </a>
             </div>
@@ -98,17 +98,17 @@
                 </a>
             </div>
             <div class="col-md-3 mb-3">
-                <a href="{% url 'maquinaria:mantenimiento_dashboard' %}" class="btn btn-outline-success w-100">
+                <a href="{% url 'maquinaria:mantenimiento_dashboard' %}" class="btn btn-outline-sena-primary w-100">
                     <i class="bi bi-wrench me-2"></i>Mantenimiento
                 </a>
             </div>
             <div class="col-md-3 mb-3">
-                <a href="{% url 'maquinaria:registrar_objeto' %}" class="btn btn-success w-100">
+                <a href="{% url 'maquinaria:registrar_objeto' %}" class="btn btn-sena-secondary w-100">
                     <i class="bi bi-camera me-2"></i>Registrar Objeto
                 </a>
             </div>
             <div class="col-md-3 mb-3">
-                <a href="{% url 'maquinaria:lista_objetos' %}" class="btn btn-outline-info w-100">
+                <a href="{% url 'maquinaria:lista_objetos' %}" class="btn btn-outline-sena-accent w-100">
                     <i class="bi bi-box-seam me-2"></i>Ver Objetos
                 </a>
             </div>
@@ -162,7 +162,7 @@
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h6 class="m-0 font-weight-bold text-primary">Estado por Categorías</h6>
+                <h6 class="m-0 font-weight-bold text-sena-primary">Estado por Categorías</h6>
             </div>
             <div class="card-body">
                 <canvas id="categoryChart" width="400" height="300"></canvas>
@@ -174,18 +174,18 @@
 
 {% block extra_css %}
 <style>
-    /* SENA Danger color (naranja oscuro derivado del accent) */
+    /* Color danger SENA (naranja oscuro, derivado del accent) */
     :root {
         --sena-danger: #cc4400;
     }
 
-    /* Text colors SENA */
-    .text-sena-primary  { color: var(--sena-primary)   !important; }
-    .text-sena-secondary{ color: var(--sena-secondary) !important; }
-    .text-sena-accent   { color: var(--sena-accent)    !important; }
-    .text-sena-danger   { color: var(--sena-danger)    !important; }
+    /* ── Colores de texto ── */
+    .text-sena-primary   { color: var(--sena-primary)   !important; }
+    .text-sena-secondary { color: var(--sena-secondary) !important; }
+    .text-sena-accent    { color: var(--sena-accent)    !important; }
+    .text-sena-danger    { color: var(--sena-danger)    !important; }
 
-    /* Gradient text — igual que el degradado de la sidebar */
+    /* Texto con el mismo degradado de la sidebar */
     .text-sena-gradient {
         background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
         -webkit-background-clip: text;
@@ -193,36 +193,54 @@
         background-clip: text;
     }
 
-    /* Background colors SENA */
-    .bg-sena-primary  { background-color: var(--sena-primary)   !important; }
-    .bg-sena-secondary{ background-color: var(--sena-secondary) !important; }
-    .bg-sena-accent   { background-color: var(--sena-accent)    !important; }
-    .bg-sena-danger   { background-color: var(--sena-danger)    !important; }
+    /* ── Colores de fondo (timeline markers) ── */
+    .bg-sena-primary   { background-color: var(--sena-primary)   !important; }
+    .bg-sena-secondary { background-color: var(--sena-secondary) !important; }
+    .bg-sena-accent    { background-color: var(--sena-accent)    !important; }
+    .bg-sena-danger    { background-color: var(--sena-danger)    !important; }
 
-    /* Border-left para stat cards */
-    .border-left-sena-primary  { border-left: 0.25rem solid var(--sena-primary)   !important; }
-    .border-left-sena-secondary{ border-left: 0.25rem solid var(--sena-secondary) !important; }
-    .border-left-sena-accent   { border-left: 0.25rem solid var(--sena-accent)    !important; }
-    .border-left-sena-danger   { border-left: 0.25rem solid var(--sena-danger)    !important; }
+    /* ── Bordes izquierdos stat cards ── */
+    .border-left-sena-primary   { border-left: 0.25rem solid var(--sena-primary)   !important; }
+    .border-left-sena-secondary { border-left: 0.25rem solid var(--sena-secondary) !important; }
+    .border-left-sena-accent    { border-left: 0.25rem solid var(--sena-accent)    !important; }
+    .border-left-sena-danger    { border-left: 0.25rem solid var(--sena-danger)    !important; }
 
-    /* Botón gradiente — mismo degradado que la sidebar */
+    /* ── Botones sólidos ── */
+
+    /* Gradiente sidebar → Nueva Máquina */
     .btn-sena-gradient {
         background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
         border: none;
         color: white;
         border-radius: 8px;
+        transition: all 0.3s ease;
     }
     .btn-sena-gradient:hover {
         background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%);
         color: white;
     }
 
-    /* Botón accent — color naranja de la sidebar */
+    /* Azul marino → Registrar Objeto */
+    .btn-sena-secondary {
+        background: var(--sena-secondary);
+        border-color: var(--sena-secondary);
+        color: white;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-sena-secondary:hover {
+        background: #001f30;
+        border-color: #001f30;
+        color: white;
+    }
+
+    /* Naranja → Ver Alertas */
     .btn-sena-accent {
         background: var(--sena-accent);
         border-color: var(--sena-accent);
         color: white;
         border-radius: 8px;
+        transition: all 0.3s ease;
     }
     .btn-sena-accent:hover {
         background: #e55a25;
@@ -230,10 +248,49 @@
         color: white;
     }
 
-    /* Timeline */
-    .timeline {
-        position: relative;
+    /* ── Botones outline ── */
+
+    /* Outline verde → Mantenimiento */
+    .btn-outline-sena-primary {
+        background: transparent;
+        border: 2px solid var(--sena-primary);
+        color: var(--sena-primary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
     }
+    .btn-outline-sena-primary:hover {
+        background: var(--sena-primary);
+        color: white;
+    }
+
+    /* Outline marino → Ver Todas */
+    .btn-outline-sena-secondary {
+        background: transparent;
+        border: 2px solid var(--sena-secondary);
+        color: var(--sena-secondary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-sena-secondary:hover {
+        background: var(--sena-secondary);
+        color: white;
+    }
+
+    /* Outline naranja → Ver Objetos */
+    .btn-outline-sena-accent {
+        background: transparent;
+        border: 2px solid var(--sena-accent);
+        color: var(--sena-accent);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-sena-accent:hover {
+        background: var(--sena-accent);
+        color: white;
+    }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; }
     .timeline-item {
         display: flex;
         margin-bottom: 1rem;
