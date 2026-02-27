@@ -294,7 +294,6 @@ class PerfilUsuarioForm(forms.ModelForm):
         fields = [
             'nombres', 'apellidos', 'email', 'telefono', 'foto_perfil',
             'centro_formacion', 'especialidad', 'cargo',
-            'notificaciones_email', 'tema_oscuro', 'idioma'
         ]
         widgets = {
             'nombres': forms.TextInput(attrs={
@@ -329,18 +328,6 @@ class PerfilUsuarioForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Cargo o rol'
             }),
-            'notificaciones_email': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'tema_oscuro': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'idioma': forms.Select(attrs={
-                'class': 'form-select'
-            }, choices=[
-                ('es', 'Español'),
-                ('en', 'English')
-            ])
         }
 
     def clean_email(self):

@@ -27,6 +27,7 @@ urlpatterns = [
     # Configuración
     path('configuracion/', views.configuracion_view, name='configuracion'),
     path('cambiar-password/', views.cambiar_password_view, name='cambiar_password'),
+    path('registrar-rostro/', views.registrar_rostro_page_view, name='registrar_rostro_page'),
 
     # API endpoints para AJAX
     path('api/buscar/', views.buscar_usuarios_api, name='api_buscar'),

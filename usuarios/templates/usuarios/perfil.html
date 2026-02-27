@@ -364,14 +364,14 @@
                     <i class="bi bi-shield-lock me-2"></i>Cambiar Contraseña
                 </a>
                 <!-- Botón reconocimiento facial -->
-                <button type="button" class="btn btn-outline-sena-facial" data-bs-toggle="modal" data-bs-target="#modalRegistrarRostro">
+                <a href="{% url 'usuarios:registrar_rostro_page' %}" class="btn btn-outline-sena-facial">
                     <i class="bi bi-person-bounding-box me-2"></i>
                     {% if tiene_reconocimiento_facial %}
                         Actualizar Reconocimiento Facial
                     {% else %}
                         Registrar Reconocimiento Facial
                     {% endif %}
-                </button>
+                </a>
                 {% if tiene_reconocimiento_facial %}
                 <small class="text-center text-success">
                     <i class="bi bi-check-circle-fill me-1"></i>Reconocimiento facial activo
@@ -386,68 +386,9 @@
 </div>
 {% endblock %}
 
-<!-- Modal Registrar Rostro -->
-<div class="modal fade" id="modalRegistrarRostro" tabindex="-1" aria-labelledby="modalRegistrarRostroLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #00324d 0%, #39a900 100%); color: white;">
-                <h5 class="modal-title" id="modalRegistrarRostroLabel">
-                    <i class="bi bi-person-bounding-box me-2"></i>
-                    {% if tiene_reconocimiento_facial %}Actualizar{% else %}Registrar{% endif %} Reconocimiento Facial
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Paso: Captura -->
-                <div id="prf-paso-captura">
-                    <p class="text-muted text-center mb-3">
-                        <i class="bi bi-info-circle me-1"></i>
-                        Coloque su rostro frente a la cámara y capture su imagen para {% if tiene_reconocimiento_facial %}actualizar{% else %}activar{% endif %} el inicio de sesión con reconocimiento facial.
-                    </p>
-                    <div class="position-relative" style="width: 100%; max-width: 380px; margin: 0 auto;">
-                        <video id="prf-video" autoplay playsinline style="width: 100%; border-radius: 12px; transform: scaleX(-1); background: #000;"></video>
-                        <canvas id="prf-canvas" style="display: none;"></canvas>
-                        <!-- Marco guía -->
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                                    width: 160px; height: 200px; border: 3px solid #39a900;
-                                    border-radius: 50%; pointer-events: none; opacity: 0.7;"></div>
-                    </div>
-                    <div class="alert alert-info mt-3" id="prf-estado">
-                        <i class="bi bi-camera-video me-2"></i>Iniciando cámara...
-                    </div>
-                    <div class="d-grid mt-2">
-                        <button type="button" class="btn btn-sena-gradient-facial" id="prf-btn-capturar">
-                            <i class="bi bi-camera-fill me-2"></i>Capturar y Registrar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Paso: Procesando -->
-                <div id="prf-paso-procesando" class="text-center py-4" style="display: none;">
-                    <div class="spinner-border mb-3" role="status" style="width: 3rem; height: 3rem; color: #39a900;">
-                        <span class="visually-hidden">Procesando...</span>
-                    </div>
-                    <p class="text-muted">Procesando reconocimiento facial...</p>
-                </div>
-
-                <!-- Paso: Resultado -->
-                <div id="prf-paso-resultado" style="display: none;">
-                    <div class="text-center py-3" id="prf-resultado-contenido"></div>
-                    <div class="d-grid mt-3">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            Cerrar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ── Preview foto de perfil ──
     const fotoInput = document.querySelector('input[name="foto_perfil"]');
     if (fotoInput) {
         fotoInput.addEventListener('change', function(e) {
@@ -463,130 +404,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.readAsDataURL(file);
             }
         });
-    }
-
-    // ── Reconocimiento facial ──
-    const modalEl   = document.getElementById('modalRegistrarRostro');
-    const video     = document.getElementById('prf-video');
-    const canvas    = document.getElementById('prf-canvas');
-    const btnCapt   = document.getElementById('prf-btn-capturar');
-    const estado    = document.getElementById('prf-estado');
-    const pasoCap   = document.getElementById('prf-paso-captura');
-    const pasoProc  = document.getElementById('prf-paso-procesando');
-    const pasoRes   = document.getElementById('prf-paso-resultado');
-    const resConten = document.getElementById('prf-resultado-contenido');
-    let stream = null;
-
-    // Abrir cámara al mostrar el modal
-    modalEl.addEventListener('shown.bs.modal', async function () {
-        pasoCap.style.display  = 'block';
-        pasoProc.style.display = 'none';
-        pasoRes.style.display  = 'none';
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' } });
-            video.srcObject = stream;
-            estado.className = 'alert alert-success mt-3';
-            estado.innerHTML = '<i class="bi bi-check-circle me-2"></i>Cámara activa. Posicione su rostro dentro del óvalo.';
-        } catch (err) {
-            estado.className = 'alert alert-danger mt-3';
-            estado.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>No se pudo acceder a la cámara. Verifique los permisos.';
-            btnCapt.disabled = true;
-        }
-    });
-
-    // Detener cámara al cerrar el modal
-    modalEl.addEventListener('hidden.bs.modal', function () {
-        if (stream) {
-            stream.getTracks().forEach(t => t.stop());
-            stream = null;
-        }
-        btnCapt.disabled = false;
-    });
-
-    // Capturar y enviar
-    btnCapt.addEventListener('click', async function () {
-        if (!stream) return;
-
-        // Tomar frame del video
-        canvas.width  = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        const imagenBase64 = canvas.toDataURL('image/jpeg', 0.9);
-
-        // Mostrar spinner
-        pasoCap.style.display  = 'none';
-        pasoProc.style.display = 'block';
-
-        // Detener cámara
-        stream.getTracks().forEach(t => t.stop());
-        stream = null;
-
-        try {
-            const response = await fetch('{% url "usuarios:api_registrar_rostro" %}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                body: JSON.stringify({ imagen: imagenBase64 })
-            });
-            const data = await response.json();
-
-            pasoProc.style.display = 'none';
-            pasoRes.style.display  = 'block';
-
-            if (data.success) {
-                resConten.innerHTML = `
-                    <div class="mb-3">
-                        <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="text-success">¡Registrado correctamente!</h5>
-                    <p class="text-muted">Su reconocimiento facial ha sido guardado. Ahora puede iniciar sesión usando su rostro desde el login.</p>`;
-                // Actualizar indicador en la página sin recargar
-                setTimeout(() => location.reload(), 2000);
-            } else {
-                resConten.innerHTML = `
-                    <div class="mb-3">
-                        <i class="bi bi-x-circle-fill text-danger" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="text-danger">Error al registrar</h5>
-                    <p class="text-muted">${data.error || 'No se pudo registrar el rostro. Intente de nuevo.'}</p>
-                    <button type="button" class="btn btn-outline-sena-primary btn-sm mt-2" id="prf-btn-reintentar">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Intentar de nuevo
-                    </button>`;
-                document.getElementById('prf-btn-reintentar')?.addEventListener('click', () => {
-                    pasoRes.style.display = 'none';
-                    pasoCap.style.display = 'block';
-                    btnCapt.disabled = false;
-                    estado.className = 'alert alert-info mt-3';
-                    estado.innerHTML = '<i class="bi bi-camera-video me-2"></i>Reiniciando cámara...';
-                    navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
-                        stream = s;
-                        video.srcObject = s;
-                        estado.className = 'alert alert-success mt-3';
-                        estado.innerHTML = '<i class="bi bi-check-circle me-2"></i>Cámara activa.';
-                    }).catch(() => {
-                        estado.className = 'alert alert-danger mt-3';
-                        estado.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>No se pudo acceder a la cámara.';
-                    });
-                });
-            }
-        } catch (err) {
-            pasoProc.style.display = 'none';
-            pasoRes.style.display  = 'block';
-            resConten.innerHTML = `
-                <div class="mb-3"><i class="bi bi-wifi-off text-danger" style="font-size: 3rem;"></i></div>
-                <h5 class="text-danger">Error de conexión</h5>
-                <p class="text-muted">No se pudo conectar con el servidor. Verifique su conexión.</p>`;
-        }
-    });
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            for (const cookie of document.cookie.split(';')) {
-                const [k, v] = cookie.trim().split('=');
-                if (k === name) { cookieValue = decodeURIComponent(v); break; }
-            }
-        }
-        return cookieValue;
     }
 });
 </script>

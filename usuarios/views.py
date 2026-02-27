@@ -558,6 +558,24 @@ def get_client_ip(request):
     return ip
 
 
+@login_required
+def registrar_rostro_page_view(request):
+    """Página dedicada para registrar/actualizar el rostro del usuario."""
+    try:
+        usuario = Usuario.objects.get(numero_documento=request.user.username)
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Usuario no encontrado')
+        return redirect('usuarios:perfil')
+
+    tiene_reconocimiento_facial = ReconocimientoFacial.objects.filter(usuario=usuario, activo=True).exists()
+
+    return render(request, 'usuarios/registrar_rostro.html', {
+        'usuario': usuario,
+        'tiene_reconocimiento_facial': tiene_reconocimiento_facial,
+        'title': 'Registro Facial - SENA',
+    })
+
+
 @require_POST
 @csrf_exempt  # TODO: Remover en producción, usar CSRF token correctamente
 def registrar_rostro_view(request):
