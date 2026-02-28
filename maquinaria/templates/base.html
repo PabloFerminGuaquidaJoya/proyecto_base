@@ -1004,7 +1004,16 @@
             display: block;
         }
 
-        @media (max-width: 768px) {
+        /* ── Desktop: sidebar colapsado por hamburguesa ── */
+        body.sidebar-collapsed .sidebar {
+            transform: translateX(-100%);
+        }
+        body.sidebar-collapsed .main-content {
+            margin-left: 0;
+        }
+
+        /* ── Responsive: tablet + móvil (< 992px) ── */
+        @media (max-width: 991px) {
             body {
                 overflow-x: hidden;
             }
@@ -1024,7 +1033,25 @@
             }
             .main-content {
                 margin-left: 0;
+                overflow-x: hidden;
             }
+            /* Touch-friendly hamburger button */
+            .btn.btn-link[onclick="toggleSidebar()"] {
+                padding: 6px 8px;
+                min-width: 40px;
+                min-height: 40px;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+            /* Tables scroll horizontally inside cards */
+            .card-body {
+                overflow-x: auto;
+            }
+        }
+
+        /* ── Responsive: solo móvil (< 768px) ── */
+        @media (max-width: 767px) {
             .top-navbar {
                 padding: 0.5rem 0.75rem;
             }
@@ -1048,23 +1075,6 @@
             }
             .card {
                 margin-bottom: 0.75rem;
-            }
-            /* Touch-friendly hamburger button */
-            .btn.btn-link[onclick="toggleSidebar()"] {
-                padding: 6px 8px;
-                min-width: 40px;
-                min-height: 40px;
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-            }
-            /* Tables scroll horizontally inside cards */
-            .card-body {
-                overflow-x: auto;
-            }
-            /* Ensure content area doesn't overflow */
-            .main-content {
-                overflow-x: hidden;
             }
         }
     </style>
@@ -1144,7 +1154,7 @@
         <!-- Top Navigation -->
         <div class="top-navbar">
             <div class="d-flex align-items-center">
-                <button class="btn btn-link d-md-none me-2" onclick="toggleSidebar()">
+                <button class="btn btn-link me-2" onclick="toggleSidebar()" title="Abrir/cerrar menú" aria-label="Abrir/cerrar menú">
                     <i class="bi bi-list fs-4"></i>
                 </button>
                 <h1 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h1>
@@ -1239,16 +1249,24 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebar-backdrop');
-            sidebar.classList.toggle('show');
-            if (backdrop) backdrop.classList.toggle('show');
+
+            if (window.innerWidth < 992) {
+                // Tablet + móvil: drawer con backdrop
+                sidebar.classList.toggle('show');
+                if (backdrop) backdrop.classList.toggle('show');
+            } else {
+                // Desktop: colapsar/expandir sidebar con margen de contenido
+                document.body.classList.toggle('sidebar-collapsed');
+                localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed'));
+            }
         }
 
-        // Close sidebar when clicking outside on mobile
+        // Cerrar sidebar al hacer clic fuera en tablet/móvil
         document.addEventListener('click', function(e) {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebar-backdrop');
 
-            if (window.innerWidth <= 768 && sidebar.classList.contains('show')) {
+            if (window.innerWidth < 992 && sidebar.classList.contains('show')) {
                 const isInsideSidebar = sidebar.contains(e.target);
                 const isBackdrop = backdrop && backdrop.contains(e.target);
                 if (!isInsideSidebar && !isBackdrop) {
@@ -1373,6 +1391,14 @@
                 ttsEnabled = true;
                 document.getElementById('ttsToggle').innerHTML = '<i class="bi bi-volume-mute-fill"></i> Desactivar';
                 document.addEventListener('click', handleTTSClick);
+            }
+
+            // Restaurar estado del sidebar en desktop
+            if (window.innerWidth >= 992) {
+                const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                if (sidebarCollapsed) {
+                    document.body.classList.add('sidebar-collapsed');
+                }
             }
         });
 
