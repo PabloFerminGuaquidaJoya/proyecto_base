@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}{{ pieza.nombre }} - Inventario{% endblock %}
+{% block page_title %}Detalle de Pieza{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center"
+                 style="background:linear-gradient(135deg,var(--sena-secondary) 0%,var(--sena-primary) 100%); color:white;">
+                <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>{{ pieza.nombre }}</h5>
+                {% if pieza.tiene_alerta %}
+                <span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i>Alerta</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% include "inventario/_campo.html" with label="Código" valor=pieza.codigo_inventario %}
+                    {% include "inventario/_campo.html" with label="N° Serie" valor=pieza.numero_serie %}
+                    {% include "inventario/_campo.html" with label="N° Factura" valor=pieza.numero_factura %}
+                    {% include "inventario/_campo.html" with label="Categoría" valor=pieza.categoria %}
+                    {% include "inventario/_campo.html" with label="Marca" valor=pieza.marca %}
+                    {% include "inventario/_campo.html" with label="Modelo" valor=pieza.modelo %}
+                    {% include "inventario/_campo.html" with label="Peso" valor=pieza.peso %}
+                    {% include "inventario/_campo.html" with label="Dimensiones" valor=pieza.dimensiones %}
+                    {% include "inventario/_campo.html" with label="Condición" valor=pieza.get_condicion_display %}
+                    {% include "inventario/_campo.html" with label="Horas de Uso" valor=pieza.horas_uso %}
+                    {% include "inventario/_campo.html" with label="Horas Máximas" valor=pieza.horas_uso_maximas %}
+                    {% include "inventario/_campo.html" with label="Centro de Formación" valor=pieza.centro_formacion %}
+                    {% include "inventario/_campo.html" with label="Ambiente" valor=pieza.ambiente_formacion %}
+                    {% include "inventario/_campo.html" with label="Ubicación" valor=pieza.ubicacion %}
+                    {% include "inventario/_campo.html" with label="Responsable" valor=pieza.responsable %}
+                    {% include "inventario/_campo.html" with label="Proveedor" valor=pieza.proveedor %}
+                    {% include "inventario/_campo.html" with label="Valor Adquisición" valor=pieza.valor_adquisicion %}
+                    {% include "inventario/_campo.html" with label="Garantía (meses)" valor=pieza.garantia_meses %}
+                </div>
+
+                {% if pieza.especificaciones_tecnicas %}
+                <hr>
+                <h6 class="fw-bold" style="color:var(--sena-secondary);">Especificaciones Técnicas</h6>
+                <p class="text-muted">{{ pieza.especificaciones_tecnicas }}</p>
+                {% endif %}
+
+                {% if pieza.observaciones %}
+                <h6 class="fw-bold" style="color:var(--sena-secondary);">Observaciones</h6>
+                <p class="text-muted">{{ pieza.observaciones }}</p>
+                {% endif %}
+
+                {% if pieza.foto_pieza or pieza.foto_empaque %}
+                <hr>
+                <h6 class="fw-bold" style="color:var(--sena-secondary);">Fotografías</h6>
+                <div class="row g-3">
+                    {% if pieza.foto_pieza %}
+                    <div class="col-md-6 text-center">
+                        <small class="text-muted d-block mb-1">Foto de la Pieza</small>
+                        <img src="{{ pieza.foto_pieza.url }}" alt="Foto pieza"
+                             style="max-height:200px; max-width:100%; border-radius:8px;
+                                    border:2px solid var(--sena-primary); object-fit:cover;">
+                    </div>
+                    {% endif %}
+                    {% if pieza.foto_empaque %}
+                    <div class="col-md-6 text-center">
+                        <small class="text-muted d-block mb-1">Foto del Empaque</small>
+                        <img src="{{ pieza.foto_empaque.url }}" alt="Foto empaque"
+                             style="max-height:200px; max-width:100%; border-radius:8px;
+                                    border:2px solid var(--sena-secondary); object-fit:cover;">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-sena-gradient">Acciones</h6>
+            </div>
+            <div class="card-body d-grid gap-2">
+                <a href="{% url 'inventario:editar_pieza' pieza.pk %}" class="btn btn-sena-gradient">
+                    <i class="bi bi-pencil me-2"></i>Editar Pieza
+                </a>
+                <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-outline-sena-secondary">
+                    <i class="bi bi-list me-2"></i>Ver Todas
+                </a>
+                <a href="{% url 'inventario:eliminar_pieza' pieza.pk %}" class="btn btn-outline-danger">
+                    <i class="bi bi-trash me-2"></i>Eliminar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

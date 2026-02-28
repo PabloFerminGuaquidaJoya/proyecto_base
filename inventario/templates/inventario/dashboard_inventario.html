@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario - SENA{% endblock %}
+{% block page_title %}Inventario{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sena-primary: #39a900;
+        --sena-secondary: #00324d;
+        --sena-accent: #ff6b35;
+        --sena-gradient: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    }
+
+    /* ── Botones SENA ── */
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        border: none; color: white; border-radius: 8px; transition: all 0.3s ease;
+    }
+    .btn-sena-gradient:hover {
+        background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%); color: white;
+    }
+    .btn-sena-secondary {
+        background: var(--sena-secondary); border-color: var(--sena-secondary);
+        color: white; border-radius: 8px; transition: all 0.3s ease;
+    }
+    .btn-sena-secondary:hover { background: #001f30; border-color: #001f30; color: white; }
+    .btn-sena-accent {
+        background: var(--sena-accent); border-color: var(--sena-accent);
+        color: white; border-radius: 8px; transition: all 0.3s ease;
+    }
+    .btn-sena-accent:hover { background: #e55a25; border-color: #e55a25; color: white; }
+    .btn-sena-primary {
+        background: var(--sena-primary); border-color: var(--sena-primary);
+        color: white; border-radius: 8px; transition: all 0.3s ease;
+    }
+    .btn-sena-primary:hover { background: #2d7a00; border-color: #2d7a00; color: white; }
+
+    /* Outline */
+    .btn-outline-sena-secondary {
+        background: transparent; border: 2px solid var(--sena-secondary);
+        color: var(--sena-secondary); border-radius: 8px; transition: all 0.3s ease;
+    }
+    .btn-outline-sena-secondary:hover {
+        background: var(--sena-secondary); color: white;
+    }
+    .btn-outline-sena-primary {
+        background: transparent; border: 2px solid var(--sena-primary);
+        color: var(--sena-primary); border-radius: 8px; transition: all 0.3s ease;
+    }
+    .btn-outline-sena-primary:hover { background: var(--sena-primary); color: white; }
+
+    /* ── Tarjetas estadísticas ── */
+    .border-left-sena-secondary { border-left: 4px solid var(--sena-secondary) !important; }
+    .border-left-sena-primary   { border-left: 4px solid var(--sena-primary) !important; }
+    .border-left-sena-accent    { border-left: 4px solid var(--sena-accent) !important; }
+    .border-left-sena-danger    { border-left: 4px solid #dc3545 !important; }
+
+    /* ── Texto / color ── */
+    .text-sena-secondary { color: var(--sena-secondary) !important; }
+    .text-sena-primary   { color: var(--sena-primary) !important; }
+    .text-sena-accent    { color: var(--sena-accent) !important; }
+    .text-sena-danger    { color: #dc3545 !important; }
+    .text-sena-gradient  {
+        background: var(--sena-gradient);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .font-weight-bold { font-weight: 700 !important; }
+    .text-xs { font-size: 0.75rem; }
+    .text-gray-300 { color: #dddfeb !important; }
+    .text-gray-800 { color: #5a5c69 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ── Stat Cards ─────────────────────────────────────────── -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-sena-secondary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-sena-secondary text-uppercase mb-1">
+                            Total Piezas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_piezas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-box-seam fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-sena-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-sena-primary text-uppercase mb-1">
+                            Usadas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ piezas_usadas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-arrow-repeat fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-sena-accent shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-sena-accent text-uppercase mb-1">
+                            Cambiadas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ piezas_cambiadas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-wrench fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-sena-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-sena-danger text-uppercase mb-1">
+                            Alertas Activas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_activas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-exclamation-triangle fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Acciones Rápidas ───────────────────────────────────── -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-sena-gradient">Acciones Rápidas</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'inventario:nueva_pieza' %}" class="btn btn-sena-gradient w-100">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva Pieza
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-sena-secondary w-100">
+                    <i class="bi bi-list me-2"></i>Ver Todas
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'inventario:lista_piezas' %}?condicion=usada" class="btn btn-sena-accent w-100">
+                    <i class="bi bi-arrow-repeat me-2"></i>Ver Usadas
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'inventario:lista_piezas' %}?condicion=cambiada" class="btn btn-sena-primary w-100">
+                    <i class="bi bi-box-seam me-2"></i>Ver Objetos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Formulario Nueva Pieza ─────────────────────────────── -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-sena-gradient">
+            <i class="bi bi-plus-circle me-2"></i>Registrar Nueva Pieza
+        </h6>
+        <button class="btn btn-sm btn-outline-sena-secondary" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapseFormPieza">
+            <i class="bi bi-chevron-down"></i>
+        </button>
+    </div>
+    <div class="collapse show" id="collapseFormPieza">
+        <div class="card-body">
+            <form method="post" action="{% url 'inventario:nueva_pieza' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Sección 1: Identificación -->
+                <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                    <i class="bi bi-tag me-2"></i>Identificación
+                </h6>
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Código Inventario *</label>
+                        <input type="text" name="codigo_inventario" class="form-control" placeholder="Ej: INV-2024-001" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Nombre *</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Nombre de la pieza" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Número de Serie</label>
+                        <input type="text" name="numero_serie" class="form-control" placeholder="Número de serie">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Número de Factura</label>
+                        <input type="text" name="numero_factura" class="form-control" placeholder="N° factura">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Condición</label>
+                        <select name="condicion" class="form-select">
+                            <option value="nueva">Nueva</option>
+                            <option value="usada">Usada</option>
+                            <option value="cambiada">Cambiada</option>
+                            <option value="dañada">Dañada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Sección 2: Clasificación -->
+                <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                    <i class="bi bi-grid me-2"></i>Clasificación
+                </h6>
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Categoría</label>
+                        <input type="text" name="categoria" class="form-control" placeholder="Ej: Hidráulica, Eléctrica...">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Marca</label>
+                        <input type="text" name="marca" class="form-control" placeholder="Marca">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Modelo</label>
+                        <input type="text" name="modelo" class="form-control" placeholder="Modelo">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Peso</label>
+                        <input type="text" name="peso" class="form-control" placeholder="Ej: 12.5 kg">
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Dimensiones</label>
+                        <input type="text" name="dimensiones" class="form-control" placeholder="Ej: 30x20x15 cm">
+                    </div>
+                </div>
+
+                <!-- Sección 3: Ubicación -->
+                <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                    <i class="bi bi-geo-alt me-2"></i>Ubicación y Responsabilidad
+                </h6>
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Centro de Formación</label>
+                        <input type="text" name="centro_formacion" class="form-control" placeholder="Centro de formación">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Ambiente Formación</label>
+                        <input type="text" name="ambiente_formacion" class="form-control" placeholder="Ambiente de formación">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Ubicación</label>
+                        <input type="text" name="ubicacion" class="form-control" placeholder="Ubicación física">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Responsable</label>
+                        <select name="responsable" class="form-select">
+                            <option value="">Seleccione un responsable</option>
+                            {% for u in usuarios_activos %}
+                                <option value="{{ u.pk }}">{{ u.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Proveedor</label>
+                        <input type="text" name="proveedor" class="form-control" placeholder="Nombre del proveedor">
+                    </div>
+                </div>
+
+                <!-- Sección 4: Adquisición y Uso -->
+                <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                    <i class="bi bi-currency-dollar me-2"></i>Adquisición y Uso
+                </h6>
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Valor Adquisición ($)</label>
+                        <input type="number" name="valor_adquisicion" class="form-control" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Garantía (meses)</label>
+                        <input type="number" name="garantia_meses" class="form-control" placeholder="0" min="0" value="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Horas de Uso</label>
+                        <input type="number" name="horas_uso" class="form-control" placeholder="0" step="0.01" min="0" value="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Horas de Uso Máximas</label>
+                        <input type="number" name="horas_uso_maximas" class="form-control" placeholder="Límite de horas" step="0.01" min="0">
+                    </div>
+                </div>
+
+                <!-- Sección 5: Detalles técnicos -->
+                <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                    <i class="bi bi-file-text me-2"></i>Detalles Técnicos
+                </h6>
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Especificaciones Técnicas</label>
+                        <textarea name="especificaciones_tecnicas" class="form-control" rows="3"
+                                  placeholder="Especificaciones técnicas de la pieza..."></textarea>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Observaciones</label>
+                        <textarea name="observaciones" class="form-control" rows="3"
+                                  placeholder="Observaciones adicionales..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Sección 6: Fotografías -->
+                <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                    <i class="bi bi-camera me-2"></i>Fotografías
+                </h6>
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Foto de la Pieza</label>
+                        <input type="file" name="foto_pieza" id="id_foto_pieza_dash"
+                               class="form-control" accept="image/*"
+                               onchange="previewImagen(this,'preview_pieza_dash')">
+                        <div class="mt-2 text-center" id="preview_pieza_dash" style="display:none;">
+                            <img src="" alt="Vista previa pieza"
+                                 style="max-height:160px; max-width:100%; border-radius:8px;
+                                        border:2px solid var(--sena-primary); object-fit:cover;">
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Foto del Empaque</label>
+                        <input type="file" name="foto_empaque" id="id_foto_empaque_dash"
+                               class="form-control" accept="image/*"
+                               onchange="previewImagen(this,'preview_empaque_dash')">
+                        <div class="mt-2 text-center" id="preview_empaque_dash" style="display:none;">
+                            <img src="" alt="Vista previa empaque"
+                                 style="max-height:160px; max-width:100%; border-radius:8px;
+                                        border:2px solid var(--sena-secondary); object-fit:cover;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-sena-gradient">
+                        <i class="bi bi-check-circle me-2"></i>Guardar Pieza
+                    </button>
+                    <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-sena-secondary">
+                        <i class="bi bi-list me-2"></i>Ver Todas
+                    </a>
+                    <a href="{% url 'inventario:lista_piezas' %}?condicion=cambiada" class="btn btn-sena-primary">
+                        <i class="bi bi-box-seam me-2"></i>Ver Objetos
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ── Últimas piezas registradas ─────────────────────────── -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-sena-gradient">
+            <i class="bi bi-clock-history me-2"></i>Últimas Piezas Registradas
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        {% if recientes %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background:rgba(0,50,77,0.06);">
+                    <tr>
+                        <th style="color:var(--sena-secondary);">Código</th>
+                        <th style="color:var(--sena-secondary);">Nombre</th>
+                        <th style="color:var(--sena-secondary);">Categoría</th>
+                        <th style="color:var(--sena-secondary);">Condición</th>
+                        <th style="color:var(--sena-secondary);">Horas Uso</th>
+                        <th style="color:var(--sena-secondary);">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pieza in recientes %}
+                    <tr>
+                        <td><code>{{ pieza.codigo_inventario }}</code></td>
+                        <td>{{ pieza.nombre }}</td>
+                        <td>{{ pieza.categoria|default:"-" }}</td>
+                        <td>
+                            {% if pieza.condicion == 'nueva' %}
+                                <span class="badge" style="background:var(--sena-primary);">Nueva</span>
+                            {% elif pieza.condicion == 'usada' %}
+                                <span class="badge" style="background:var(--sena-accent);">Usada</span>
+                            {% elif pieza.condicion == 'cambiada' %}
+                                <span class="badge" style="background:var(--sena-secondary);">Cambiada</span>
+                            {% else %}
+                                <span class="badge bg-danger">Dañada</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ pieza.horas_uso }}h
+                            {% if pieza.tiene_alerta %}
+                                <i class="bi bi-exclamation-triangle-fill text-danger ms-1" title="Alerta activa"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'inventario:detalle_pieza' pieza.pk %}"
+                               class="btn btn-sm btn-outline-sena-secondary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-box-seam fs-1 d-block mb-2"></i>
+            No hay piezas registradas aún.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImagen(input, containerId) {
+    const container = document.getElementById(containerId);
+    const img = container.querySelector('img');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            container.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        container.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

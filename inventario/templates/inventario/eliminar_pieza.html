@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar {{ pieza.nombre }}{% endblock %}
+{% block page_title %}Eliminar Pieza{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación</h5>
+            </div>
+            <div class="card-body text-center py-4">
+                <i class="bi bi-trash fs-1 text-danger mb-3 d-block"></i>
+                <h5>¿Eliminar la pieza <strong>{{ pieza.nombre }}</strong>?</h5>
+                <p class="text-muted">Código: <code>{{ pieza.codigo_inventario }}</code></p>
+                <p class="text-danger small">Esta acción no se puede deshacer.</p>
+                <div class="d-flex gap-2 justify-content-center mt-3">
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Sí, eliminar
+                        </button>
+                    </form>
+                    <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-outline-sena-secondary">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% block title %}{% if editando %}Editar{% else %}Nueva{% endif %} Pieza - SENA{% endblock %}
+{% block page_title %}{% if editando %}Editar Pieza{% else %}Registrar Nueva Pieza{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-sena-gradient">
+            <i class="bi bi-{% if editando %}pencil{% else %}plus-circle{% endif %} me-2"></i>
+            {% if editando %}Editar: {{ pieza.nombre }}{% else %}Nueva Pieza de Inventario{% endif %}
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <!-- Identificación -->
+            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                <i class="bi bi-tag me-2"></i>Identificación
+            </h6>
+            <div class="row mb-3">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.codigo_inventario.label }} *</label>
+                    {{ form.codigo_inventario }}
+                    {% if form.codigo_inventario.errors %}<div class="text-danger small">{{ form.codigo_inventario.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.nombre.label }} *</label>
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.numero_serie.label }}</label>
+                    {{ form.numero_serie }}
+                    {% if form.numero_serie.errors %}<div class="text-danger small">{{ form.numero_serie.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.numero_factura.label }}</label>
+                    {{ form.numero_factura }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.condicion.label }}</label>
+                    {{ form.condicion }}
+                </div>
+            </div>
+
+            <!-- Clasificación -->
+            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                <i class="bi bi-grid me-2"></i>Clasificación
+            </h6>
+            <div class="row mb-3">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.categoria.label }}</label>
+                    {{ form.categoria }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.marca.label }}</label>
+                    {{ form.marca }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.modelo.label }}</label>
+                    {{ form.modelo }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.peso.label }}</label>
+                    {{ form.peso }}
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">{{ form.dimensiones.label }}</label>
+                    {{ form.dimensiones }}
+                </div>
+            </div>
+
+            <!-- Ubicación -->
+            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                <i class="bi bi-geo-alt me-2"></i>Ubicación y Responsabilidad
+            </h6>
+            <div class="row mb-3">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.centro_formacion.label }}</label>
+                    {{ form.centro_formacion }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.ambiente_formacion.label }}</label>
+                    {{ form.ambiente_formacion }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.ubicacion.label }}</label>
+                    {{ form.ubicacion }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.responsable.label }}</label>
+                    {{ form.responsable }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.proveedor.label }}</label>
+                    {{ form.proveedor }}
+                </div>
+            </div>
+
+            <!-- Adquisición y Uso -->
+            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                <i class="bi bi-currency-dollar me-2"></i>Adquisición y Uso
+            </h6>
+            <div class="row mb-3">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.valor_adquisicion.label }}</label>
+                    {{ form.valor_adquisicion }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.garantia_meses.label }}</label>
+                    {{ form.garantia_meses }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.horas_uso.label }}</label>
+                    {{ form.horas_uso }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.horas_uso_maximas.label }}</label>
+                    {{ form.horas_uso_maximas }}
+                </div>
+            </div>
+
+            <!-- Fotografías -->
+            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                <i class="bi bi-camera me-2"></i>Fotografías
+            </h6>
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.foto_pieza.label }}</label>
+                    {{ form.foto_pieza }}
+                    {% if editando and pieza.foto_pieza %}
+                    <div class="mt-2 text-center">
+                        <small class="text-muted d-block mb-1">Foto actual:</small>
+                        <img src="{{ pieza.foto_pieza.url }}" alt="Foto pieza"
+                             style="max-height:140px; max-width:100%; border-radius:8px;
+                                    border:2px solid var(--sena-primary); object-fit:cover;">
+                    </div>
+                    {% endif %}
+                    <div class="mt-2 text-center" id="preview_foto_pieza" style="display:none;">
+                        <small class="text-muted d-block mb-1">Vista previa:</small>
+                        <img src="" alt="Vista previa pieza"
+                             style="max-height:140px; max-width:100%; border-radius:8px;
+                                    border:2px solid var(--sena-primary); object-fit:cover;">
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.foto_empaque.label }}</label>
+                    {{ form.foto_empaque }}
+                    {% if editando and pieza.foto_empaque %}
+                    <div class="mt-2 text-center">
+                        <small class="text-muted d-block mb-1">Foto actual:</small>
+                        <img src="{{ pieza.foto_empaque.url }}" alt="Foto empaque"
+                             style="max-height:140px; max-width:100%; border-radius:8px;
+                                    border:2px solid var(--sena-secondary); object-fit:cover;">
+                    </div>
+                    {% endif %}
+                    <div class="mt-2 text-center" id="preview_foto_empaque" style="display:none;">
+                        <small class="text-muted d-block mb-1">Vista previa:</small>
+                        <img src="" alt="Vista previa empaque"
+                             style="max-height:140px; max-width:100%; border-radius:8px;
+                                    border:2px solid var(--sena-secondary); object-fit:cover;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles técnicos -->
+            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
+                <i class="bi bi-file-text me-2"></i>Detalles Técnicos
+            </h6>
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.especificaciones_tecnicas.label }}</label>
+                    {{ form.especificaciones_tecnicas }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.observaciones.label }}</label>
+                    {{ form.observaciones }}
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="submit" class="btn btn-sena-gradient">
+                    <i class="bi bi-check-circle me-2"></i>
+                    {% if editando %}Guardar Cambios{% else %}Registrar Pieza{% endif %}
+                </button>
+                <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-outline-sena-secondary">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function setupPreview(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        input.addEventListener('change', function () {
+            const container = document.getElementById(previewId);
+            const img = container.querySelector('img');
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                    container.style.display = 'block';
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                container.style.display = 'none';
+            }
+        });
+    }
+    setupPreview('id_foto_pieza',   'preview_foto_pieza');
+    setupPreview('id_foto_empaque', 'preview_foto_empaque');
+});
+</script>
+{% endblock %}

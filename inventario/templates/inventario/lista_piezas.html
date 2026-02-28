@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Inventario - Todas las Piezas{% endblock %}
+{% block page_title %}Inventario de Piezas{% endblock %}
+
+{% block content %}
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Buscar</label>
+                <input type="text" name="q" class="form-control" placeholder="Código, nombre, marca, categoría..."
+                       value="{{ q }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold" style="color:var(--sena-secondary);">Condición</label>
+                <select name="condicion" class="form-select">
+                    <option value="">Todas</option>
+                    {% for val, label in condicion_choices %}
+                        <option value="{{ val }}" {% if condicion_filtro == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-sena-gradient flex-fill">
+                    <i class="bi bi-search me-1"></i>Filtrar
+                </button>
+                <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-outline-sena-secondary">
+                    <i class="bi bi-x"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-sena-gradient">
+            <i class="bi bi-box-seam me-2"></i>Piezas ({{ piezas|length }})
+        </h6>
+        <a href="{% url 'inventario:nueva_pieza' %}" class="btn btn-sena-gradient btn-sm">
+            <i class="bi bi-plus-circle me-1"></i>Nueva Pieza
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if piezas %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background:rgba(0,50,77,0.06);">
+                    <tr>
+                        <th style="color:var(--sena-secondary);">Código</th>
+                        <th style="color:var(--sena-secondary);">Nombre</th>
+                        <th style="color:var(--sena-secondary);">Categoría</th>
+                        <th style="color:var(--sena-secondary);">Marca / Modelo</th>
+                        <th style="color:var(--sena-secondary);">Condición</th>
+                        <th style="color:var(--sena-secondary);">Horas Uso</th>
+                        <th style="color:var(--sena-secondary);">Ubicación</th>
+                        <th style="color:var(--sena-secondary);">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pieza in piezas %}
+                    <tr {% if pieza.tiene_alerta %}style="background:rgba(220,53,69,0.04);"{% endif %}>
+                        <td><code>{{ pieza.codigo_inventario }}</code></td>
+                        <td>
+                            <strong>{{ pieza.nombre }}</strong>
+                            {% if pieza.tiene_alerta %}
+                                <i class="bi bi-exclamation-triangle-fill text-danger ms-1" title="Alerta activa"></i>
+                            {% endif %}
+                        </td>
+                        <td>{{ pieza.categoria|default:"-" }}</td>
+                        <td>{{ pieza.marca|default:"-" }} {{ pieza.modelo }}</td>
+                        <td>
+                            {% if pieza.condicion == 'nueva' %}
+                                <span class="badge" style="background:var(--sena-primary);">Nueva</span>
+                            {% elif pieza.condicion == 'usada' %}
+                                <span class="badge" style="background:var(--sena-accent);">Usada</span>
+                            {% elif pieza.condicion == 'cambiada' %}
+                                <span class="badge" style="background:var(--sena-secondary);">Cambiada</span>
+                            {% else %}
+                                <span class="badge bg-danger">Dañada</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ pieza.horas_uso }}h {% if pieza.horas_uso_maximas %}/ {{ pieza.horas_uso_maximas }}h{% endif %}</td>
+                        <td>{{ pieza.ubicacion|default:"-" }}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'inventario:detalle_pieza' pieza.pk %}"
+                                   class="btn btn-sm btn-outline-sena-secondary" title="Ver detalle">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'inventario:editar_pieza' pieza.pk %}"
+                                   class="btn btn-sm btn-outline-sena-primary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'inventario:eliminar_pieza' pieza.pk %}"
+                                   class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-box-seam fs-1 d-block mb-2"></i>
+            <p>No se encontraron piezas{% if q %} para "{{ q }}"{% endif %}.</p>
+            <a href="{% url 'inventario:nueva_pieza' %}" class="btn btn-sena-gradient">
+                <i class="bi bi-plus-circle me-2"></i>Registrar Primera Pieza
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

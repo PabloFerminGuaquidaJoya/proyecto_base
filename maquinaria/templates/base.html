@@ -1101,6 +1101,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{% url 'inventario:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'inventario' %}active{% endif %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Inventario</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{% url 'reportes:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'reportes' %}active{% endif %}">
                     <i class="bi bi-graph-up"></i>
                     <span>Reportes</span>
