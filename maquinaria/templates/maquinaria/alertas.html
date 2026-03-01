@@ -85,9 +85,6 @@
                         <option>Media</option>
                         <option>Baja</option>
                     </select>
-                    <a href="{% url 'maquinaria:crear_alerta' %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus"></i> Nueva Alerta
-                    </a>
                 </div>
             </div>
             <div class="card-body p-0">
@@ -212,6 +209,9 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
+                    <a href="{% url 'maquinaria:crear_alerta' %}" class="btn btn-sena-gradient">
+                        <i class="bi bi-plus-circle me-2"></i>Nueva Alerta
+                    </a>
                     <button class="btn btn-outline-sena-secondary" onclick="emergencyProtocol()">
                         <i class="bi bi-exclamation-triangle me-2"></i>Protocolo de Emergencia
                     </button>
