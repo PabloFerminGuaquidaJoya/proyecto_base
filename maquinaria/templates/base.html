@@ -115,12 +115,10 @@
             top: 50%;
             transform: translateY(-50%);
             z-index: 1001;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            overflow: hidden;
+            background: transparent;
+            border: none;
+            box-shadow: none;
             transition: all 0.3s ease;
-            border: 2px solid var(--sena-primary);
         }
 
         .accessibility-toggle {
@@ -149,6 +147,11 @@
             padding: 20px;
             min-width: 280px;
             background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            border: 2px solid var(--sena-primary);
+            margin-top: 10px;
+            overflow: hidden;
         }
 
         .accessibility-menu.show {
@@ -682,12 +685,9 @@
         }
 
         /* Accesibilidad */
-        body.dark-theme .accessibility-panel {
-            background-color: #2d2d2d !important;
-            border-color: var(--sena-primary) !important;
-        }
         body.dark-theme .accessibility-menu {
             background-color: #2d2d2d !important;
+            border-color: var(--sena-primary) !important;
         }
         body.dark-theme .accessibility-option {
             border-bottom-color: #444 !important;

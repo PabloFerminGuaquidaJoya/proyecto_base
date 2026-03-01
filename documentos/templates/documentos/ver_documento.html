@@ -9,19 +9,19 @@
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <div>
         <h5 class="mb-0 fw-bold">
-            <i class="bi bi-file-earmark-text me-2 text-primary"></i>{{ documento.titulo }}
+            <i class="bi bi-file-earmark-text me-2 text-sena-secondary"></i>{{ documento.titulo }}
         </h5>
         <small class="text-muted">
-            <span class="badge bg-info text-dark me-1">{{ documento.tipo_documento.nombre }}</span>
-            <span class="badge bg-warning text-dark me-1">{{ documento.categoria.nombre }}</span>
-            <span class="badge bg-secondary">v{{ documento.version }}</span>
+            <span class="badge badge-sena-secondary me-1">{{ documento.tipo_documento.nombre }}</span>
+            <span class="badge badge-sena-accent me-1">{{ documento.categoria.nombre }}</span>
+            <span class="badge badge-sena-primary">v{{ documento.version }}</span>
         </small>
     </div>
     <div class="btn-group">
-        <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-outline-secondary btn-sm">
+        <a href="{% url 'documentos:detalle_documento' documento.pk %}" class="btn btn-outline-sena-secondary btn-sm">
             <i class="bi bi-info-circle me-1"></i>Detalles
         </a>
-        <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary btn-sm">
+        <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-sena-gradient btn-sm">
             <i class="bi bi-download me-1"></i>Descargar
         </a>
     </div>
@@ -40,7 +40,7 @@
                     <i class="bi bi-list-ul"></i>Índice
                 </span>
                 {% if indice %}
-                <span class="badge bg-primary">{{ indice|length }}</span>
+                <span class="badge badge-sena-primary">{{ indice|length }}</span>
                 {% endif %}
             </div>
             <div id="toc-collapsible" class="card-body p-0" style="overflow-y: auto; max-height: 780px;">
@@ -73,7 +73,7 @@
             {% if documento.extension == '.pdf' %}
             <!-- ── PDF VIEWER (PDF.js) ── -->
             <div class="card-header py-2 d-flex align-items-center gap-2 flex-wrap" id="pdf-toolbar">
-                <button class="btn btn-outline-secondary btn-sm" onclick="cambiarPagina(-1)" id="btn-anterior">
+                <button class="btn btn-outline-sena-secondary btn-sm" onclick="cambiarPagina(-1)" id="btn-anterior">
                     <i class="bi bi-chevron-left"></i>
                 </button>
                 <div class="d-flex align-items-center gap-1">
@@ -83,15 +83,15 @@
                            onchange="irAPagina(parseInt(this.value))">
                     <span class="text-muted small">de <strong id="total-paginas">—</strong></span>
                 </div>
-                <button class="btn btn-outline-secondary btn-sm" onclick="cambiarPagina(1)" id="btn-siguiente">
+                <button class="btn btn-outline-sena-secondary btn-sm" onclick="cambiarPagina(1)" id="btn-siguiente">
                     <i class="bi bi-chevron-right"></i>
                 </button>
                 <div class="ms-auto d-flex gap-1">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarEscala(-0.25)" title="Reducir">
+                    <button class="btn btn-outline-sena-secondary btn-sm" onclick="cambiarEscala(-0.25)" title="Reducir">
                         <i class="bi bi-zoom-out"></i>
                     </button>
                     <span class="btn btn-sm btn-light" id="escala-label">100%</span>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarEscala(0.25)" title="Ampliar">
+                    <button class="btn btn-outline-sena-secondary btn-sm" onclick="cambiarEscala(0.25)" title="Ampliar">
                         <i class="bi bi-zoom-in"></i>
                     </button>
                 </div>
@@ -99,14 +99,14 @@
             <div class="card-body p-0 text-center bg-secondary bg-opacity-10" id="pdf-viewer-area"
                  style="overflow: auto; max-height: 780px;">
                 <div id="pdf-loading" class="py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="spinner-border text-sena-primary" role="status"></div>
                     <p class="mt-2 text-muted">Cargando documento…</p>
                 </div>
                 <canvas id="pdf-canvas" style="display:none; max-width:100%; box-shadow: 0 2px 12px rgba(0,0,0,.3);"></canvas>
                 <div id="pdf-error" class="py-5 d-none">
                     <i class="bi bi-exclamation-circle fs-1 text-danger"></i>
                     <p class="mt-2 text-muted">No se pudo cargar el documento.</p>
-                    <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary btn-sm mt-2">
+                    <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-sena-gradient btn-sm mt-2">
                         <i class="bi bi-download me-1"></i>Descargar
                     </a>
                 </div>
@@ -133,7 +133,7 @@
                 <i class="bi bi-file-earmark fs-1 text-muted mb-3 d-block"></i>
                 <h6 class="text-muted">Vista previa no disponible para {{ documento.extension|upper }}</h6>
                 <p class="text-muted small mb-3">Descarga el archivo para abrirlo con la aplicación correspondiente.</p>
-                <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-primary">
+                <a href="{% url 'documentos:descargar_documento' documento.pk %}" class="btn btn-sena-gradient">
                     <i class="bi bi-download me-2"></i>Descargar Documento
                 </a>
             </div>
@@ -147,6 +147,35 @@
 
 {% block extra_css %}
 <style>
+/* ── Colores SENA ──────────────────────────────────────────────── */
+.text-sena-secondary { color: var(--sena-secondary) !important; }
+.text-sena-primary   { color: var(--sena-primary)   !important; }
+
+.badge-sena-secondary { background-color: var(--sena-secondary); color: white; }
+.badge-sena-accent    { background-color: var(--sena-accent);    color: white; }
+.badge-sena-primary   { background-color: var(--sena-primary);   color: white; }
+
+.btn-sena-gradient {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-sena-gradient:hover { opacity: 0.88; color: white; }
+
+.btn-outline-sena-secondary {
+    background: transparent;
+    border: 1px solid var(--sena-secondary);
+    color: var(--sena-secondary);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-outline-sena-secondary:hover {
+    background: var(--sena-secondary);
+    color: white;
+}
+
 /* ── TOC Sidebar ─────────────────────────────────────────────── */
 #toc-nav {
     display: flex;
@@ -167,12 +196,12 @@
 }
 
 .toc-item:hover {
-    background: rgba(13,110,253,.08);
+    background: rgba(57, 169, 0, 0.08);
 }
 
 .toc-item.active {
-    background: rgba(13,110,253,.15);
-    color: #0d6efd;
+    background: rgba(57, 169, 0, 0.15);
+    color: var(--sena-primary);
     font-weight: 600;
 }
 
@@ -198,8 +227,8 @@
 
 /* Dark mode */
 body.dark-theme .toc-item { border-color: #444; }
-body.dark-theme .toc-item:hover { background: rgba(100,150,255,.1); }
-body.dark-theme .toc-item.active { background: rgba(100,150,255,.2); color: #7aadff; }
+body.dark-theme .toc-item:hover { background: rgba(57, 169, 0, 0.12); }
+body.dark-theme .toc-item.active { background: rgba(57, 169, 0, 0.22); color: #6abf4b; }
 body.dark-theme .toc-item.nivel-2 { color: #bbb; }
 body.dark-theme .toc-item.nivel-3 { color: #999; }
 body.dark-theme .toc-pagina { color: #aaa; background: rgba(255,255,255,.08); }
