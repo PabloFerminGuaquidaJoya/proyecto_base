@@ -1,11 +1,7 @@
-# =============================================================================
-# SENA Sistema de Gestión de Maquinaria — Dependencias del Proyecto
-# =============================================================================
-
-# -----------------------------------------------------------------------------
 # Framework principal
 # -----------------------------------------------------------------------------
 Django                  # Framework web principal — manejo de vistas, modelos, ORM, admin y autenticación
+
 
 # -----------------------------------------------------------------------------
 # Extensiones de Django
@@ -14,15 +10,18 @@ djangorestframework     # Construcción de la API REST (serializers, ViewSets, a
 django-cors-headers     # Habilita CORS para permitir peticiones desde otros dominios (frontend externo o apps móviles)
 django-environ          # Carga variables de entorno desde archivo .env (credenciales, claves secretas)
 
+
 # -----------------------------------------------------------------------------
 # Base de datos
 # -----------------------------------------------------------------------------
 mysqlclient             # Conector nativo entre Django y MySQL
 
+
 # -----------------------------------------------------------------------------
 # Manejo de archivos e imágenes
 # -----------------------------------------------------------------------------
 Pillow                  # Procesamiento de imágenes: fotos de máquinas, perfiles de usuario y piezas de inventario
+
 
 # -----------------------------------------------------------------------------
 # Generación y exportación de reportes
@@ -30,11 +29,13 @@ Pillow                  # Procesamiento de imágenes: fotos de máquinas, perfil
 openpyxl                # Exportación e importación de datos en formato Excel (.xlsx)
 reportlab               # Generación de reportes y fichas técnicas en formato PDF
 
+
 # -----------------------------------------------------------------------------
 # Extracción de contenido de documentos
 # -----------------------------------------------------------------------------
 PyMuPDF                 # Lectura de archivos PDF: extracción de texto, índice (TOC) y metadata
 python-docx             # Lectura de archivos Word (.docx): extracción de headings y contenido para indexación
+
 
 # -----------------------------------------------------------------------------
 # Reconocimiento facial
@@ -44,11 +45,13 @@ numpy                   # Operaciones matemáticas sobre vectores de embeddings 
 deepface                # Extracción del embedding facial y comparación de similitud entre rostros
 tf-keras                # Backend de TensorFlow/Keras requerido por DeepFace para los modelos de reconocimiento
 
+
 # -----------------------------------------------------------------------------
 # Tareas asíncronas y caché
 # -----------------------------------------------------------------------------
 celery                  # Ejecución de tareas en segundo plano: generación de reportes, indexación de documentos
 redis                   # Broker de mensajes para Celery y almacenamiento en caché de sesiones y consultas
+
 
 # -----------------------------------------------------------------------------
 # Utilidades generales

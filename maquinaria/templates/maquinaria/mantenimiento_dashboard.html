@@ -14,7 +14,7 @@
                     <p class="text-muted">Gestión integral de mantenimiento de maquinaria</p>
                 </div>
                 <div>
-                    <a href="{% url 'maquinaria:programar_mantenimiento' %}" class="btn btn-primary">
+                    <a href="{% url 'maquinaria:programar_mantenimiento' %}" class="btn btn-sena-gradient">
                         <i class="bi bi-calendar-plus me-2"></i>Programar Mantenimiento
                     </a>
                 </div>
@@ -25,7 +25,7 @@
     <!-- Quick Stats -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card text-center bg-primary text-white">
+            <div class="card text-center card-stat-gradient text-white">
                 <div class="card-body">
                     <i class="bi bi-calendar-check fs-1"></i>
                     <h4 class="mt-2">{{ mantenimientos_hoy }}</h4>
@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center bg-warning text-dark">
+            <div class="card text-center card-stat-accent text-white">
                 <div class="card-body">
                     <i class="bi bi-clock fs-1"></i>
                     <h4 class="mt-2">{{ mantenimientos_pendientes }}</h4>
@@ -43,7 +43,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center bg-danger text-white">
+            <div class="card text-center card-stat-secondary text-white">
                 <div class="card-body">
                     <i class="bi bi-exclamation-triangle fs-1"></i>
                     <h4 class="mt-2">{{ mantenimientos_vencidos }}</h4>
@@ -52,7 +52,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center bg-success text-white">
+            <div class="card text-center card-stat-primary text-white">
                 <div class="card-body">
                     <i class="bi bi-check-circle fs-1"></i>
                     <h4 class="mt-2">{{ cumplimiento_porcentaje }}%</h4>
@@ -77,11 +77,11 @@
                         {% for actividad in actividades_mantenimiento %}
                         <div class="timeline-item">
                             {% if actividad.tipo_evento == 'mantenimiento' %}
-                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-marker marker-primary"></div>
                             {% elif actividad.tipo_evento == 'reparacion' %}
-                                <div class="timeline-marker bg-danger"></div>
+                                <div class="timeline-marker marker-accent"></div>
                             {% else %}
-                                <div class="timeline-marker bg-info"></div>
+                                <div class="timeline-marker marker-secondary"></div>
                             {% endif %}
                             <div class="timeline-content">
                                 <h6>{{ actividad.get_tipo_evento_display }}</h6>
@@ -91,7 +91,7 @@
                         </div>
                         {% empty %}
                         <div class="timeline-item">
-                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-marker marker-secondary"></div>
                             <div class="timeline-content">
                                 <h6>Sistema Iniciado</h6>
                                 <p class="mb-1">No hay actividades de mantenimiento registradas</p>
@@ -109,11 +109,41 @@
 
 {% block extra_css %}
 <style>
+    /* ── Tarjetas de estadísticas — colores de la sidebar ── */
+    .card-stat-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        border: none;
+    }
+    .card-stat-accent {
+        background: var(--sena-accent);
+        border: none;
+    }
+    .card-stat-secondary {
+        background: var(--sena-secondary);
+        border: none;
+    }
+    .card-stat-primary {
+        background: var(--sena-primary);
+        border: none;
+    }
+
+    /* ── Botón Programar Mantenimiento — gradiente sidebar ── */
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: #fff;
+        border: none;
+        transition: opacity 0.2s ease;
+    }
+    .btn-sena-gradient:hover {
+        opacity: 0.88;
+        color: #fff;
+    }
+
+    /* ── Timeline ── */
     .timeline {
         position: relative;
         padding-left: 30px;
     }
-
     .timeline::before {
         content: '';
         position: absolute;
@@ -123,12 +153,10 @@
         width: 2px;
         background: #dee2e6;
     }
-
     .timeline-item {
         position: relative;
         margin-bottom: 1.5rem;
     }
-
     .timeline-marker {
         position: absolute;
         left: -22px;
@@ -138,6 +166,11 @@
         border: 2px solid #fff;
         z-index: 1;
     }
+
+    /* ── Colores de markers — sidebar ── */
+    .marker-primary   { background: var(--sena-primary); }   /* verde  — mantenimiento */
+    .marker-accent    { background: var(--sena-accent); }    /* naranja — reparación   */
+    .marker-secondary { background: var(--sena-secondary); } /* azul   — otro          */
 
     .timeline-content {
         background: #f8f9fa;

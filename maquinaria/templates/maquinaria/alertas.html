@@ -7,15 +7,15 @@
 <div class="row mb-4">
     <!-- Alert Stats -->
     <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card stat-card-critica shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Críticas</div>
+                        <div class="text-xs font-weight-bold text-sena-secondary text-uppercase mb-1">Críticas</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_criticas }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-exclamation-triangle-fill fs-2 text-danger"></i>
+                        <i class="bi bi-exclamation-triangle-fill fs-2 text-sena-secondary"></i>
                     </div>
                 </div>
             </div>
@@ -23,15 +23,15 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card stat-card-alta shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Altas</div>
+                        <div class="text-xs font-weight-bold text-sena-accent text-uppercase mb-1">Altas</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_altas }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-exclamation-circle-fill fs-2 text-warning"></i>
+                        <i class="bi bi-exclamation-circle-fill fs-2 text-sena-accent"></i>
                     </div>
                 </div>
             </div>
@@ -39,15 +39,15 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card border-left-info shadow h-100 py-2">
+        <div class="card stat-card-media shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Medias</div>
+                        <div class="text-xs font-weight-bold text-sena-primary text-uppercase mb-1">Medias</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_medias }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-info-circle-fill fs-2 text-info"></i>
+                        <i class="bi bi-info-circle-fill fs-2 text-sena-primary"></i>
                     </div>
                 </div>
             </div>
@@ -55,15 +55,15 @@
     </div>
 
     <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card border-left-success shadow h-100 py-2">
+        <div class="card stat-card-resuelta shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Resueltas Hoy</div>
+                        <div class="text-xs font-weight-bold text-sena-primary text-uppercase mb-1">Resueltas Hoy</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_resueltas_hoy }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-check-circle-fill fs-2 text-success"></i>
+                        <i class="bi bi-check-circle-fill fs-2 text-sena-primary"></i>
                     </div>
                 </div>
             </div>
@@ -212,16 +212,16 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <button class="btn btn-outline-danger" onclick="emergencyProtocol()">
+                    <button class="btn btn-outline-sena-secondary" onclick="emergencyProtocol()">
                         <i class="bi bi-exclamation-triangle me-2"></i>Protocolo de Emergencia
                     </button>
-                    <button class="btn btn-outline-warning" onclick="massNotification()">
+                    <button class="btn btn-outline-sena-accent" onclick="massNotification()">
                         <i class="bi bi-megaphone me-2"></i>Notificación Masiva
                     </button>
-                    <button class="btn btn-outline-info" onclick="generateAlertReport()">
+                    <button class="btn btn-outline-sena-primary" onclick="generateAlertReport()">
                         <i class="bi bi-file-text me-2"></i>Reporte de Alertas
                     </button>
-                    <button class="btn btn-outline-success" onclick="testAlertSystem()">
+                    <button class="btn btn-sena-gradient" onclick="testAlertSystem()">
                         <i class="bi bi-check-circle me-2"></i>Probar Sistema
                     </button>
                 </div>
@@ -343,14 +343,62 @@
 
 {% block extra_css %}
 <style>
-    .border-left-danger { border-left: 0.25rem solid #dc3545 !important; }
-    .border-left-warning { border-left: 0.25rem solid #ffc107 !important; }
-    .border-left-info { border-left: 0.25rem solid #17a2b8 !important; }
-    .border-left-success { border-left: 0.25rem solid #28a745 !important; }
+    /* ── Colores de texto — variables sidebar ── */
+    .text-sena-secondary { color: var(--sena-secondary) !important; }
+    .text-sena-accent    { color: var(--sena-accent) !important; }
+    .text-sena-primary   { color: var(--sena-primary) !important; }
 
-    .table-danger { background-color: rgba(220, 53, 69, 0.1); }
-    .table-warning { background-color: rgba(255, 193, 7, 0.1); }
+    /* ── Tarjetas de estadísticas — borde izquierdo sidebar ── */
+    .stat-card-critica  { border-left: 0.25rem solid var(--sena-secondary) !important; }
+    .stat-card-alta     { border-left: 0.25rem solid var(--sena-accent) !important; }
+    .stat-card-media    { border-left: 0.25rem solid var(--sena-primary) !important; }
+    .stat-card-resuelta { border-left: 0.25rem solid var(--sena-primary) !important;
+                          border-image: linear-gradient(to bottom, var(--sena-secondary), var(--sena-primary)) 1; }
 
+    /* ── Filas de tabla — colores sidebar ── */
+    .table-danger  { background-color: rgba(0, 50, 77, 0.07) !important; }
+    .table-warning { background-color: rgba(255, 107, 53, 0.08) !important; }
+
+    /* ── Botones de Acciones Rápidas ── */
+    .btn-outline-sena-secondary {
+        color: var(--sena-secondary);
+        border-color: var(--sena-secondary);
+    }
+    .btn-outline-sena-secondary:hover {
+        background-color: var(--sena-secondary);
+        border-color: var(--sena-secondary);
+        color: #fff;
+    }
+    .btn-outline-sena-accent {
+        color: var(--sena-accent);
+        border-color: var(--sena-accent);
+    }
+    .btn-outline-sena-accent:hover {
+        background-color: var(--sena-accent);
+        border-color: var(--sena-accent);
+        color: #fff;
+    }
+    .btn-outline-sena-primary {
+        color: var(--sena-primary);
+        border-color: var(--sena-primary);
+    }
+    .btn-outline-sena-primary:hover {
+        background-color: var(--sena-primary);
+        border-color: var(--sena-primary);
+        color: #fff;
+    }
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: #fff;
+        border: none;
+        transition: opacity 0.2s ease;
+    }
+    .btn-sena-gradient:hover {
+        opacity: 0.88;
+        color: #fff;
+    }
+
+    /* ── Items de tipos de alerta ── */
     .alert-type-item {
         display: flex;
         align-items: center;
@@ -358,7 +406,6 @@
         border-radius: 0.375rem;
         transition: background-color 0.2s;
     }
-
     .alert-type-item:hover {
         background-color: #f8f9fa;
     }

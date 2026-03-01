@@ -7,12 +7,12 @@
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header card-header-sena text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="bi bi-plus-circle-dotted me-2"></i>Crear Nueva Alerta
                 </h5>
                 <div>
-                    <button class="btn btn-outline-info btn-sm" onclick="showTemplates()">
+                    <button class="btn btn-outline-light btn-sm" onclick="showTemplates()">
                         <i class="bi bi-clipboard-data me-1"></i>Plantillas
                     </button>
                 </div>
@@ -36,7 +36,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <input type="radio" class="btn-check" name="tipo_alerta" id="tipo_falla" value="falla" required>
-                                <label class="btn btn-outline-danger w-100 p-3" for="tipo_falla">
+                                <label class="btn btn-outline-sena-secondary w-100 p-3" for="tipo_falla">
                                     <i class="bi bi-exclamation-triangle display-6"></i>
                                     <div class="mt-2">
                                         <strong>Falla Mecánica</strong>
@@ -46,7 +46,7 @@
                             </div>
                             <div class="col-md-4">
                                 <input type="radio" class="btn-check" name="tipo_alerta" id="tipo_mantenimiento" value="mantenimiento">
-                                <label class="btn btn-outline-warning w-100 p-3" for="tipo_mantenimiento">
+                                <label class="btn btn-outline-sena-accent w-100 p-3" for="tipo_mantenimiento">
                                     <i class="bi bi-wrench display-6"></i>
                                     <div class="mt-2">
                                         <strong>Mantenimiento</strong>
@@ -56,7 +56,7 @@
                             </div>
                             <div class="col-md-4">
                                 <input type="radio" class="btn-check" name="tipo_alerta" id="tipo_operacional" value="operacional">
-                                <label class="btn btn-outline-info w-100 p-3" for="tipo_operacional">
+                                <label class="btn btn-outline-sena-primary w-100 p-3" for="tipo_operacional">
                                     <i class="bi bi-gear display-6"></i>
                                     <div class="mt-2">
                                         <strong>Operacional</strong>
@@ -70,7 +70,7 @@
                     <div class="row">
                         <!-- Basic Information -->
                         <div class="col-md-6">
-                            <h6 class="text-primary mb-3">Información Básica</h6>
+                            <h6 class="text-sena-secondary mb-3">Información Básica</h6>
 
                             <div class="mb-3">
                                 <label for="maquina" class="form-label">Máquina Afectada *</label>
@@ -85,7 +85,7 @@
                             </div>
 
                             <!-- Machine Info Preview -->
-                            <div class="alert alert-info d-none" id="machineInfo">
+                            <div class="alert alert-sena d-none" id="machineInfo">
                                 <div class="d-flex align-items-center">
                                     <img id="machineImage" src="" alt="Máquina" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                                     <div>
@@ -139,7 +139,7 @@
 
                         <!-- Detection Details -->
                         <div class="col-md-6">
-                            <h6 class="text-primary mb-3">Detalles de Detección</h6>
+                            <h6 class="text-sena-secondary mb-3">Detalles de Detección</h6>
 
                             <div class="mb-3">
                                 <label for="fecha_deteccion" class="form-label">Fecha de Detección *</label>
@@ -312,13 +312,13 @@
                             <i class="bi bi-arrow-left me-2"></i>Cancelar
                         </a>
                         <div>
-                            <button type="button" class="btn btn-outline-primary me-2" onclick="updateAlertPreview()">
+                            <button type="button" class="btn btn-outline-sena-primary me-2" onclick="updateAlertPreview()">
                                 <i class="bi bi-eye me-2"></i>Vista Previa
                             </button>
-                            <button type="button" class="btn btn-outline-secondary me-2" onclick="saveDraft()">
+                            <button type="button" class="btn btn-outline-sena-secondary me-2" onclick="saveDraft()">
                                 <i class="bi bi-save me-2"></i>Guardar Borrador
                             </button>
-                            <button type="submit" class="btn btn-danger" id="submitBtn">
+                            <button type="submit" class="btn btn-sena-gradient" id="submitBtn">
                                 <i class="bi bi-exclamation-triangle me-2"></i>Crear Alerta
                             </button>
                         </div>
@@ -340,36 +340,36 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <div class="card template-card" onclick="loadTemplate('hidraulico')">
+                        <div class="card template-card template-secondary" onclick="loadTemplate('hidraulico')">
                             <div class="card-body text-center">
-                                <i class="bi bi-droplet-half display-4 text-primary"></i>
+                                <i class="bi bi-droplet-half display-4 text-sena-secondary"></i>
                                 <h6 class="mt-2">Falla Hidráulica</h6>
                                 <small class="text-muted">Sistema hidráulico, fugas, presión</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <div class="card template-card" onclick="loadTemplate('motor')">
+                        <div class="card template-card template-accent" onclick="loadTemplate('motor')">
                             <div class="card-body text-center">
-                                <i class="bi bi-gear-fill display-4 text-warning"></i>
+                                <i class="bi bi-gear-fill display-4 text-sena-accent"></i>
                                 <h6 class="mt-2">Problema Motor</h6>
                                 <small class="text-muted">Motor, combustible, refrigeración</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <div class="card template-card" onclick="loadTemplate('electrico')">
+                        <div class="card template-card template-secondary" onclick="loadTemplate('electrico')">
                             <div class="card-body text-center">
-                                <i class="bi bi-lightning-charge display-4 text-danger"></i>
+                                <i class="bi bi-lightning-charge display-4 text-sena-secondary"></i>
                                 <h6 class="mt-2">Falla Eléctrica</h6>
                                 <small class="text-muted">Sistema eléctrico, batería, cableado</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <div class="card template-card" onclick="loadTemplate('mantenimiento')">
+                        <div class="card template-card template-primary" onclick="loadTemplate('mantenimiento')">
                             <div class="card-body text-center">
-                                <i class="bi bi-wrench display-4 text-info"></i>
+                                <i class="bi bi-wrench display-4 text-sena-primary"></i>
                                 <h6 class="mt-2">Mantenimiento</h6>
                                 <small class="text-muted">Programado, preventivo, correctivo</small>
                             </div>
@@ -384,39 +384,93 @@
 
 {% block extra_css %}
 <style>
-    .btn-check:checked + .btn-outline-danger {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: white;
+    /* ── Header gradiente sidebar ── */
+    .card-header-sena {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        border-bottom: none;
     }
 
-    .btn-check:checked + .btn-outline-warning {
-        background-color: #ffc107;
-        border-color: #ffc107;
-        color: black;
+    /* ── Colores de texto sidebar ── */
+    .text-sena-secondary { color: var(--sena-secondary) !important; }
+    .text-sena-accent    { color: var(--sena-accent) !important; }
+    .text-sena-primary   { color: var(--sena-primary) !important; }
+    .text-sena-secondary.font-weight-bold,
+    h6.text-sena-secondary { font-weight: 600; }
+
+    /* ── Botones tipo de alerta ── */
+    .btn-outline-sena-secondary {
+        color: var(--sena-secondary); border-color: var(--sena-secondary);
+    }
+    .btn-outline-sena-secondary:hover {
+        background-color: var(--sena-secondary); border-color: var(--sena-secondary); color: #fff;
+    }
+    .btn-check:checked + .btn-outline-sena-secondary {
+        background-color: var(--sena-secondary); border-color: var(--sena-secondary); color: #fff;
     }
 
-    .btn-check:checked + .btn-outline-info {
-        background-color: #0dcaf0;
-        border-color: #0dcaf0;
-        color: black;
+    .btn-outline-sena-accent {
+        color: var(--sena-accent); border-color: var(--sena-accent);
+    }
+    .btn-outline-sena-accent:hover {
+        background-color: var(--sena-accent); border-color: var(--sena-accent); color: #fff;
+    }
+    .btn-check:checked + .btn-outline-sena-accent {
+        background-color: var(--sena-accent); border-color: var(--sena-accent); color: #fff;
     }
 
+    .btn-outline-sena-primary {
+        color: var(--sena-primary); border-color: var(--sena-primary);
+    }
+    .btn-outline-sena-primary:hover {
+        background-color: var(--sena-primary); border-color: var(--sena-primary); color: #fff;
+    }
+    .btn-check:checked + .btn-outline-sena-primary {
+        background-color: var(--sena-primary); border-color: var(--sena-primary); color: #fff;
+    }
+
+    /* ── Botón submit — gradiente sidebar ── */
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: #fff; border: none; transition: opacity 0.2s ease;
+    }
+    .btn-sena-gradient:hover  { opacity: 0.88; color: #fff; }
+    .btn-sena-gradient:disabled { opacity: 0.65; color: #fff; }
+
+    /* ── Alert info máquina ── */
+    .alert-sena {
+        background-color: rgba(0, 50, 77, 0.07);
+        border-color: var(--sena-secondary);
+        color: var(--sena-secondary);
+        border-left: 4px solid var(--sena-secondary);
+    }
+
+    /* ── Alertas de prioridad — colores sidebar ── */
+    .alert.alert-baja      { border-left: 4px solid var(--sena-primary); }
+    .alert.alert-media     { border-left: 4px solid var(--sena-primary); }
+    .alert.alert-alta      { border-left: 4px solid var(--sena-accent); }
+    .alert.alert-critica   { border-left: 4px solid var(--sena-secondary); }
+    .alert.alert-emergencia{ border-left: 4px solid var(--sena-secondary);
+                             background: linear-gradient(135deg, rgba(0,50,77,0.1), rgba(57,169,0,0.08)); }
+
+    /* ── Badges de prioridad ── */
+    .badge-sena-primary  { background-color: var(--sena-primary); color: #fff; }
+    .badge-sena-accent   { background-color: var(--sena-accent); color: #fff; }
+    .badge-sena-secondary{ background-color: var(--sena-secondary); color: #fff; }
+    .badge-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary), var(--sena-primary));
+        color: #fff;
+    }
+
+    /* ── Tarjetas de plantilla — hover con color SENA ── */
     .template-card {
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
+    .template-card:hover { transform: translateY(-5px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
 
-    .template-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .alert.alert-baja { border-left: 4px solid #28a745; }
-    .alert.alert-media { border-left: 4px solid #ffc107; }
-    .alert.alert-alta { border-left: 4px solid #fd7e14; }
-    .alert.alert-critica { border-left: 4px solid #dc3545; }
-    .alert.alert-emergencia { border-left: 4px solid #6f42c1; }
+    .template-secondary:hover { border-color: var(--sena-secondary) !important; }
+    .template-accent:hover    { border-color: var(--sena-accent) !important; }
+    .template-primary:hover   { border-color: var(--sena-primary) !important; }
 </style>
 {% endblock %}
 
@@ -619,11 +673,11 @@ function updateAlertPreview() {
     const prioridadText = prioridadSelect?.selectedOptions[0]?.textContent || '-';
 
     const prioridadBadges = {
-        'baja': '<span class="badge bg-success">Baja</span>',
-        'media': '<span class="badge bg-info">Media</span>',
-        'alta': '<span class="badge bg-warning text-dark">Alta</span>',
-        'critica': '<span class="badge bg-danger">Crítica</span>',
-        'emergencia': '<span class="badge bg-dark">Emergencia</span>'
+        'baja':      '<span class="badge badge-sena-primary">Baja</span>',
+        'media':     '<span class="badge badge-sena-primary">Media</span>',
+        'alta':      '<span class="badge badge-sena-accent">Alta</span>',
+        'critica':   '<span class="badge badge-sena-secondary">Crítica</span>',
+        'emergencia':'<span class="badge badge-sena-gradient">Emergencia</span>'
     };
     document.getElementById('preview-prioridad-badge').innerHTML = prioridadBadges[prioridad] || prioridadText;
 

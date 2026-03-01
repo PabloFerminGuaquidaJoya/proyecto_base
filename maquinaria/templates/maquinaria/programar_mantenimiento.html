@@ -7,7 +7,7 @@
 <div class="row justify-content-center">
     <div class="col-lg-9">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header card-header-sena text-white">
                 <h5 class="mb-0">
                     <i class="bi bi-calendar-plus me-2"></i>Programar Nuevo Mantenimiento
                 </h5>
@@ -31,7 +31,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <input type="radio" class="btn-check" name="tipo" id="preventivo" value="preventivo" required>
-                                <label class="btn btn-outline-success w-100 p-3" for="preventivo">
+                                <label class="btn btn-outline-sena-primary w-100 p-3" for="preventivo">
                                     <i class="bi bi-shield-check display-6"></i>
                                     <div class="mt-2">
                                         <strong>Preventivo</strong>
@@ -41,7 +41,7 @@
                             </div>
                             <div class="col-md-4">
                                 <input type="radio" class="btn-check" name="tipo" id="correctivo" value="correctivo">
-                                <label class="btn btn-outline-warning w-100 p-3" for="correctivo">
+                                <label class="btn btn-outline-sena-accent w-100 p-3" for="correctivo">
                                     <i class="bi bi-wrench display-6"></i>
                                     <div class="mt-2">
                                         <strong>Correctivo</strong>
@@ -51,7 +51,7 @@
                             </div>
                             <div class="col-md-4">
                                 <input type="radio" class="btn-check" name="tipo" id="emergencia" value="emergencia">
-                                <label class="btn btn-outline-danger w-100 p-3" for="emergencia">
+                                <label class="btn btn-outline-sena-secondary w-100 p-3" for="emergencia">
                                     <i class="bi bi-lightning display-6"></i>
                                     <div class="mt-2">
                                         <strong>Emergencia</strong>
@@ -65,7 +65,7 @@
                     <div class="row">
                         <!-- Left Column -->
                         <div class="col-md-6">
-                            <h6 class="text-primary mb-3">Información Básica</h6>
+                            <h6 class="text-sena-secondary mb-3">Información Básica</h6>
 
                             <div class="mb-3">
                                 <label for="maquina" class="form-label">Máquina *</label>
@@ -84,7 +84,7 @@
                             </div>
 
                             <!-- Machine Info -->
-                            <div class="alert alert-info d-none" id="machineInfo">
+                            <div class="alert alert-sena d-none" id="machineInfo">
                                 <div class="row">
                                     <div class="col-3">
                                         <img id="machineImage" src="/static/images/machine-placeholder.png" alt="Máquina" class="img-fluid rounded">
@@ -141,7 +141,7 @@
 
                         <!-- Right Column -->
                         <div class="col-md-6">
-                            <h6 class="text-primary mb-3">Programación y Asignación</h6>
+                            <h6 class="text-sena-secondary mb-3">Programación y Asignación</h6>
 
                             <div class="mb-3">
                                 <label for="fecha_programada" class="form-label">Fecha Programada *</label>
@@ -245,7 +245,7 @@
                     <!-- Resources and Parts -->
                     <div class="row">
                         <div class="col-12">
-                            <h6 class="text-primary mb-3">Recursos y Repuestos</h6>
+                            <h6 class="text-sena-secondary mb-3">Recursos y Repuestos</h6>
                         </div>
 
                         <div class="col-md-6">
@@ -253,7 +253,7 @@
                                 <label class="form-label">Repuestos Necesarios</label>
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" id="repuesto_item" placeholder="Código o nombre del repuesto">
-                                    <button class="btn btn-outline-primary" type="button" onclick="addPart()">
+                                    <button class="btn btn-outline-sena-primary" type="button" onclick="addPart()">
                                         <i class="bi bi-plus"></i>
                                     </button>
                                 </div>
@@ -325,10 +325,10 @@
                             <i class="bi bi-arrow-left me-2"></i>Cancelar
                         </a>
                         <div>
-                            <button type="button" class="btn btn-outline-primary me-2" onclick="saveDraft()">
+                            <button type="button" class="btn btn-outline-sena-primary me-2" onclick="saveDraft()">
                                 <i class="bi bi-save me-2"></i>Guardar Borrador
                             </button>
-                            <button type="submit" class="btn btn-success" id="submitBtn">
+                            <button type="submit" class="btn btn-sena-gradient" id="submitBtn">
                                 <i class="bi bi-calendar-check me-2"></i>Programar Mantenimiento
                             </button>
                         </div>
@@ -342,49 +342,112 @@
 
 {% block extra_css %}
 <style>
-    .btn-check:checked + .btn-outline-success {
-        background-color: #198754;
-        border-color: #198754;
-        color: white;
+    /* ── Header de la card — gradiente sidebar ── */
+    .card-header-sena {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        border-bottom: none;
     }
 
-    .btn-check:checked + .btn-outline-warning {
-        background-color: #ffc107;
-        border-color: #ffc107;
-        color: black;
+    /* ── Títulos de sección ── */
+    .text-sena-secondary {
+        color: var(--sena-secondary) !important;
+        font-weight: 600;
     }
 
-    .btn-check:checked + .btn-outline-danger {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: white;
+    /* ── Botones tipo de mantenimiento — Preventivo (verde SENA) ── */
+    .btn-outline-sena-primary {
+        color: var(--sena-primary);
+        border-color: var(--sena-primary);
+    }
+    .btn-outline-sena-primary:hover {
+        background-color: var(--sena-primary);
+        border-color: var(--sena-primary);
+        color: #fff;
+    }
+    .btn-check:checked + .btn-outline-sena-primary {
+        background-color: var(--sena-primary);
+        border-color: var(--sena-primary);
+        color: #fff;
     }
 
-    .min-height-100 {
-        min-height: 100px;
+    /* ── Correctivo (naranja accent) ── */
+    .btn-outline-sena-accent {
+        color: var(--sena-accent);
+        border-color: var(--sena-accent);
+    }
+    .btn-outline-sena-accent:hover {
+        background-color: var(--sena-accent);
+        border-color: var(--sena-accent);
+        color: #fff;
+    }
+    .btn-check:checked + .btn-outline-sena-accent {
+        background-color: var(--sena-accent);
+        border-color: var(--sena-accent);
+        color: #fff;
     }
 
+    /* ── Emergencia (azul oscuro) ── */
+    .btn-outline-sena-secondary {
+        color: var(--sena-secondary);
+        border-color: var(--sena-secondary);
+    }
+    .btn-outline-sena-secondary:hover {
+        background-color: var(--sena-secondary);
+        border-color: var(--sena-secondary);
+        color: #fff;
+    }
+    .btn-check:checked + .btn-outline-sena-secondary {
+        background-color: var(--sena-secondary);
+        border-color: var(--sena-secondary);
+        color: #fff;
+    }
+
+    /* ── Botón submit — gradiente sidebar ── */
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: #fff;
+        border: none;
+        transition: opacity 0.2s ease;
+    }
+    .btn-sena-gradient:hover {
+        opacity: 0.88;
+        color: #fff;
+    }
+    .btn-sena-gradient:disabled {
+        opacity: 0.65;
+        color: #fff;
+    }
+
+    /* ── Alert info máquina ── */
+    .alert-sena {
+        background-color: rgba(0, 50, 77, 0.07);
+        border-color: var(--sena-secondary);
+        color: var(--sena-secondary);
+        border-left: 4px solid var(--sena-secondary);
+    }
+
+    /* ── Badges de repuestos ── */
     .part-item {
         display: inline-block;
-        background: #007bff;
-        color: white;
+        background: var(--sena-primary);
+        color: #fff;
         padding: 0.25rem 0.5rem;
         margin: 0.25rem;
         border-radius: 0.25rem;
         font-size: 0.875rem;
     }
-
     .part-item .remove-part {
         background: none;
         border: none;
-        color: white;
+        color: #fff;
         margin-left: 0.5rem;
         cursor: pointer;
     }
-
     .part-item .remove-part:hover {
-        color: #ffdddd;
+        color: rgba(255,255,255,0.7);
     }
+
+    .min-height-100 { min-height: 100px; }
 </style>
 {% endblock %}
 
