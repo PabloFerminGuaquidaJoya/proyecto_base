@@ -1,29 +1,27 @@
 {% extends 'base.html' %}
-{% block title %}{% if editando %}Editar{% else %}Nueva{% endif %} Pieza - SENA{% endblock %}
-{% block page_title %}{% if editando %}Editar Pieza{% else %}Registrar Nueva Pieza{% endif %}{% endblock %}
+{% block title %}{% if editando %}Editar{% else %}Registrar{% endif %} Pieza/Objeto - SENA{% endblock %}
+{% block page_title %}{% if editando %}Editar: {{ pieza.nombre }}{% else %}Registrar Pieza / Objeto{% endif %}{% endblock %}
 
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-sena-gradient">
+        <h6 class="m-0 fw-bold" style="color:white;">
             <i class="bi bi-{% if editando %}pencil{% else %}plus-circle{% endif %} me-2"></i>
-            {% if editando %}Editar: {{ pieza.nombre }}{% else %}Nueva Pieza de Inventario{% endif %}
+            {% if editando %}Editar: {{ pieza.nombre }}{% else %}Registrar Nueva Pieza u Objeto{% endif %}
         </h6>
     </div>
     <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="formPieza">
             {% csrf_token %}
 
             {% if form.non_field_errors %}
             <div class="alert alert-danger">{{ form.non_field_errors }}</div>
             {% endif %}
 
-            <!-- Identificación -->
-            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
-                <i class="bi bi-tag me-2"></i>Identificación
-            </h6>
+            <!-- ══ 1. IDENTIFICACIÓN ══════════════════════════════════════ -->
+            <h6 class="section-title"><i class="bi bi-tag me-2"></i>Identificación</h6>
             <div class="row mb-3">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">{{ form.codigo_inventario.label }} *</label>
                     {{ form.codigo_inventario }}
                     {% if form.codigo_inventario.errors %}<div class="text-danger small">{{ form.codigo_inventario.errors }}</div>{% endif %}
@@ -33,52 +31,56 @@
                     {{ form.nombre }}
                     {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors }}</div>{% endif %}
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">{{ form.condicion.label }}</label>
+                    {{ form.condicion }}
+                </div>
+                <div class="col-md-3 mb-3">
                     <label class="form-label">{{ form.numero_serie.label }}</label>
                     {{ form.numero_serie }}
                     {% if form.numero_serie.errors %}<div class="text-danger small">{{ form.numero_serie.errors }}</div>{% endif %}
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">{{ form.numero_factura.label }}</label>
                     {{ form.numero_factura }}
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ form.condicion.label }}</label>
-                    {{ form.condicion }}
-                </div>
             </div>
 
-            <!-- Clasificación -->
-            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
-                <i class="bi bi-grid me-2"></i>Clasificación
-            </h6>
+            <!-- ══ 2. CLASIFICACIÓN ══════════════════════════════════════ -->
+            <h6 class="section-title"><i class="bi bi-grid me-2"></i>Clasificación</h6>
             <div class="row mb-3">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">{{ form.categoria.label }}</label>
                     {{ form.categoria }}
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">{{ form.marca.label }}</label>
                     {{ form.marca }}
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.fabricante.label }}</label>
+                    {{ form.fabricante }}
+                </div>
+                <div class="col-md-3 mb-3">
                     <label class="form-label">{{ form.modelo.label }}</label>
                     {{ form.modelo }}
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.color.label }}</label>
+                    {{ form.color }}
+                </div>
+                <div class="col-md-3 mb-3">
                     <label class="form-label">{{ form.peso.label }}</label>
                     {{ form.peso }}
                 </div>
-                <div class="col-md-8 mb-3">
+                <div class="col-md-6 mb-3">
                     <label class="form-label">{{ form.dimensiones.label }}</label>
                     {{ form.dimensiones }}
                 </div>
             </div>
 
-            <!-- Ubicación -->
-            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
-                <i class="bi bi-geo-alt me-2"></i>Ubicación y Responsabilidad
-            </h6>
+            <!-- ══ 3. UBICACIÓN Y RESPONSABILIDAD ══════════════════════ -->
+            <h6 class="section-title"><i class="bi bi-geo-alt me-2"></i>Ubicación y Responsabilidad</h6>
             <div class="row mb-3">
                 <div class="col-md-4 mb-3">
                     <label class="form-label">{{ form.centro_formacion.label }}</label>
@@ -97,25 +99,27 @@
                     {{ form.responsable }}
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">{{ form.proveedor.label }}</label>
-                    {{ form.proveedor }}
+                    <label class="form-label">{{ form.maquina.label }}</label>
+                    {{ form.maquina }}
                 </div>
             </div>
 
-            <!-- Adquisición y Uso -->
-            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
-                <i class="bi bi-currency-dollar me-2"></i>Adquisición y Uso
-            </h6>
+            <!-- ══ 4. ADQUISICIÓN Y USO ═══════════════════════════════ -->
+            <h6 class="section-title"><i class="bi bi-currency-dollar me-2"></i>Adquisición y Uso</h6>
             <div class="row mb-3">
-                <div class="col-md-3 mb-3">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.proveedor.label }}</label>
+                    {{ form.proveedor }}
+                </div>
+                <div class="col-md-4 mb-3">
                     <label class="form-label">{{ form.valor_adquisicion.label }}</label>
                     {{ form.valor_adquisicion }}
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-2 mb-3">
                     <label class="form-label">{{ form.garantia_meses.label }}</label>
                     {{ form.garantia_meses }}
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-2 mb-3">
                     <label class="form-label">{{ form.horas_uso.label }}</label>
                     {{ form.horas_uso }}
                 </div>
@@ -123,29 +127,35 @@
                     <label class="form-label">{{ form.horas_uso_maximas.label }}</label>
                     {{ form.horas_uso_maximas }}
                 </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.fecha_compra.label }}</label>
+                    {{ form.fecha_compra }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.fecha_uso.label }}</label>
+                    {{ form.fecha_uso }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.fecha_cambio.label }}</label>
+                    {{ form.fecha_cambio }}
+                </div>
             </div>
 
-            <!-- Fotografías -->
-            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
-                <i class="bi bi-camera me-2"></i>Fotografías
-            </h6>
-            <div class="row mb-4">
+            <!-- ══ 5. FOTOGRAFÍAS GENERALES ══════════════════════════ -->
+            <h6 class="section-title"><i class="bi bi-image me-2"></i>Fotografías Generales</h6>
+            <div class="row mb-3">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ form.foto_pieza.label }}</label>
                     {{ form.foto_pieza }}
                     {% if editando and pieza.foto_pieza %}
                     <div class="mt-2 text-center">
                         <small class="text-muted d-block mb-1">Foto actual:</small>
-                        <img src="{{ pieza.foto_pieza.url }}" alt="Foto pieza"
-                             style="max-height:140px; max-width:100%; border-radius:8px;
-                                    border:2px solid var(--sena-primary); object-fit:cover;">
+                        <img src="{{ pieza.foto_pieza.url }}" class="foto-preview-img" style="border-color:var(--sena-primary);">
                     </div>
                     {% endif %}
                     <div class="mt-2 text-center" id="preview_foto_pieza" style="display:none;">
                         <small class="text-muted d-block mb-1">Vista previa:</small>
-                        <img src="" alt="Vista previa pieza"
-                             style="max-height:140px; max-width:100%; border-radius:8px;
-                                    border:2px solid var(--sena-primary); object-fit:cover;">
+                        <img src="" class="foto-preview-img" style="border-color:var(--sena-primary);">
                     </div>
                 </div>
                 <div class="col-md-6 mb-3">
@@ -154,24 +164,155 @@
                     {% if editando and pieza.foto_empaque %}
                     <div class="mt-2 text-center">
                         <small class="text-muted d-block mb-1">Foto actual:</small>
-                        <img src="{{ pieza.foto_empaque.url }}" alt="Foto empaque"
-                             style="max-height:140px; max-width:100%; border-radius:8px;
-                                    border:2px solid var(--sena-secondary); object-fit:cover;">
+                        <img src="{{ pieza.foto_empaque.url }}" class="foto-preview-img" style="border-color:var(--sena-secondary);">
                     </div>
                     {% endif %}
                     <div class="mt-2 text-center" id="preview_foto_empaque" style="display:none;">
                         <small class="text-muted d-block mb-1">Vista previa:</small>
-                        <img src="" alt="Vista previa empaque"
-                             style="max-height:140px; max-width:100%; border-radius:8px;
-                                    border:2px solid var(--sena-secondary); object-fit:cover;">
+                        <img src="" class="foto-preview-img" style="border-color:var(--sena-secondary);">
                     </div>
                 </div>
             </div>
 
-            <!-- Detalles técnicos -->
-            <h6 class="fw-bold mb-3" style="color:var(--sena-secondary); border-bottom:2px solid var(--sena-primary); padding-bottom:.5rem;">
-                <i class="bi bi-file-text me-2"></i>Detalles Técnicos
+            <!-- ══ 6. FOTOGRAFÍAS 6 ÁNGULOS ══════════════════════════ -->
+            <h6 class="section-title">
+                <i class="bi bi-camera me-2"></i>Fotografías 6 Ángulos
+                <span class="badge badge-sena-primary ms-2" id="contador-fotos">0 / 6</span>
             </h6>
+
+            <!-- Panel de cámara web -->
+            <div class="card mb-3 camara-panel">
+                <div class="card-body text-center">
+                    <video id="webcam-video" autoplay playsinline class="webcam-video" style="display:none;"></video>
+                    <canvas id="webcam-canvas" style="display:none;"></canvas>
+
+                    <div id="webcam-placeholder" class="py-3 text-muted">
+                        <i class="bi bi-camera-video" style="font-size:2.5rem; color:var(--sena-primary); display:block; margin-bottom:.5rem;"></i>
+                        <p class="mb-3">Activa la cámara para capturar fotos de los 6 ángulos</p>
+                        <button type="button" class="btn btn-sena-gradient" onclick="iniciarCamara()">
+                            <i class="bi bi-camera-video me-2"></i>Activar Cámara
+                        </button>
+                    </div>
+
+                    <div id="webcam-controls" style="display:none;" class="mt-3">
+                        <div class="mb-3">
+                            <label class="fw-bold me-2">Ángulo:</label>
+                            <select id="select-angulo" class="form-select d-inline-block w-auto">
+                                <option value="foto_frontal">Frontal</option>
+                                <option value="foto_lateral_derecha">Lateral Derecha</option>
+                                <option value="foto_lateral_izquierda">Lateral Izquierda</option>
+                                <option value="foto_trasera">Trasera</option>
+                                <option value="foto_superior">Superior</option>
+                                <option value="foto_inferior">Inferior</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-sena-gradient me-2" onclick="capturarFoto()">
+                            <i class="bi bi-camera me-2"></i>Capturar
+                        </button>
+                        <button type="button" class="btn btn-outline-sena-secondary" onclick="detenerCamara()">
+                            <i class="bi bi-stop-circle me-2"></i>Detener Cámara
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de 6 ángulos -->
+            <div class="row mb-4">
+
+                <!-- Frontal -->
+                <div class="col-md-4 mb-3">
+                    <div class="angulo-card" id="card_foto_frontal">
+                        <div class="angulo-header">
+                            <i class="bi bi-arrow-up me-1"></i>Frontal
+                            <span class="badge badge-sena-secondary ms-1" id="estado_foto_frontal">Sin foto</span>
+                        </div>
+                        <div class="angulo-preview" id="preview_foto_frontal">
+                            {% if editando and pieza.foto_frontal %}<img src="{{ pieza.foto_frontal.url }}" alt="Frontal">{% else %}<i class="bi bi-image text-muted" style="font-size:2rem;"></i>{% endif %}
+                        </div>
+                        <input type="hidden" name="foto_frontal_data" id="foto_frontal_data">
+                        <div class="p-2">{{ form.foto_frontal }}</div>
+                    </div>
+                </div>
+
+                <!-- Lateral Derecha -->
+                <div class="col-md-4 mb-3">
+                    <div class="angulo-card" id="card_foto_lateral_derecha">
+                        <div class="angulo-header">
+                            <i class="bi bi-arrow-right me-1"></i>Lateral Derecha
+                            <span class="badge badge-sena-secondary ms-1" id="estado_foto_lateral_derecha">Sin foto</span>
+                        </div>
+                        <div class="angulo-preview" id="preview_foto_lateral_derecha">
+                            {% if editando and pieza.foto_lateral_derecha %}<img src="{{ pieza.foto_lateral_derecha.url }}" alt="Lateral Der">{% else %}<i class="bi bi-image text-muted" style="font-size:2rem;"></i>{% endif %}
+                        </div>
+                        <input type="hidden" name="foto_lateral_derecha_data" id="foto_lateral_derecha_data">
+                        <div class="p-2">{{ form.foto_lateral_derecha }}</div>
+                    </div>
+                </div>
+
+                <!-- Lateral Izquierda -->
+                <div class="col-md-4 mb-3">
+                    <div class="angulo-card" id="card_foto_lateral_izquierda">
+                        <div class="angulo-header">
+                            <i class="bi bi-arrow-left me-1"></i>Lateral Izquierda
+                            <span class="badge badge-sena-secondary ms-1" id="estado_foto_lateral_izquierda">Sin foto</span>
+                        </div>
+                        <div class="angulo-preview" id="preview_foto_lateral_izquierda">
+                            {% if editando and pieza.foto_lateral_izquierda %}<img src="{{ pieza.foto_lateral_izquierda.url }}" alt="Lateral Izq">{% else %}<i class="bi bi-image text-muted" style="font-size:2rem;"></i>{% endif %}
+                        </div>
+                        <input type="hidden" name="foto_lateral_izquierda_data" id="foto_lateral_izquierda_data">
+                        <div class="p-2">{{ form.foto_lateral_izquierda }}</div>
+                    </div>
+                </div>
+
+                <!-- Trasera -->
+                <div class="col-md-4 mb-3">
+                    <div class="angulo-card" id="card_foto_trasera">
+                        <div class="angulo-header">
+                            <i class="bi bi-arrow-down me-1"></i>Trasera
+                            <span class="badge badge-sena-secondary ms-1" id="estado_foto_trasera">Sin foto</span>
+                        </div>
+                        <div class="angulo-preview" id="preview_foto_trasera">
+                            {% if editando and pieza.foto_trasera %}<img src="{{ pieza.foto_trasera.url }}" alt="Trasera">{% else %}<i class="bi bi-image text-muted" style="font-size:2rem;"></i>{% endif %}
+                        </div>
+                        <input type="hidden" name="foto_trasera_data" id="foto_trasera_data">
+                        <div class="p-2">{{ form.foto_trasera }}</div>
+                    </div>
+                </div>
+
+                <!-- Superior -->
+                <div class="col-md-4 mb-3">
+                    <div class="angulo-card" id="card_foto_superior">
+                        <div class="angulo-header">
+                            <i class="bi bi-box-arrow-up me-1"></i>Superior
+                            <span class="badge badge-sena-secondary ms-1" id="estado_foto_superior">Sin foto</span>
+                        </div>
+                        <div class="angulo-preview" id="preview_foto_superior">
+                            {% if editando and pieza.foto_superior %}<img src="{{ pieza.foto_superior.url }}" alt="Superior">{% else %}<i class="bi bi-image text-muted" style="font-size:2rem;"></i>{% endif %}
+                        </div>
+                        <input type="hidden" name="foto_superior_data" id="foto_superior_data">
+                        <div class="p-2">{{ form.foto_superior }}</div>
+                    </div>
+                </div>
+
+                <!-- Inferior -->
+                <div class="col-md-4 mb-3">
+                    <div class="angulo-card" id="card_foto_inferior">
+                        <div class="angulo-header">
+                            <i class="bi bi-box-arrow-down me-1"></i>Inferior
+                            <span class="badge badge-sena-secondary ms-1" id="estado_foto_inferior">Sin foto</span>
+                        </div>
+                        <div class="angulo-preview" id="preview_foto_inferior">
+                            {% if editando and pieza.foto_inferior %}<img src="{{ pieza.foto_inferior.url }}" alt="Inferior">{% else %}<i class="bi bi-image text-muted" style="font-size:2rem;"></i>{% endif %}
+                        </div>
+                        <input type="hidden" name="foto_inferior_data" id="foto_inferior_data">
+                        <div class="p-2">{{ form.foto_inferior }}</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ══ 7. DETALLES TÉCNICOS ══════════════════════════════ -->
+            <h6 class="section-title"><i class="bi bi-file-text me-2"></i>Detalles Técnicos</h6>
             <div class="row mb-4">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ form.especificaciones_tecnicas.label }}</label>
@@ -187,7 +328,7 @@
             <div class="d-flex gap-2 flex-wrap">
                 <button type="submit" class="btn btn-sena-gradient">
                     <i class="bi bi-check-circle me-2"></i>
-                    {% if editando %}Guardar Cambios{% else %}Registrar Pieza{% endif %}
+                    {% if editando %}Guardar Cambios{% else %}Registrar Pieza/Objeto{% endif %}
                 </button>
                 <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-outline-sena-secondary">
                     <i class="bi bi-x-circle me-2"></i>Cancelar
@@ -198,21 +339,160 @@
 </div>
 {% endblock %}
 
+
+{% block extra_css %}
+<style>
+.badge-sena-primary   { background-color: var(--sena-primary);   color: white; }
+.badge-sena-secondary { background-color: var(--sena-secondary); color: white; }
+
+.btn-sena-gradient {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    border: none; color: white; border-radius: 8px; transition: all 0.3s ease;
+}
+.btn-sena-gradient:hover { opacity: 0.88; color: white; }
+
+.btn-outline-sena-secondary {
+    background: transparent; border: 2px solid var(--sena-secondary);
+    color: var(--sena-secondary); border-radius: 8px; transition: all 0.3s ease;
+}
+.btn-outline-sena-secondary:hover { background: var(--sena-secondary); color: white; }
+
+.section-title {
+    color: var(--sena-secondary);
+    border-bottom: 2px solid var(--sena-primary);
+    padding-bottom: .5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.foto-preview-img {
+    max-height: 140px; max-width: 100%;
+    border-radius: 8px; border: 2px solid; object-fit: cover;
+}
+
+.camara-panel {
+    border: 2px solid var(--sena-primary);
+    border-radius: 12px;
+}
+
+.webcam-video {
+    width: 100%; max-width: 480px;
+    border-radius: 8px;
+    border: 2px solid var(--sena-secondary);
+}
+
+.angulo-card {
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+}
+.angulo-card.capturado { border-color: var(--sena-primary); }
+
+.angulo-header {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    color: white;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.angulo-preview {
+    min-height: 110px;
+    display: flex; align-items: center; justify-content: center;
+    background: #f8f9fa; padding: 8px;
+}
+.angulo-preview img {
+    max-height: 100px; max-width: 100%;
+    border-radius: 6px; object-fit: cover;
+}
+
+body.dark-theme .angulo-card  { border-color: #555; }
+body.dark-theme .angulo-preview { background: #3a3a3a; }
+body.dark-theme .section-title { color: #aad88f; border-color: var(--sena-primary); }
+</style>
+{% endblock %}
+
+
 {% block extra_js %}
 <script>
+const ANGULOS = [
+    'foto_frontal', 'foto_lateral_derecha', 'foto_lateral_izquierda',
+    'foto_trasera', 'foto_superior', 'foto_inferior'
+];
+let streamActivo = null;
+let fotosCapturadas = {};
+
+/* ── Cámara ────────────────────────────────────────────────── */
+async function iniciarCamara() {
+    try {
+        streamActivo = await navigator.mediaDevices.getUserMedia({ video: true });
+        const video = document.getElementById('webcam-video');
+        video.srcObject = streamActivo;
+        document.getElementById('webcam-placeholder').style.display = 'none';
+        video.style.display = 'block';
+        document.getElementById('webcam-controls').style.display = 'block';
+    } catch (err) {
+        alert('No se pudo acceder a la cámara.\nVerifica los permisos o usa HTTPS.\nError: ' + err.message);
+    }
+}
+
+function detenerCamara() {
+    if (streamActivo) {
+        streamActivo.getTracks().forEach(t => t.stop());
+        streamActivo = null;
+    }
+    const video = document.getElementById('webcam-video');
+    video.style.display = 'none';
+    document.getElementById('webcam-controls').style.display = 'none';
+    document.getElementById('webcam-placeholder').style.display = 'block';
+}
+
+function capturarFoto() {
+    const video  = document.getElementById('webcam-video');
+    const canvas = document.getElementById('webcam-canvas');
+    const campo  = document.getElementById('select-angulo').value;
+
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    marcarAngulo(campo, dataUrl);
+
+    // Avanzar al siguiente ángulo
+    const sel = document.getElementById('select-angulo');
+    if (sel.selectedIndex < sel.options.length - 1) sel.selectedIndex++;
+}
+
+function marcarAngulo(campo, dataUrl) {
+    document.getElementById(campo + '_data').value = dataUrl;
+
+    const preview = document.getElementById('preview_' + campo);
+    preview.innerHTML = `<img src="${dataUrl}" alt="${campo}">`;
+
+    document.getElementById('card_' + campo).classList.add('capturado');
+    const badge = document.getElementById('estado_' + campo);
+    badge.textContent = '✓ Capturada';
+    badge.className = 'badge badge-sena-primary ms-1';
+
+    fotosCapturadas[campo] = true;
+    document.getElementById('contador-fotos').textContent =
+        Object.keys(fotosCapturadas).length + ' / 6';
+}
+
+/* ── Preview uploads normales ──────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
-    function setupPreview(inputId, previewId) {
+    function setupPreview(inputId, previewContainerId) {
         const input = document.getElementById(inputId);
         if (!input) return;
         input.addEventListener('change', function () {
-            const container = document.getElementById(previewId);
+            const container = document.getElementById(previewContainerId);
+            if (!container) return;
             const img = container.querySelector('img');
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function (e) {
-                    img.src = e.target.result;
-                    container.style.display = 'block';
-                };
+                reader.onload = e => { img.src = e.target.result; container.style.display = 'block'; };
                 reader.readAsDataURL(this.files[0]);
             } else {
                 container.style.display = 'none';
@@ -221,6 +501,36 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     setupPreview('id_foto_pieza',   'preview_foto_pieza');
     setupPreview('id_foto_empaque', 'preview_foto_empaque');
+
+    // Preview de archivos en cards de ángulos
+    ANGULOS.forEach(function(campo) {
+        const input = document.getElementById('id_' + campo);
+        if (!input) return;
+        input.classList.add('form-control');
+        input.style.fontSize = '0.78rem';
+        input.addEventListener('change', function () {
+            if (!this.files || !this.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { marcarAngulo(campo, e.target.result); };
+            reader.readAsDataURL(this.files[0]);
+        });
+    });
+
+    {% if editando %}
+    // Marcar ángulos que ya tienen foto al editar
+    ANGULOS.forEach(function(campo) {
+        const preview = document.getElementById('preview_' + campo);
+        if (preview && preview.querySelector('img')) {
+            document.getElementById('card_' + campo).classList.add('capturado');
+            const badge = document.getElementById('estado_' + campo);
+            badge.textContent = '✓ Existente';
+            badge.className = 'badge badge-sena-primary ms-1';
+            fotosCapturadas[campo] = true;
+        }
+    });
+    document.getElementById('contador-fotos').textContent =
+        Object.keys(fotosCapturadas).length + ' / 6';
+    {% endif %}
 });
 </script>
 {% endblock %}

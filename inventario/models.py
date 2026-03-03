@@ -56,6 +56,17 @@ class PiezaInventario(models.Model):
     # Estado
     condicion = models.CharField(max_length=20, choices=CONDICION_CHOICES, default='nueva')
 
+    # Datos adicionales del objeto
+    fabricante  = models.CharField(max_length=200, blank=True)
+    color       = models.CharField(max_length=50, blank=True)
+    maquina     = models.ForeignKey(
+        'maquinaria.Maquina', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='piezas_inventario'
+    )
+    fecha_compra = models.DateField(null=True, blank=True)
+    fecha_uso    = models.DateField(null=True, blank=True)
+    fecha_cambio = models.DateField(null=True, blank=True)
+
     # Fotos
     foto_pieza    = models.ImageField(
         upload_to='inventario/piezas/', blank=True, null=True,
@@ -65,6 +76,14 @@ class PiezaInventario(models.Model):
         upload_to='inventario/empaques/', blank=True, null=True,
         help_text='Fotografía del empaque'
     )
+
+    # Fotografías de 6 ángulos (cámara web)
+    foto_frontal          = models.ImageField(upload_to='inventario/angulos/', blank=True, null=True)
+    foto_lateral_derecha  = models.ImageField(upload_to='inventario/angulos/', blank=True, null=True)
+    foto_lateral_izquierda = models.ImageField(upload_to='inventario/angulos/', blank=True, null=True)
+    foto_trasera          = models.ImageField(upload_to='inventario/angulos/', blank=True, null=True)
+    foto_superior         = models.ImageField(upload_to='inventario/angulos/', blank=True, null=True)
+    foto_inferior         = models.ImageField(upload_to='inventario/angulos/', blank=True, null=True)
 
     # Detalles técnicos
     especificaciones_tecnicas = models.TextField(blank=True)

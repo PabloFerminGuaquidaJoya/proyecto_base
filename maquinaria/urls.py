@@ -1,4 +1,5 @@
 from django.urls import path
+from django.shortcuts import redirect
 from . import views
 
 app_name = 'maquinaria'
@@ -43,9 +44,9 @@ urlpatterns = [
     path('qr/<int:pk>/', views.generar_qr_maquina, name='generar_qr'),
     path('qr-info/<str:codigo>/', views.info_qr_maquina, name='info_qr'),
 
-    # Objetos / Reconocimiento de objetos
+    # Objetos — registro movido a inventario
     path('objetos/', views.lista_objetos_view, name='lista_objetos'),
-    path('objetos/registrar/', views.registrar_objeto_view, name='registrar_objeto'),
+    path('objetos/registrar/', lambda r: redirect('inventario:nueva_pieza'), name='registrar_objeto'),
     path('objetos/detalle/<int:pk>/', views.detalle_objeto_view, name='detalle_objeto'),
     path('objetos/editar/<int:pk>/', views.editar_objeto_view, name='editar_objeto'),
     path('objetos/eliminar/<int:pk>/', views.eliminar_objeto_view, name='eliminar_objeto'),

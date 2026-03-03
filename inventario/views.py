@@ -1,11 +1,38 @@
+import base64
+import uuid
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Count, Q
+from django.core.files.base import ContentFile
+from django.db.models import Q
 
 from .models import PiezaInventario
 from .forms import PiezaInventarioForm
 from usuarios.models import Usuario
+
+
+FOTO_ANGULOS = [
+    ('foto_frontal',           'Frontal'),
+    ('foto_lateral_derecha',   'Lateral Derecha'),
+    ('foto_lateral_izquierda', 'Lateral Izquierda'),
+    ('foto_trasera',           'Trasera'),
+    ('foto_superior',          'Superior'),
+    ('foto_inferior',          'Inferior'),
+]
+
+
+def _guardar_base64(pieza, campo, data_url):
+    """Convierte un dataURL base64 y lo guarda en el ImageField indicado."""
+    if not data_url or not data_url.startswith('data:image'):
+        return
+    try:
+        header, encoded = data_url.split(',', 1)
+        imagen_bytes = base64.b64decode(encoded)
+        nombre = f'{campo}_{uuid.uuid4().hex[:8]}.jpg'
+        getattr(pieza, campo).save(nombre, ContentFile(imagen_bytes), save=False)
+    except Exception:
+        pass
 
 
 @login_required
@@ -35,17 +62,30 @@ def nueva_pieza_view(request):
         if form.is_valid():
             pieza = form.save(commit=False)
             try:
-                from usuarios.models import Usuario
                 pieza.registrado_por = Usuario.objects.get(numero_documento=request.user.username)
             except Exception:
                 pass
             pieza.save()
-            messages.success(request, f'Pieza "{pieza.nombre}" registrada correctamente.')
+            # Guardar imágenes base64 de la cámara web (6 ángulos)
+            fotos_capturadas = 0
+            for campo, _ in FOTO_ANGULOS:
+                data_url = request.POST.get(f'{campo}_data', '')
+                if data_url:
+                    _guardar_base64(pieza, campo, data_url)
+                    fotos_capturadas += 1
+            if fotos_capturadas:
+                pieza.save()
+            messages.success(
+                request,
+                f'"{pieza.nombre}" registrado correctamente'
+                + (f' con {fotos_capturadas} foto(s) de ángulos.' if fotos_capturadas else '.')
+            )
             return redirect('inventario:lista_piezas')
 
     return render(request, 'inventario/nueva_pieza.html', {
-        'title': 'Nueva Pieza - SENA',
+        'title': 'Registrar Pieza/Objeto - SENA',
         'form': form,
+        'foto_angulos': FOTO_ANGULOS,
     })
 
 
@@ -102,6 +142,7 @@ def editar_pieza_view(request, pk):
         'form': form,
         'editando': True,
         'pieza': pieza,
+        'foto_angulos': FOTO_ANGULOS,
     })
 
 
