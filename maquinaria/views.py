@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.utils import timezone
-from .models import Maquina, CategoriaMaquina, Proveedor, AlertaMaquina, HistorialMaquina, MantenimientoProgramado
+from .models import Maquina, CategoriaMaquina, Proveedor, AlertaMaquina, HistorialMaquina, MantenimientoProgramado, UsoMaquinaria
+from .forms import UsoMaquinariaForm
 from usuarios.models import Usuario
 
 # Dashboard
@@ -1123,3 +1124,76 @@ def eliminar_objeto_view(request, pk):
         'objeto': objeto,
     }
     return render(request, 'maquinaria/eliminar_objeto.html', context)
+
+
+# ── Uso de Maquinaria ────────────────────────────────────────────────────────
+
+@login_required
+def registrar_uso_maquinaria_view(request):
+    """Registrar una nueva sesión de uso de maquinaria."""
+    maquina_pk = request.GET.get('maquina')
+    initial = {}
+    if maquina_pk:
+        try:
+            maq = Maquina.objects.get(pk=maquina_pk)
+            initial['maquina'] = maq
+            initial['horas_totales_maquina'] = maq.horas_uso_total
+        except Maquina.DoesNotExist:
+            pass
+
+    form = UsoMaquinariaForm(initial=initial)
+
+    if request.method == 'POST':
+        form = UsoMaquinariaForm(request.POST)
+        if form.is_valid():
+            uso = form.save(commit=False)
+            try:
+                uso.registrado_por = Usuario.objects.get(numero_documento=request.user.username)
+            except Exception:
+                pass
+            uso.save()
+
+            # Actualizar horas totales de la máquina
+            maq = uso.maquina
+            maq.horas_uso_total = uso.horas_totales_maquina
+            maq.save(update_fields=['horas_uso_total'])
+
+            messages.success(request, f'Uso de "{maq.nombre}" registrado correctamente.')
+            return redirect('maquinaria:lista_uso_maquinaria')
+
+    return render(request, 'maquinaria/uso_maquinaria.html', {
+        'title': 'Registrar Uso de Maquinaria',
+        'form': form,
+    })
+
+
+@login_required
+def lista_uso_maquinaria_view(request):
+    """Lista todos los registros de uso de maquinaria."""
+    registros = UsoMaquinaria.objects.select_related(
+        'maquina', 'instructor_encargado', 'registrado_por'
+    ).all()
+
+    q = request.GET.get('q', '').strip()
+    if q:
+        registros = registros.filter(
+            Q(maquina__nombre__icontains=q) |
+            Q(maquina__codigo_inventario__icontains=q) |
+            Q(ficha__icontains=q)
+        )
+
+    maquina_filtro = request.GET.get('maquina', '')
+    if maquina_filtro:
+        registros = registros.filter(maquina_id=maquina_filtro)
+
+    paginator = Paginator(registros, 20)
+    page = request.GET.get('page')
+    registros_page = paginator.get_page(page)
+
+    return render(request, 'maquinaria/lista_uso_maquinaria.html', {
+        'title': 'Registros de Uso de Maquinaria',
+        'registros': registros_page,
+        'q': q,
+        'maquinas': Maquina.objects.all().order_by('codigo_inventario'),
+        'maquina_filtro': maquina_filtro,
+    })

@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}Uso de Maquinaria{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --sena-primary: #39a900;
+    --sena-secondary: #00324d;
+    --sena-accent: #ff6b35;
+  }
+  .form-section-title {
+    color: var(--sena-secondary);
+    font-weight: 600;
+    border-bottom: 2px solid var(--sena-primary);
+    padding-bottom: .4rem;
+    margin-bottom: 1.2rem;
+  }
+  .form-section-title i { color: var(--sena-primary); }
+  .btn-sena-gradient {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    color: #fff; border: none;
+  }
+  .btn-sena-gradient:hover { opacity: .9; color: #fff; }
+  .btn-outline-sena-secondary {
+    color: var(--sena-secondary); border-color: var(--sena-secondary);
+    background: transparent;
+  }
+  .btn-outline-sena-secondary:hover {
+    background: var(--sena-secondary); color: #fff;
+  }
+  .required-star { color: var(--sena-accent); }
+  .card-header { background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%); color: #fff; }
+  .horas-calc { background: #f8f9fa; border-left: 4px solid var(--sena-primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-9 col-lg-11">
+
+    <!-- Encabezado -->
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h5 class="m-0 fw-bold">
+          <i class="bi bi-speedometer2 me-2"></i>Registrar Uso de Maquinaria
+        </h5>
+        <a href="{% url 'maquinaria:lista_uso_maquinaria' %}" class="btn btn-sm btn-outline-light">
+          <i class="bi bi-list me-1"></i>Ver Registros
+        </a>
+      </div>
+
+      <div class="card-body p-4">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Sección 1: Máquina e Instructor -->
+          <h6 class="form-section-title"><i class="bi bi-gear me-2"></i>Información de la Sesión</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Máquina <span class="required-star">*</span>
+              </label>
+              {{ form.maquina }}
+              {% if form.maquina.errors %}
+                <div class="invalid-feedback d-block">{{ form.maquina.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Instructor Encargado</label>
+              {{ form.instructor_encargado }}
+              {% if form.instructor_encargado.errors %}
+                <div class="invalid-feedback d-block">{{ form.instructor_encargado.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">
+                Ficha <span class="required-star">*</span>
+              </label>
+              {{ form.ficha }}
+              <div class="form-text">Número de ficha de formación</div>
+              {% if form.ficha.errors %}
+                <div class="invalid-feedback d-block">{{ form.ficha.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">
+                Fecha <span class="required-star">*</span>
+              </label>
+              {{ form.fecha }}
+              {% if form.fecha.errors %}
+                <div class="invalid-feedback d-block">{{ form.fecha.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Sección 2: Horario y Horas -->
+          <h6 class="form-section-title"><i class="bi bi-clock me-2"></i>Registro de Horas</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">
+                Hora Inicio <span class="required-star">*</span>
+              </label>
+              {{ form.hora_inicio }}
+              {% if form.hora_inicio.errors %}
+                <div class="invalid-feedback d-block">{{ form.hora_inicio.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">
+                Hora Fin <span class="required-star">*</span>
+              </label>
+              {{ form.hora_fin }}
+              {% if form.hora_fin.errors %}
+                <div class="invalid-feedback d-block">{{ form.hora_fin.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">
+                Horas de Uso (sesión) <span class="required-star">*</span>
+              </label>
+              {{ form.horas_uso }}
+              <div class="form-text">Se calcula automáticamente</div>
+              {% if form.horas_uso.errors %}
+                <div class="invalid-feedback d-block">{{ form.horas_uso.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">
+                Horas Totales de la Máquina <span class="required-star">*</span>
+              </label>
+              {{ form.horas_totales_maquina }}
+              <div class="form-text">Acumulado hasta este registro</div>
+              {% if form.horas_totales_maquina.errors %}
+                <div class="invalid-feedback d-block">{{ form.horas_totales_maquina.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Calculadora visual -->
+            <div class="col-12">
+              <div class="horas-calc rounded p-3 d-flex align-items-center gap-4">
+                <i class="bi bi-calculator fs-4 text-sena-primary"></i>
+                <div>
+                  <span class="fw-semibold">Duración calculada:</span>
+                  <span id="duracion-display" class="ms-2 fs-5 fw-bold text-sena-primary">--:--</span>
+                  <span class="text-muted ms-1 small">(hh:mm)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección 3: Descripción -->
+          <h6 class="form-section-title"><i class="bi bi-file-text me-2"></i>Descripción de la Actividad</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              {{ form.descripcion_actividad }}
+              {% if form.descripcion_actividad.errors %}
+                <div class="invalid-feedback d-block">{{ form.descripcion_actividad.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex gap-2 justify-content-end pt-2 border-top">
+            <a href="{% url 'maquinaria:lista_uso_maquinaria' %}" class="btn btn-outline-sena-secondary">
+              <i class="bi bi-x-circle me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-sena-gradient px-4">
+              <i class="bi bi-check-circle me-2"></i>Guardar Registro
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div><!-- /card -->
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const horaInicio  = document.getElementById('id_hora_inicio');
+  const horaFin     = document.getElementById('id_hora_fin');
+  const horasUso    = document.getElementById('id_horas_uso');
+  const horasTotales = document.getElementById('id_horas_totales_maquina');
+  const display     = document.getElementById('duracion-display');
+  const maquinaSelect = document.getElementById('id_maquina');
+
+  function calcularHoras() {
+    const inicio = horaInicio.value;
+    const fin    = horaFin.value;
+    if (!inicio || !fin) { display.textContent = '--:--'; return; }
+
+    const [h1, m1] = inicio.split(':').map(Number);
+    const [h2, m2] = fin.split(':').map(Number);
+    let totalMin = (h2 * 60 + m2) - (h1 * 60 + m1);
+    if (totalMin < 0) totalMin += 24 * 60;
+
+    const hh = String(Math.floor(totalMin / 60)).padStart(2, '0');
+    const mm = String(totalMin % 60).padStart(2, '0');
+    display.textContent = `${hh}:${mm}`;
+
+    // Autocompletar campo horas_uso en decimal
+    const decimal = (totalMin / 60).toFixed(2);
+    horasUso.value = decimal;
+  }
+
+  horaInicio.addEventListener('change', calcularHoras);
+  horaFin.addEventListener('change', calcularHoras);
+
+  // Al seleccionar máquina, cargar sus horas totales actuales via AJAX
+  maquinaSelect.addEventListener('change', function () {
+    const pk = this.value;
+    if (!pk) return;
+    fetch(`/maquinaria/api/maquina/${pk}/datos/`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.horas_uso_total !== undefined) {
+          horasTotales.value = parseFloat(data.horas_uso_total).toFixed(2);
+        }
+      })
+      .catch(() => {});
+  });
+})();
+</script>
+{% endblock %}

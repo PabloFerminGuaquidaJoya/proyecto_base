@@ -1,6 +1,7 @@
 from django import forms
 from django.core.validators import RegexValidator
-from .models import Maquina, CategoriaMaquina, Proveedor, AlertaMaquina, HistorialMaquina, ObjetoMaquinaria
+from .models import Maquina, CategoriaMaquina, Proveedor, AlertaMaquina, HistorialMaquina, ObjetoMaquinaria, UsoMaquinaria
+from usuarios.models import Usuario
 
 class MaquinaForm(forms.ModelForm):
     class Meta:
@@ -505,3 +506,59 @@ class ObjetoMaquinariaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['nombre'].required = True
         self.fields['maquina'].queryset = Maquina.objects.all().order_by('codigo_inventario')
+
+
+class UsoMaquinariaForm(forms.ModelForm):
+    class Meta:
+        model = UsoMaquinaria
+        fields = [
+            'maquina', 'instructor_encargado', 'ficha',
+            'fecha', 'hora_inicio', 'hora_fin',
+            'horas_uso', 'horas_totales_maquina',
+            'descripcion_actividad',
+        ]
+        widgets = {
+            'maquina': forms.Select(attrs={'class': 'form-select'}),
+            'instructor_encargado': forms.Select(attrs={'class': 'form-select'}),
+            'ficha': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 2856721'
+            }),
+            'fecha': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'hora_inicio': forms.TimeInput(attrs={
+                'class': 'form-control',
+                'type': 'time'
+            }),
+            'hora_fin': forms.TimeInput(attrs={
+                'class': 'form-control',
+                'type': 'time'
+            }),
+            'horas_uso': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01', 'min': '0',
+                'placeholder': '0.00'
+            }),
+            'horas_totales_maquina': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01', 'min': '0',
+                'placeholder': '0.00'
+            }),
+            'descripcion_actividad': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Descripción de la actividad realizada...'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['maquina'].queryset = Maquina.objects.all().order_by('codigo_inventario')
+        self.fields['maquina'].empty_label = 'Seleccione una máquina'
+        self.fields['instructor_encargado'].queryset = Usuario.objects.filter(
+            estado='activo'
+        ).order_by('nombres')
+        self.fields['instructor_encargado'].empty_label = 'Seleccione un instructor'
+        self.fields['instructor_encargado'].required = False

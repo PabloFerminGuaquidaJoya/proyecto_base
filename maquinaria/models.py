@@ -471,6 +471,59 @@ class MaquinaEliminada(models.Model):
         return f"{self.codigo_inventario} - {self.nombre} (Eliminada: {self.fecha_eliminacion.strftime('%d/%m/%Y')})"
 
 
+class UsoMaquinaria(models.Model):
+    """
+    Registro de uso de maquinaria por sesión de formación.
+    """
+    maquina = models.ForeignKey(
+        Maquina,
+        on_delete=models.CASCADE,
+        related_name='registros_uso',
+        verbose_name='Máquina'
+    )
+    instructor_encargado = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='usos_maquinaria_instructor',
+        verbose_name='Instructor Encargado'
+    )
+    ficha = models.CharField(max_length=50, verbose_name='Ficha')
+    fecha = models.DateField(verbose_name='Fecha')
+    hora_inicio = models.TimeField(verbose_name='Hora Inicio')
+    hora_fin = models.TimeField(verbose_name='Hora Fin')
+    horas_uso = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        verbose_name='Horas de Uso (sesión)'
+    )
+    horas_totales_maquina = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        verbose_name='Horas Totales de la Máquina'
+    )
+    descripcion_actividad = models.TextField(verbose_name='Descripción de la Actividad')
+
+    registrado_por = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='usos_maquinaria_registrados',
+        verbose_name='Registrado Por'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Uso de Maquinaria"
+        verbose_name_plural = "Usos de Maquinaria"
+        ordering = ['-fecha', '-hora_inicio']
+        indexes = [
+            models.Index(fields=['maquina', '-fecha']),
+            models.Index(fields=['ficha']),
+        ]
+
+    def __str__(self):
+        return f"{self.maquina.codigo_inventario} - Ficha {self.ficha} ({self.fecha})"
+
+
 class ObjetoMaquinaria(models.Model):
     """
     Modelo para registrar objetos/piezas de maquinaria con fotos

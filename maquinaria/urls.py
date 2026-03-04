@@ -51,6 +51,10 @@ urlpatterns = [
     path('objetos/editar/<int:pk>/', views.editar_objeto_view, name='editar_objeto'),
     path('objetos/eliminar/<int:pk>/', views.eliminar_objeto_view, name='eliminar_objeto'),
 
+    # Uso de Maquinaria
+    path('uso/', views.lista_uso_maquinaria_view, name='lista_uso_maquinaria'),
+    path('uso/registrar/', views.registrar_uso_maquinaria_view, name='registrar_uso_maquinaria'),
+
     # API endpoints para AJAX
     path('api/buscar/', views.buscar_maquinas_api, name='api_buscar'),
     path('api/estadisticas/', views.estadisticas_maquinaria_api, name='api_estadisticas'),

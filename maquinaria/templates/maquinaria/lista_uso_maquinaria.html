@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}Uso de Maquinaria{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --sena-primary: #39a900;
+    --sena-secondary: #00324d;
+    --sena-accent: #ff6b35;
+  }
+  .btn-sena-gradient {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    color: #fff; border: none;
+  }
+  .btn-sena-gradient:hover { opacity: .9; color: #fff; }
+  .btn-outline-sena-secondary {
+    color: var(--sena-secondary); border-color: var(--sena-secondary); background: transparent;
+  }
+  .btn-outline-sena-secondary:hover { background: var(--sena-secondary); color: #fff; }
+  .btn-outline-sena-primary {
+    color: var(--sena-primary); border-color: var(--sena-primary); background: transparent;
+  }
+  .btn-outline-sena-primary:hover { background: var(--sena-primary); color: #fff; }
+  .card-header { background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%); color: #fff; }
+  .badge-sena-primary { background-color: var(--sena-primary) !important; color: #fff; }
+  .badge-sena-secondary { background-color: var(--sena-secondary) !important; color: #fff; }
+  .badge-sena-accent { background-color: var(--sena-accent) !important; color: #fff; }
+  .table thead th { background: var(--sena-secondary); color: #fff; border-color: rgba(255,255,255,.2); }
+  .table tbody tr:hover { background: rgba(57,169,0,.06); }
+  .horas-badge { font-size: .85rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header actions -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-1" style="color:var(--sena-secondary)">
+      <i class="bi bi-speedometer2 me-2" style="color:var(--sena-primary)"></i>Registros de Uso de Maquinaria
+    </h4>
+    <p class="text-muted mb-0 small">Historial de sesiones de uso de cada máquina</p>
+  </div>
+  <a href="{% url 'maquinaria:registrar_uso_maquinaria' %}" class="btn btn-sena-gradient">
+    <i class="bi bi-plus-circle me-2"></i>Nuevo Registro
+  </a>
+</div>
+
+<!-- Filtros -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body py-3">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label small fw-semibold mb-1">Buscar</label>
+        <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm"
+               placeholder="Máquina, código, ficha...">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold mb-1">Filtrar por Máquina</label>
+        <select name="maquina" class="form-select form-select-sm">
+          <option value="">Todas las máquinas</option>
+          {% for m in maquinas %}
+            <option value="{{ m.pk }}" {% if maquina_filtro == m.pk|stringformat:"s" %}selected{% endif %}>
+              {{ m.codigo_inventario }} – {{ m.nombre }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-sena-gradient btn-sm flex-fill">
+          <i class="bi bi-search me-1"></i>Filtrar
+        </button>
+        <a href="{% url 'maquinaria:lista_uso_maquinaria' %}" class="btn btn-outline-sena-secondary btn-sm flex-fill">
+          <i class="bi bi-x-circle me-1"></i>Limpiar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabla de registros -->
+<div class="card shadow">
+  <div class="card-header py-3">
+    <h6 class="m-0 fw-bold">
+      <i class="bi bi-table me-2"></i>
+      {{ registros.paginator.count }} registro{{ registros.paginator.count|pluralize }}
+    </h6>
+  </div>
+  <div class="card-body p-0">
+    {% if registros %}
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Máquina</th>
+              <th>Ficha</th>
+              <th>Instructor</th>
+              <th>Fecha</th>
+              <th>Hora Inicio</th>
+              <th>Hora Fin</th>
+              <th>Horas Sesión</th>
+              <th>Horas Totales</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reg in registros %}
+            <tr>
+              <td>
+                <div class="fw-semibold" style="color:var(--sena-secondary)">{{ reg.maquina.nombre }}</div>
+                <small class="text-muted">{{ reg.maquina.codigo_inventario }}</small>
+              </td>
+              <td>
+                <span class="badge badge-sena-secondary horas-badge">{{ reg.ficha }}</span>
+              </td>
+              <td>
+                {% if reg.instructor_encargado %}
+                  {{ reg.instructor_encargado.nombres }} {{ reg.instructor_encargado.apellidos }}
+                {% else %}
+                  <span class="text-muted small">—</span>
+                {% endif %}
+              </td>
+              <td>{{ reg.fecha|date:"d/m/Y" }}</td>
+              <td>{{ reg.hora_inicio|time:"H:i" }}</td>
+              <td>{{ reg.hora_fin|time:"H:i" }}</td>
+              <td>
+                <span class="badge badge-sena-primary horas-badge">
+                  <i class="bi bi-clock me-1"></i>{{ reg.horas_uso }}h
+                </span>
+              </td>
+              <td>
+                <span class="badge badge-sena-accent horas-badge">
+                  {{ reg.horas_totales_maquina }}h
+                </span>
+              </td>
+              <td class="text-center">
+                <button type="button"
+                  class="btn btn-outline-sena-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalDetalle{{ reg.pk }}"
+                  title="Ver detalle">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      {% if registros.has_other_pages %}
+      <div class="d-flex justify-content-center py-3">
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            {% if registros.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ registros.previous_page_number }}&q={{ q }}&maquina={{ maquina_filtro }}">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+            {% endif %}
+            {% for num in registros.paginator.page_range %}
+              <li class="page-item {% if registros.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&q={{ q }}&maquina={{ maquina_filtro }}">{{ num }}</a>
+              </li>
+            {% endfor %}
+            {% if registros.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ registros.next_page_number }}&q={{ q }}&maquina={{ maquina_filtro }}">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+
+    {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-speedometer2 fs-1 text-muted"></i>
+        <p class="text-muted mt-3">No hay registros de uso aún.</p>
+        <a href="{% url 'maquinaria:registrar_uso_maquinaria' %}" class="btn btn-sena-gradient">
+          <i class="bi bi-plus-circle me-2"></i>Registrar Primer Uso
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modales de detalle -->
+{% for reg in registros %}
+<div class="modal fade" id="modalDetalle{{ reg.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" style="background:linear-gradient(135deg,#00324d,#39a900);color:#fff">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-speedometer2 me-2"></i>Detalle de Uso
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <strong>Máquina:</strong>
+            <p class="mb-0">{{ reg.maquina.nombre }} <small class="text-muted">({{ reg.maquina.codigo_inventario }})</small></p>
+          </div>
+          <div class="col-md-6">
+            <strong>Ficha:</strong>
+            <p class="mb-0">{{ reg.ficha }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Instructor Encargado:</strong>
+            <p class="mb-0">
+              {% if reg.instructor_encargado %}
+                {{ reg.instructor_encargado.nombres }} {{ reg.instructor_encargado.apellidos }}
+              {% else %}<span class="text-muted">No especificado</span>{% endif %}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <strong>Fecha:</strong>
+            <p class="mb-0">{{ reg.fecha|date:"d/m/Y" }}</p>
+          </div>
+          <div class="col-md-3">
+            <strong>Hora Inicio:</strong>
+            <p class="mb-0">{{ reg.hora_inicio|time:"H:i" }}</p>
+          </div>
+          <div class="col-md-3">
+            <strong>Hora Fin:</strong>
+            <p class="mb-0">{{ reg.hora_fin|time:"H:i" }}</p>
+          </div>
+          <div class="col-md-3">
+            <strong>Horas de Uso (sesión):</strong>
+            <p class="mb-0"><span class="badge badge-sena-primary">{{ reg.horas_uso }}h</span></p>
+          </div>
+          <div class="col-md-3">
+            <strong>Horas Totales Máquina:</strong>
+            <p class="mb-0"><span class="badge badge-sena-accent">{{ reg.horas_totales_maquina }}h</span></p>
+          </div>
+          <div class="col-12">
+            <strong>Descripción de la Actividad:</strong>
+            <p class="mb-0 mt-1" style="white-space:pre-line">{{ reg.descripcion_actividad }}</p>
+          </div>
+          {% if reg.registrado_por %}
+          <div class="col-12">
+            <small class="text-muted">
+              Registrado por: {{ reg.registrado_por.nombres }} {{ reg.registrado_por.apellidos }}
+              — {{ reg.created_at|date:"d/m/Y H:i" }}
+            </small>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-sena-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}
