@@ -108,28 +108,37 @@
             margin-bottom: 2rem;
         }
         
-        .form-floating {
-            margin-bottom: 1.5rem;
+        .form-group {
+            margin-bottom: 1.4rem;
         }
-        
+
+        .form-group label {
+            display: block;
+            color: var(--sena-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group label i {
+            margin-right: 0.4rem;
+        }
+
         .form-control {
             border: 2px solid #e2e8f0;
             border-radius: 12px;
-            padding: 1rem 1.25rem;
+            padding: 0.75rem 1.1rem;
             font-size: 1rem;
+            width: 100%;
             transition: all 0.3s ease;
             background: #f7fafc;
         }
-        
+
         .form-control:focus {
             border-color: #39A900;
             box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.25);
             background: white;
-        }
-
-        .form-floating > label {
-            color: var(--sena-secondary);
-            font-weight: 600;
+            outline: none;
         }
 
         .btn-login {
@@ -650,31 +659,31 @@
                 {% endif %}
                 
                 <!-- Username Field -->
-                <div class="form-floating">
-                    <input type="text" 
-                           class="form-control" 
-                           id="id_username" 
-                           name="username" 
-                           placeholder="Cédula"
+                <div class="form-group">
+                    <label for="id_username">
+                        <i class="bi bi-person"></i>Cédula o Tarjeta de Identidad
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="id_username"
+                           name="username"
+                           placeholder="Ingrese su número de documento"
                            required
                            autocomplete="username">
-                    <label for="id_username">
-                        <i class="bi bi-person me-2"></i>Cédula
-                    </label>
                 </div>
-                
+
                 <!-- Password Field -->
-                <div class="form-floating">
-                    <input type="password" 
-                           class="form-control" 
-                           id="id_password" 
-                           name="password" 
-                           placeholder="Contraseña"
+                <div class="form-group">
+                    <label for="id_password">
+                        <i class="bi bi-lock"></i>Contraseña
+                    </label>
+                    <input type="password"
+                           class="form-control"
+                           id="id_password"
+                           name="password"
+                           placeholder="Ingrese su contraseña"
                            required
                            autocomplete="current-password">
-                    <label for="id_password">
-                        <i class="bi bi-lock me-2"></i>Contraseña
-                    </label>
                 </div>
                 
                 
