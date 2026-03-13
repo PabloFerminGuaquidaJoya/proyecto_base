@@ -46,28 +46,127 @@
                 <p class="text-muted">{{ pieza.observaciones }}</p>
                 {% endif %}
 
-                {% if pieza.foto_pieza or pieza.foto_empaque %}
+                {% if pieza.foto_pieza or pieza.foto_empaque or pieza.foto_frontal or pieza.foto_lateral_derecha or pieza.foto_lateral_izquierda or pieza.foto_trasera or pieza.foto_superior or pieza.foto_inferior %}
                 <hr>
-                <h6 class="fw-bold" style="color:var(--sena-secondary);">Fotografías</h6>
-                <div class="row g-3">
+                <h6 class="fw-bold mb-3" style="color:var(--sena-secondary);">
+                    <i class="bi bi-images me-2"></i>Fotografías
+                </h6>
+
+                {% if pieza.foto_pieza or pieza.foto_empaque %}
+                <p class="small fw-semibold mb-2" style="color:var(--sena-secondary);">
+                    <i class="bi bi-camera me-1"></i>Fotos Generales
+                </p>
+                <div class="row g-3 mb-3">
                     {% if pieza.foto_pieza %}
-                    <div class="col-md-6 text-center">
-                        <small class="text-muted d-block mb-1">Foto de la Pieza</small>
-                        <img src="{{ pieza.foto_pieza.url }}" alt="Foto pieza"
-                             style="max-height:200px; max-width:100%; border-radius:8px;
-                                    border:2px solid var(--sena-primary); object-fit:cover;">
+                    <div class="col-md-6">
+                        <div class="foto-card" onclick="abrirLightbox('{{ pieza.foto_pieza.url }}', 'Foto de la Pieza')">
+                            <small class="text-muted d-block mb-2 fw-semibold"><i class="bi bi-camera me-1"></i>Foto de la Pieza</small>
+                            <div class="foto-wrapper">
+                                <img src="{{ pieza.foto_pieza.url }}" alt="Foto pieza">
+                                <div class="foto-overlay"><i class="bi bi-zoom-in fs-3"></i></div>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                     {% if pieza.foto_empaque %}
-                    <div class="col-md-6 text-center">
-                        <small class="text-muted d-block mb-1">Foto del Empaque</small>
-                        <img src="{{ pieza.foto_empaque.url }}" alt="Foto empaque"
-                             style="max-height:200px; max-width:100%; border-radius:8px;
-                                    border:2px solid var(--sena-secondary); object-fit:cover;">
+                    <div class="col-md-6">
+                        <div class="foto-card" onclick="abrirLightbox('{{ pieza.foto_empaque.url }}', 'Foto del Empaque')">
+                            <small class="text-muted d-block mb-2 fw-semibold"><i class="bi bi-box me-1"></i>Foto del Empaque</small>
+                            <div class="foto-wrapper">
+                                <img src="{{ pieza.foto_empaque.url }}" alt="Foto empaque">
+                                <div class="foto-overlay"><i class="bi bi-zoom-in fs-3"></i></div>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
                 {% endif %}
+
+                {% if pieza.foto_frontal or pieza.foto_lateral_derecha or pieza.foto_lateral_izquierda or pieza.foto_trasera or pieza.foto_superior or pieza.foto_inferior %}
+                <p class="small fw-semibold mb-2" style="color:var(--sena-secondary);">
+                    <i class="bi bi-box-seam me-1"></i>Fotografías de 6 Ángulos
+                </p>
+                <div class="row g-3">
+                    {% if pieza.foto_frontal %}
+                    <div class="col-md-4">
+                        <div class="foto-card" onclick="abrirLightbox('{{ pieza.foto_frontal.url }}', 'Vista Frontal')">
+                            <small class="text-muted d-block mb-2 fw-semibold"><i class="bi bi-front me-1"></i>Frontal</small>
+                            <div class="foto-wrapper">
+                                <img src="{{ pieza.foto_frontal.url }}" alt="Vista frontal">
+                                <div class="foto-overlay"><i class="bi bi-zoom-in fs-3"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if pieza.foto_lateral_derecha %}
+                    <div class="col-md-4">
+                        <div class="foto-card" onclick="abrirLightbox('{{ pieza.foto_lateral_derecha.url }}', 'Lateral Derecha')">
+                            <small class="text-muted d-block mb-2 fw-semibold"><i class="bi bi-arrow-right me-1"></i>Lateral Derecha</small>
+                            <div class="foto-wrapper">
+                                <img src="{{ pieza.foto_lateral_derecha.url }}" alt="Vista lateral derecha">
+                                <div class="foto-overlay"><i class="bi bi-zoom-in fs-3"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if pieza.foto_lateral_izquierda %}
+                    <div class="col-md-4">
+                        <div class="foto-card" onclick="abrirLightbox('{{ pieza.foto_lateral_izquierda.url }}', 'Lateral Izquierda')">
+                            <small class="text-muted d-block mb-2 fw-semibold"><i class="bi bi-arrow-left me-1"></i>Lateral Izquierda</small>
+                            <div class="foto-wrapper">
+                                <img src="{{ pieza.foto_lateral_izquierda.url }}" alt="Vista lateral izquierda">
+                                <div class="foto-overlay"><i class="bi bi-zoom-in fs-3"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if pieza.foto_trasera %}
+                    <div class="col-md-4">
+                        <div class="foto-card" onclick="abrirLightbox('{{ pieza.foto_trasera.url }}', 'Vista Trasera')">
+                            <small class="text-muted d-block mb-2 fw-semibold"><i class="bi bi-back me-1"></i>Trasera</small>
+                            <div class="foto-wrapper">
+                                <img src="{{ pieza.foto_trasera.url }}" alt="Vista trasera">
+                                <div class="foto-overlay"><i class="bi bi-zoom-in fs-3"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if pieza.foto_superior %}
+                    <div class="col-md-4">
+                        <div class="foto-card" onclick="abrirLightbox('{{ pieza.foto_superior.url }}', 'Vista Superior')">
+                            <small class="text-muted d-block mb-2 fw-semibold"><i class="bi bi-arrow-up me-1"></i>Superior</small>
+                            <div class="foto-wrapper">
+                                <img src="{{ pieza.foto_superior.url }}" alt="Vista superior">
+                                <div class="foto-overlay"><i class="bi bi-zoom-in fs-3"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if pieza.foto_inferior %}
+                    <div class="col-md-4">
+                        <div class="foto-card" onclick="abrirLightbox('{{ pieza.foto_inferior.url }}', 'Vista Inferior')">
+                            <small class="text-muted d-block mb-2 fw-semibold"><i class="bi bi-arrow-down me-1"></i>Inferior</small>
+                            <div class="foto-wrapper">
+                                <img src="{{ pieza.foto_inferior.url }}" alt="Vista inferior">
+                                <div class="foto-overlay"><i class="bi bi-zoom-in fs-3"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endif %}
+
+                <!-- Lightbox -->
+                <div id="lightbox" onclick="cerrarLightbox()" style="
+                    display:none; position:fixed; inset:0; z-index:9999;
+                    background:rgba(0,0,0,0.88); cursor:zoom-out;
+                    align-items:center; justify-content:center; flex-direction:column;">
+                    <p id="lightbox-titulo" style="color:#fff; font-weight:600; margin-bottom:1rem; font-size:1.1rem;"></p>
+                    <img id="lightbox-img" src="" alt=""
+                         style="max-width:90vw; max-height:80vh; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,0.6); object-fit:contain;">
+                    <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin-top:1rem;">Haz clic en cualquier lugar para cerrar</p>
+                </div>
             </div>
         </div>
     </div>
@@ -91,4 +190,72 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .foto-card {
+        cursor: pointer;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 2px solid #e2e8f0;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        padding: 0.75rem;
+        background: #f8fafc;
+    }
+    .foto-card:hover {
+        border-color: var(--sena-primary);
+        box-shadow: 0 4px 16px rgba(57,169,0,0.18);
+    }
+    .foto-wrapper {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .foto-wrapper img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 8px;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+    .foto-card:hover .foto-wrapper img {
+        transform: scale(1.03);
+    }
+    .foto-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,50,77,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.25s;
+        border-radius: 8px;
+    }
+    .foto-card:hover .foto-overlay {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function abrirLightbox(url, titulo) {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lightbox-img').src = url;
+    document.getElementById('lightbox-titulo').textContent = titulo;
+    lb.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function cerrarLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') cerrarLightbox();
+});
+</script>
 {% endblock %}
