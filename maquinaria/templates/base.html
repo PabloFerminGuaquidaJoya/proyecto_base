@@ -1191,13 +1191,24 @@
                 </div>
 
                 <div class="me-3 d-none d-md-block">
-                    <small class="text-muted">
-                        {% if usuario_actual %}{{ usuario_actual.primer_nombre }} {{ usuario_actual.apellidos.0 }}.{% else %}{{ user.username }}{% endif %}
-                    </small>
+                    <a href="{% url 'usuarios:perfil' %}" class="text-decoration-none">
+                        <small class="text-muted">
+                            {% if usuario_actual %}{{ usuario_actual.primer_nombre }} {{ usuario_actual.apellidos.0 }}.{% else %}{{ user.username }}{% endif %}
+                        </small>
+                    </a>
                 </div>
-                <div class="user-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                    {% if usuario_actual %}{{ usuario_actual.iniciales }}{% else %}{{ user.username.0|upper }}{% endif %}
-                </div>
+                <a href="{% url 'usuarios:perfil' %}" class="text-decoration-none">
+                    {% if usuario_actual and usuario_actual.foto_perfil %}
+                        <img src="{{ usuario_actual.foto_perfil.url }}"
+                             alt="Foto de perfil"
+                             class="rounded-circle"
+                             style="width: 40px; height: 40px; object-fit: cover; border: 2px solid var(--sena-primary);">
+                    {% else %}
+                        <div class="user-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            {% if usuario_actual %}{{ usuario_actual.iniciales }}{% else %}{{ user.username.0|upper }}{% endif %}
+                        </div>
+                    {% endif %}
+                </a>
             </div>
         </div>
 
