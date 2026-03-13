@@ -292,9 +292,27 @@
             border-radius: 12px 12px 0 0 !important;
             font-weight: 600;
         }
+        .card-header *,
         .card-header h5,
         .card-header h6,
-        .card-header .m-0 {
+        .card-header .m-0,
+        .card-header span,
+        .card-header small,
+        .card-header a,
+        .card-header i,
+        .card-header p,
+        .card-header .text-muted,
+        .card-header .font-weight-bold,
+        .card-header .fw-bold {
+            color: white !important;
+        }
+
+        /* Anular el degradado de texto dentro de card-header (aplica a todos los templates) */
+        .card-header .text-sena-gradient {
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            -webkit-text-fill-color: white !important;
             color: white !important;
         }
 
