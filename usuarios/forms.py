@@ -324,10 +324,13 @@ class PerfilUsuarioForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Especialidad o programa'
             }),
-            'cargo': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Cargo o rol'
-            }),
+            'cargo': forms.Select(attrs={
+                'class': 'form-select'
+            }, choices=[
+                ('', 'Seleccione un cargo'),
+                ('Aprendiz', 'Aprendiz'),
+                ('Instructor', 'Instructor'),
+            ]),
         }
 
     def clean_email(self):

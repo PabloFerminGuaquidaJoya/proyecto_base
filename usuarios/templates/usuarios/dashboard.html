@@ -124,6 +124,7 @@
     </div>
     <div class="card-body">
         <div class="row">
+            {% if usuario_actual.cargo|lower != 'aprendiz' %}
             <div class="col-md-4 mb-3">
                 <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-sena-gradient w-100 py-3">
                     <i class="bi bi-plus-circle d-block fs-2 mb-2"></i>
@@ -131,6 +132,7 @@
                     <small class="d-block opacity-75">Registrar equipamiento</small>
                 </a>
             </div>
+            {% endif %}
 
             <div class="col-md-4 mb-3">
                 <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-outline-sena-secondary w-100 py-3">

@@ -153,11 +153,13 @@
     </div>
     <div class="card-body">
         <div class="row">
+            {% if usuario_actual.cargo|lower != 'aprendiz' %}
             <div class="col-md-3 mb-3">
                 <a href="{% url 'inventario:nueva_pieza' %}" class="btn btn-sena-gradient w-100">
                     <i class="bi bi-plus-circle me-2"></i>Nueva Pieza
                 </a>
             </div>
+            {% endif %}
             <div class="col-md-3 mb-3">
                 <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-sena-secondary w-100">
                     <i class="bi bi-list me-2"></i>Ver Todas

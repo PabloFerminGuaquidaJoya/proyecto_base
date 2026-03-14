@@ -76,6 +76,7 @@
 </div>
 
 <!-- Quick Actions -->
+{% if usuario_actual.cargo|lower != 'aprendiz' %}
 <div class="card mb-4">
     <div class="card-header">
         <h6 class="m-0 font-weight-bold text-sena-gradient">Acciones Rápidas</h6>
@@ -90,6 +91,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Filtros y Lista de Reportes -->
 <div class="card">

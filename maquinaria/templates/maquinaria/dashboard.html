@@ -82,11 +82,13 @@
     </div>
     <div class="card-body">
         <div class="row">
+            {% if usuario_actual.cargo|lower != 'aprendiz' %}
             <div class="col-md-3 mb-3">
                 <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-sena-gradient w-100">
                     <i class="bi bi-plus-circle me-2"></i>Nueva Máquina
                 </a>
             </div>
+            {% endif %}
             <div class="col-md-3 mb-3">
                 <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-outline-sena-secondary w-100">
                     <i class="bi bi-list me-2"></i>Ver Todas
@@ -102,11 +104,13 @@
                     <i class="bi bi-wrench me-2"></i>Mantenimiento
                 </a>
             </div>
+            {% if usuario_actual.cargo|lower != 'aprendiz' %}
             <div class="col-md-3 mb-3">
                 <a href="{% url 'maquinaria:registrar_uso_maquinaria' %}" class="btn btn-sena-gradient w-100">
                     <i class="bi bi-speedometer2 me-2"></i>Registrar Uso
                 </a>
             </div>
+            {% endif %}
             <div class="col-md-3 mb-3">
                 <a href="{% url 'maquinaria:lista_uso_maquinaria' %}" class="btn btn-outline-sena-primary w-100">
                     <i class="bi bi-clock-history me-2"></i>Ver Usos

@@ -161,7 +161,16 @@ def perfil_view(request):
     if request.method == 'POST':
         form = PerfilUsuarioForm(request.POST, request.FILES, instance=usuario)
         if form.is_valid():
-            form.save()
+            usuario_actualizado = form.save(commit=False)
+            # Sincronizar tipo_usuario con el cargo seleccionado
+            nuevo_cargo = form.cleaned_data.get('cargo', '')
+            if nuevo_cargo:
+                tipo_usuario, _ = TipoUsuario.objects.get_or_create(
+                    nombre=nuevo_cargo,
+                    defaults={'descripcion': f'{nuevo_cargo} SENA', 'permisos': {}, 'activo': True}
+                )
+                usuario_actualizado.tipo_usuario = tipo_usuario
+            usuario_actualizado.save()
             messages.success(request, 'Perfil actualizado correctamente')
             return redirect('usuarios:perfil')
 
@@ -349,18 +358,18 @@ def register_view(request):
         if form.is_valid():
             usuario = form.save(commit=False)
 
-            # Buscar o crear el tipo de usuario "Instructor"
-            tipo_instructor, created = TipoUsuario.objects.get_or_create(
-                nombre='Instructor',
+            # Asignar tipo de usuario según el cargo seleccionado
+            cargo_seleccionado = form.cleaned_data.get('cargo', 'Instructor')
+            tipo_usuario, created = TipoUsuario.objects.get_or_create(
+                nombre=cargo_seleccionado,
                 defaults={
-                    'descripcion': 'Instructor SENA',
+                    'descripcion': f'{cargo_seleccionado} SENA',
                     'permisos': {},
                     'activo': True
                 }
             )
 
-            # Asignar tipo de usuario Instructor
-            usuario.tipo_usuario = tipo_instructor
+            usuario.tipo_usuario = tipo_usuario
             usuario.estado = 'pendiente'
 
             # Crear usuario de Django para autenticación

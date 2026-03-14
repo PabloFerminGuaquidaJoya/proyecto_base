@@ -332,7 +332,7 @@
             </div>
             <div class="mb-3">
                 <small class="text-muted d-block">Tipo de Usuario</small>
-                <strong>{{ usuario.tipo_usuario.nombre }}</strong>
+                <strong>{{ usuario.cargo|default:usuario.tipo_usuario.nombre }}</strong>
             </div>
             <div class="mb-3">
                 <small class="text-muted d-block">Estado</small>
