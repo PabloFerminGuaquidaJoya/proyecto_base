@@ -50,6 +50,9 @@ urlpatterns = [
     path('dashboard/widget/agregar/', views.agregar_widget_dashboard, name='agregar_widget'),
     path('dashboard/widget/<int:pk>/eliminar/', views.eliminar_widget_dashboard, name='eliminar_widget'),
 
+    # Vista previa de reporte
+    path('api/preview/', views.preview_reporte_api, name='api_preview_reporte'),
+
     # API para filtros dinámicos
     path('api/filtros/centros/', views.filtros_centros_api, name='api_filtros_centros'),
     path('api/filtros/categorias/', views.filtros_categorias_api, name='api_filtros_categorias'),

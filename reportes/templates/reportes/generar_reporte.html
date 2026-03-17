@@ -18,24 +18,38 @@
 
                     <!-- Report Type -->
                     <div class="mb-4">
-                        <label class="form-label">Tipo de Reporte *</label>
+                        <label class="form-label fw-semibold">Tipo de Reporte *</label>
                         <div class="row">
                             {% if tipos_reporte %}
                                 {% for tipo in tipos_reporte %}
-                                <div class="col-md-6 mb-3">
-                                    <div class="report-type-card p-3 border rounded" onclick="selectReportType('{{ tipo.id }}', event)">
-                                        <input type="radio" name="tipo_reporte" value="{{ tipo.id }}" id="tipo_{{ tipo.id }}" class="form-check-input">
-                                        <label for="tipo_{{ tipo.id }}" class="form-check-label w-100" style="cursor: pointer;">
-                                            <i class="bi bi-file-earmark fs-3 text-primary d-block mb-2"></i>
+                                {% with nombre_lower=tipo.nombre|lower %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="report-type-card p-3 border rounded"
+                                         data-nombre="{{ tipo.nombre }}"
+                                         onclick="selectReportType('{{ tipo.id }}', '{{ tipo.nombre|escapejs }}', event)">
+                                        <input type="radio" name="tipo_reporte" value="{{ tipo.id }}"
+                                               id="tipo_{{ tipo.id }}" class="form-check-input">
+                                        <label for="tipo_{{ tipo.id }}" class="form-check-label w-100" style="cursor:pointer;">
+                                            {% if 'maquinaria' in nombre_lower %}
+                                                <i class="bi bi-gear-wide-connected fs-2 text-success d-block mb-2"></i>
+                                            {% elif 'inventario' in nombre_lower %}
+                                                <i class="bi bi-boxes fs-2 text-primary d-block mb-2"></i>
+                                            {% else %}
+                                                <i class="bi bi-file-earmark-text fs-2 text-warning d-block mb-2"></i>
+                                            {% endif %}
                                             <strong>{{ tipo.nombre }}</strong>
-                                            <p class="text-muted small mb-0">{{ tipo.descripcion }}</p>
+                                            <p class="text-muted small mb-0 mt-1">{{ tipo.descripcion }}</p>
                                         </label>
                                     </div>
                                 </div>
+                                {% endwith %}
                                 {% endfor %}
                             {% else %}
                                 <div class="col-12">
-                                    <p class="text-muted">No hay tipos de reporte disponibles.</p>
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        No hay tipos de reporte disponibles. Ejecuta las migraciones del sistema.
+                                    </div>
                                 </div>
                             {% endif %}
                         </div>
@@ -55,7 +69,7 @@
                                     <option value="pdf" selected>PDF</option>
                                     <option value="excel">Excel (XLSX)</option>
                                     <option value="csv">CSV</option>
-                                    <option value="html">HTML</option>
+                                    <option value="json">JSON</option>
                                 </select>
                             </div>
                         </div>
@@ -71,6 +85,12 @@
                     <!-- Date Range -->
                     <div class="mb-4">
                         <label class="form-label">Período de Datos</label>
+                        {% if fecha_datos_inicio %}
+                        <div class="alert alert-info py-1 px-3 mb-2" style="font-size:0.85rem;">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Datos disponibles desde <strong>{{ fecha_datos_inicio }}</strong> hasta <strong>{{ fecha_datos_fin }}</strong>
+                        </div>
+                        {% endif %}
                         <div class="row">
                             <div class="col-md-4">
                                 <select class="form-select" id="periodo_predefinido" onchange="updateDateRange()">
@@ -79,14 +99,17 @@
                                     <option value="ultimo_mes" selected>Último Mes</option>
                                     <option value="ultimos_3_meses">Últimos 3 Meses</option>
                                     <option value="ultimo_año">Último Año</option>
+                                    <option value="todo">Todo el período</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio">
+                                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
+                                    {% if fecha_datos_inicio %}min="{{ fecha_datos_inicio }}" max="{{ fecha_datos_fin }}"{% endif %}>
                                 <small class="form-text text-muted">Fecha de inicio</small>
                             </div>
                             <div class="col-md-4">
-                                <input type="date" class="form-control" id="fecha_fin" name="fecha_fin">
+                                <input type="date" class="form-control" id="fecha_fin" name="fecha_fin"
+                                    {% if fecha_datos_inicio %}min="{{ fecha_datos_inicio }}" max="{{ fecha_datos_fin }}"{% endif %}>
                                 <small class="form-text text-muted">Fecha de fin</small>
                             </div>
                         </div>
@@ -94,22 +117,54 @@
 
                     <!-- Filters -->
                     <div class="mb-4">
-                        <label class="form-label">Filtros Opcionales</label>
+                        <label class="form-label fw-semibold">Filtros Opcionales</label>
                         <div class="row">
+                            <!-- Categorías: dropdown con checkboxes -->
                             <div class="col-md-4">
-                                <select class="form-select" name="categoria">
-                                    <option value="">Todas las categorías</option>
-                                    {% for categoria in categorias %}
-                                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-                                    {% endfor %}
-                                </select>
+                                <div class="dropdown categoria-dropdown w-100" id="categoriasDropdown">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center"
+                                            id="categoriasBtn"
+                                            onclick="toggleCategoriasDropdown()"
+                                            style="font-size:0.9rem;">
+                                        <span id="categoriasLabel">Todas las categorías</span>
+                                        <i class="bi bi-chevron-down ms-2"></i>
+                                    </button>
+                                    <div class="categoria-menu border rounded bg-white shadow-sm p-2"
+                                         id="categoriasMenu"
+                                         style="display:none; position:absolute; z-index:1050;
+                                                min-width:100%; max-height:220px; overflow-y:auto;">
+                                        <div class="form-check px-2 py-1 border-bottom mb-1">
+                                            <input class="form-check-input" type="checkbox"
+                                                   id="cat_todas" checked
+                                                   onchange="toggleTodasCategorias(this)">
+                                            <label class="form-check-label fw-semibold" for="cat_todas">
+                                                Todas las categorías
+                                            </label>
+                                        </div>
+                                        {% for categoria in categorias %}
+                                        <div class="form-check px-2 py-1">
+                                            <input class="form-check-input cat-check" type="checkbox"
+                                                   name="categoria" value="{{ categoria.id }}"
+                                                   id="cat_{{ categoria.id }}"
+                                                   onchange="actualizarLabelCategorias()">
+                                            <label class="form-check-label" for="cat_{{ categoria.id }}"
+                                                   style="font-size:0.85rem; cursor:pointer;">
+                                                {{ categoria.nombre }}
+                                            </label>
+                                        </div>
+                                        {% empty %}
+                                        <p class="text-muted small px-2">Sin categorías registradas</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                                 <small class="form-text text-muted">Categoría de máquina</small>
                             </div>
                             <div class="col-md-4">
                                 <select class="form-select" name="centro_formacion">
                                     <option value="">Todos los centros</option>
                                     {% for centro in centros_formacion %}
-                                        <option value="{{ centro.id }}">{{ centro.nombre }}</option>
+                                        <option value="{{ centro }}">{{ centro }}</option>
                                     {% endfor %}
                                 </select>
                                 <small class="form-text text-muted">Centro de formación</small>
@@ -141,12 +196,6 @@
                                     <input class="form-check-input" type="checkbox" id="incluir_detalles" name="incluir_detalles" checked>
                                     <label class="form-check-label" for="incluir_detalles">
                                         Incluir detalles técnicos
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="incluir_recomendaciones" name="incluir_recomendaciones">
-                                    <label class="form-check-label" for="incluir_recomendaciones">
-                                        Incluir recomendaciones de IA
                                     </label>
                                 </div>
                             </div>
@@ -201,6 +250,29 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Vista Previa -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background:var(--sena-secondary);color:#fff;">
+                <h5 class="modal-title">
+                    <i class="bi bi-eye me-2"></i>Vista Previa: <span id="previewModalTitulo"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="previewModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-sena-gradient" data-bs-dismiss="modal"
+                    onclick="document.getElementById('reportForm').requestSubmit()">
+                    <i class="bi bi-play-circle me-2"></i>Generar Reporte
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_css %}
@@ -227,90 +299,101 @@
         border-color: var(--sena-primary) !important;
         background-color: rgba(57, 169, 0, 0.1);
     }
+
+    .categoria-dropdown { position: relative; }
+
+    .categoria-menu .form-check:hover {
+        background-color: rgba(57, 169, 0, 0.08);
+        border-radius: 4px;
+    }
+
+    .categoria-menu .form-check-input:checked {
+        background-color: var(--sena-primary);
+        border-color: var(--sena-primary);
+    }
+
+    #categoriasBtn {
+        text-align: left;
+        border-color: #ced4da;
+        color: #212529;
+    }
+
+    #categoriasBtn:hover, #categoriasBtn:focus {
+        border-color: var(--sena-primary);
+        box-shadow: 0 0 0 0.2rem rgba(57,169,0,0.15);
+    }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function selectReportType(type, event) {
-    // Remove previous selections
-    document.querySelectorAll('.report-type-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-
-    // Select current card
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('selected');
+const PREVIEW_INFO = {
+    'maquinaria': {
+        icon: 'bi-gear-wide-connected',
+        color: 'text-success',
+        secciones: [
+            { titulo: 'Maquinaria', items: ['Código, nombre, categoría, marca, modelo', 'Estado, condición, eficiencia, horas de uso', 'Centro de formación, ubicación, valor adquisición'] },
+            { titulo: 'Mantenimientos Realizados', items: ['Tipo, estado y prioridad del mantenimiento', 'Fechas programadas y de ejecución', 'Costos reales y técnico responsable'] },
+            { titulo: 'Usos Registrados', items: ['Ficha, instructor encargado', 'Fecha, horario y horas por sesión', 'Descripción de la actividad realizada'] },
+        ]
+    },
+    'inventario': {
+        icon: 'bi-boxes',
+        color: 'text-primary',
+        secciones: [
+            { titulo: 'Inventario de Piezas', items: ['Código, nombre, categoría, marca, modelo', 'Condición: nueva / usada / cambiada / dañada', 'Horas de uso vs. horas máximas', 'Fecha de compra y fecha de registro (más nuevos primero)', 'Centro, ubicación, valor adquisición, responsable'] },
+        ]
+    },
+    'documento': {
+        icon: 'bi-file-earmark-text',
+        color: 'text-warning',
+        secciones: [
+            { titulo: 'Resumen por Tipo de Documento', items: ['Conteo de documentos agrupados por tipo'] },
+            { titulo: 'Resumen por Categoría', items: ['Conteo de documentos por categoría'] },
+            { titulo: 'Resumen por Estado', items: ['Borrador, en revisión, aprobado, publicado, archivado, obsoleto'] },
+            { titulo: 'Resumen por Nivel de Acceso', items: ['Público, interno, confidencial, restringido'] },
+            { titulo: 'Listado Detallado', items: ['Título, tipo, categoría, estado, versión', 'Fecha de creación, descargas, autor'] },
+        ]
     }
+};
 
-    // Check the radio button
-    const radioBtn = document.getElementById('tipo_' + type);
-    if (radioBtn) {
-        radioBtn.checked = true;
-    }
+function selectReportType(id, nombre, event) {
+    document.querySelectorAll('.report-type-card').forEach(c => c.classList.remove('selected'));
+    if (event && event.currentTarget) event.currentTarget.classList.add('selected');
 
-    // Update report name and preview
-    updateReportName(type);
-    updatePreview(type);
-}
-
-function updateReportName(type) {
-    const names = {
-        'estado_maquinaria': 'Reporte Estado de Maquinaria',
-        'mantenimiento': 'Reporte de Mantenimiento',
-        'costos': 'Reporte de Costos Operativos',
-        'eficiencia': 'Reporte de Eficiencia'
-    };
+    const radio = document.getElementById('tipo_' + id);
+    if (radio) radio.checked = true;
 
     const date = new Date().toLocaleDateString('es-ES');
-    document.getElementById('nombre_reporte').value = `${names[type]} - ${date}`;
+    document.getElementById('nombre_reporte').value = `${nombre} - ${date}`;
+
+    updatePreview(nombre);
 }
 
-function updatePreview(type) {
-    const previews = {
-        'estado_maquinaria': `
-            <h6>Contenido del Reporte:</h6>
-            <ul class="list-unstyled">
-                <li>• Resumen ejecutivo del estado de maquinaria</li>
-                <li>• Distribución por categorías</li>
-                <li>• Máquinas operativas vs. no operativas</li>
-                <li>• Alertas activas y recomendaciones</li>
-                <li>• Gráficos de estado por centro</li>
+function updatePreview(nombre) {
+    const lower = nombre.toLowerCase();
+    let key = Object.keys(PREVIEW_INFO).find(k => lower.includes(k));
+    if (!key) {
+        document.getElementById('report_preview').innerHTML = '<p class="text-muted">Selecciona un tipo de reporte para ver su contenido...</p>';
+        return;
+    }
+    const info = PREVIEW_INFO[key];
+    const seccionesHtml = info.secciones.map(s => `
+        <div class="mb-2">
+            <strong class="small"><i class="bi bi-table me-1"></i>${s.titulo}</strong>
+            <ul class="mb-0 ps-3" style="font-size:0.82rem;">
+                ${s.items.map(i => `<li class="text-muted">${i}</li>`).join('')}
             </ul>
-        `,
-        'mantenimiento': `
-            <h6>Contenido del Reporte:</h6>
-            <ul class="list-unstyled">
-                <li>• Cronograma de mantenimientos realizados</li>
-                <li>• Próximos servicios programados</li>
-                <li>• Costos de mantenimiento por período</li>
-                <li>• Análisis de frecuencia de fallas</li>
-                <li>• Recomendaciones predictivas</li>
-            </ul>
-        `,
-        'costos': `
-            <h6>Contenido del Reporte:</h6>
-            <ul class="list-unstyled">
-                <li>• Costos operativos por máquina</li>
-                <li>• Gastos de combustible y lubricantes</li>
-                <li>• Inversión en mantenimiento</li>
-                <li>• ROI y análisis de eficiencia</li>
-                <li>• Proyecciones de costos</li>
-            </ul>
-        `,
-        'eficiencia': `
-            <h6>Contenido del Reporte:</h6>
-            <ul class="list-unstyled">
-                <li>• Métricas de utilización por máquina</li>
-                <li>• Tiempo de operación vs. inactividad</li>
-                <li>• Indicadores de rendimiento (KPIs)</li>
-                <li>• Comparativas de eficiencia</li>
-                <li>• Recomendaciones de optimización</li>
-            </ul>
-        `
-    };
-
-    document.getElementById('report_preview').innerHTML = previews[type] || '<p class="text-muted">Selecciona un tipo de reporte...</p>';
+        </div>
+    `).join('');
+    document.getElementById('report_preview').innerHTML = `
+        <div class="d-flex align-items-center mb-2">
+            <i class="bi ${info.icon} fs-4 ${info.color} me-2"></i>
+            <strong>${nombre}</strong>
+            <span class="badge bg-secondary ms-2">${info.secciones.length} sección(es)</span>
+        </div>
+        ${seccionesHtml}
+    `;
 }
 
 function updateDateRange() {
@@ -335,20 +418,157 @@ function updateDateRange() {
         const yearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
         fechaInicio.value = yearAgo.toISOString().split('T')[0];
         fechaFin.value = today.toISOString().split('T')[0];
+    } else if (periodo === 'todo') {
+        fechaInicio.value = fechaInicio.min || '';
+        fechaFin.value = today.toISOString().split('T')[0];
+    } else {
+        fechaInicio.value = '';
+        fechaFin.value = '';
     }
 }
 
 function previewReport() {
-    alert('Vista previa del reporte se abrirá en una nueva ventana');
+    const form = document.getElementById('reportForm');
+    const tipoRadio = form.querySelector('input[name="tipo_reporte"]:checked');
+    if (!tipoRadio) {
+        alert('Selecciona un tipo de reporte antes de previsualizar.');
+        return;
+    }
+
+    const params = new URLSearchParams({
+        tipo_reporte: tipoRadio.value,
+        centro_formacion: form.querySelector('[name="centro_formacion"]').value,
+        estado_maquina: form.querySelector('[name="estado_maquina"]').value,
+        fecha_inicio: document.getElementById('fecha_inicio').value,
+        fecha_fin: document.getElementById('fecha_fin').value,
+        formato: document.getElementById('formato').value,
+    });
+    // Agregar múltiples categorías
+    document.querySelectorAll('.cat-check:checked').forEach(c => {
+        params.append('categoria', c.value);
+    });
+
+    const previewBtn = document.querySelector('button[onclick="previewReport()"]');
+    previewBtn.disabled = true;
+    previewBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Cargando...';
+
+    fetch(`{% url 'reportes:api_preview_reporte' %}?${params}`)
+        .then(r => r.json())
+        .then(data => {
+            previewBtn.disabled = false;
+            previewBtn.innerHTML = '<i class="bi bi-eye me-2"></i>Vista Previa';
+
+            if (!data.success) {
+                alert('Error al generar vista previa: ' + data.error);
+                return;
+            }
+
+            // Construir tabla de muestra
+            let tablaHtml = '';
+            if (data.muestra && data.muestra.length > 0) {
+                const headers = data.columnas.map(h => `<th>${h}</th>`).join('');
+                const filas = data.muestra.map(row =>
+                    '<tr>' + row.map(v => `<td>${v}</td>`).join('') + '</tr>'
+                ).join('');
+                tablaHtml = `<div class="table-responsive mt-3">
+                    <table class="table table-sm table-bordered" style="font-size:0.82rem;">
+                        <thead class="table-dark"><tr>${headers}</tr></thead>
+                        <tbody>${filas}</tbody>
+                    </table>
+                    ${data.total_registros > 5 ? `<p class="text-muted small">Mostrando 5 de ${data.total_registros} registros</p>` : ''}
+                </div>`;
+            } else {
+                tablaHtml = '<p class="text-warning mt-3"><i class="bi bi-exclamation-triangle me-1"></i>No hay registros con los filtros seleccionados.</p>';
+            }
+
+            // Resumen de estados
+            let estadosHtml = '';
+            if (Object.keys(data.estado_resumen).length > 0) {
+                const items = Object.entries(data.estado_resumen)
+                    .map(([k, v]) => `<span class="badge bg-secondary me-1">${k.replace('_',' ')}: ${v}</span>`)
+                    .join('');
+                estadosHtml = `<div class="mb-2">${items}</div>`;
+            }
+
+            // Filtros aplicados
+            let filtrosHtml = data.filtros_aplicados.length
+                ? `<p class="text-muted small mb-2"><strong>Filtros:</strong> ${data.filtros_aplicados.join(' | ')}</p>`
+                : '<p class="text-muted small mb-2">Sin filtros adicionales</p>';
+
+            document.getElementById('previewModalTitulo').textContent = data.tipo_nombre;
+            document.getElementById('previewModalBody').innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="badge bg-success me-2">Formato: ${data.formato}</span>
+                        <span class="badge bg-primary">Total registros: ${data.total_registros}</span>
+                    </div>
+                </div>
+                ${filtrosHtml}
+                ${estadosHtml}
+                ${tablaHtml}
+            `;
+
+            new bootstrap.Modal(document.getElementById('previewModal')).show();
+        })
+        .catch(() => {
+            previewBtn.disabled = false;
+            previewBtn.innerHTML = '<i class="bi bi-eye me-2"></i>Vista Previa';
+            alert('Error de conexión al generar vista previa.');
+        });
 }
 
 function saveAsTemplate() {
     alert('Plantilla guardada correctamente');
 }
 
-// Initialize default values
+// ---- Dropdown categorías ----
+function toggleCategoriasDropdown() {
+    const menu = document.getElementById('categoriasMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleTodasCategorias(checkbox) {
+    const checks = document.querySelectorAll('.cat-check');
+    checks.forEach(c => { c.checked = false; });
+    actualizarLabelCategorias();
+}
+
+function actualizarLabelCategorias() {
+    const seleccionadas = Array.from(document.querySelectorAll('.cat-check:checked'));
+    const labelEl = document.getElementById('categoriasLabel');
+    const todas = document.getElementById('cat_todas');
+
+    if (seleccionadas.length === 0) {
+        todas.checked = true;
+        labelEl.textContent = 'Todas las categorías';
+    } else {
+        todas.checked = false;
+        labelEl.textContent = seleccionadas.length === 1
+            ? seleccionadas[0].nextElementSibling.textContent.trim()
+            : `${seleccionadas.length} categorías seleccionadas`;
+    }
+}
+
+// Cerrar dropdown al hacer clic fuera
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('categoriasDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+        const menu = document.getElementById('categoriasMenu');
+        if (menu) menu.style.display = 'none';
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
-    updateDateRange(); // Set default to último_mes
+    updateDateRange();
+    // Si solo hay un tipo, seleccionarlo automáticamente
+    const cards = document.querySelectorAll('.report-type-card');
+    if (cards.length === 1) {
+        const radio = cards[0].querySelector('input[type="radio"]');
+        if (radio) {
+            const nombre = cards[0].dataset.nombre || '';
+            selectReportType(radio.value, nombre, {currentTarget: cards[0]});
+        }
+    }
 });
 
 // Form submission
