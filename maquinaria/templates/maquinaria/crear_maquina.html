@@ -341,6 +341,16 @@
                                 {% if form.imagen.errors %}
                                     <div class="text-danger small">{{ form.imagen.errors.0 }}</div>
                                 {% endif %}
+                                <!-- Vista previa de imagen -->
+                                <div id="maq-img-preview" class="mt-2 d-none text-center">
+                                    <img id="maq-img-thumb" src="" alt="Vista previa" class="img-fluid rounded" style="max-height:160px;">
+                                </div>
+                                <!-- Botón de detección IA -->
+                                <button type="button" class="btn btn-outline-success btn-sm mt-2 w-100" id="btnDetectarMaquina" onclick="detectarMaquina()">
+                                    <i class="bi bi-cpu me-1"></i> Detectar tipo automáticamente con IA
+                                </button>
+                                <!-- Resultado detección -->
+                                <div id="visionResultMaquina" class="mt-2 d-none"></div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -483,6 +493,158 @@ function updatePreview() {
 function previewMachine() {
     updatePreview();
     alert('Vista previa actualizada. Revisa el cuadro debajo del formulario.');
+}
+
+// ---------------------------------------------------------------------------
+// Reconocimiento Visual IA
+// ---------------------------------------------------------------------------
+const CATEGORIA_MAP = {
+    'excavadora':       'Maquinaria de Excavación y Movimiento de Tierras',
+    'bulldozer':        'Maquinaria de Excavación y Movimiento de Tierras',
+    'retroexcavadora':  'Maquinaria de Excavación y Movimiento de Tierras',
+    'grua_torre':       'Maquinaria de Elevación y Izaje',
+    'grua_movil':       'Maquinaria de Elevación y Izaje',
+    'compactadora':     'Maquinaria de Nivelación y Compactación',
+    'cargador_frontal': 'Maquinaria de Carga y Transporte',
+    'camion_minero':    'Maquinaria de Carga y Transporte',
+    'perforadora':      'Maquinaria de Perforación',
+    'motoniveladora':   'Maquinaria de Nivelación y Compactación',
+    'pavimentadora':    'Maquinaria de Nivelación y Compactación',
+    'volquete':         'Maquinaria de Carga y Transporte',
+};
+
+// Mostrar vista previa al seleccionar imagen
+document.getElementById('id_imagen').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById('maq-img-thumb').src = e.target.result;
+        document.getElementById('maq-img-preview').classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+    // Limpiar resultado anterior
+    document.getElementById('visionResultMaquina').className = 'mt-2 d-none';
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        for (const cookie of document.cookie.split(';')) {
+            const c = cookie.trim();
+            if (c.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(c.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+async function detectarMaquina() {
+    const input = document.getElementById('id_imagen');
+    if (!input.files.length) {
+        mostrarResultadoMaquina('warning', '<i class="bi bi-exclamation-triangle me-1"></i>Selecciona primero una imagen de la máquina.');
+        return;
+    }
+
+    const btn = document.getElementById('btnDetectarMaquina');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analizando...';
+
+    const formData = new FormData();
+    formData.append('imagen', input.files[0]);
+
+    try {
+        const resp = await fetch('/vision/api/detectar/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: formData,
+        });
+        const data = await resp.json();
+
+        if (!data.modelo_disponible) {
+            mostrarResultadoMaquina('secondary',
+                `<i class="bi bi-info-circle me-1"></i>${data.mensaje}`);
+            return;
+        }
+
+        if (!data.detectado) {
+            mostrarResultadoMaquina('warning',
+                `<i class="bi bi-exclamation-circle me-1"></i>${data.mensaje}`);
+            return;
+        }
+
+        // Construir tarjeta de resultado
+        const pct = Math.round(data.confianza * 100);
+        const color = pct >= 80 ? 'success' : pct >= 60 ? 'warning' : 'secondary';
+        const esComp = data.es_componente;
+
+        let html = `
+            <div class="card border-${color} shadow-sm">
+                <div class="card-body py-2 px-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <strong class="text-${color}"><i class="bi bi-cpu me-1"></i>${data.clase_display}</strong>
+                        <span class="badge bg-${color}">${pct}% confianza</span>
+                    </div>`;
+
+        if (!esComp && data.categoria_maquina) {
+            html += `<div class="small text-muted mb-2">Categoría sugerida: <strong>${data.categoria_maquina}</strong></div>
+                     <button type="button" class="btn btn-${color} btn-sm" onclick="aplicarCategoriaMaquina('${data.clase_display}', '${data.categoria_maquina}')">
+                        <i class="bi bi-check-circle me-1"></i>Aplicar categoría y nombre
+                     </button>`;
+        } else if (esComp) {
+            html += `<div class="small text-muted">Es un componente/pieza — no una máquina completa.</div>`;
+        }
+
+        if (data.top3 && data.top3.length > 1) {
+            html += `<details class="mt-2"><summary class="small text-muted" style="cursor:pointer;">Ver otras predicciones</summary><ul class="list-unstyled mb-0 mt-1">`;
+            data.top3.slice(1).forEach(p => {
+                html += `<li class="small">• ${p.clase_display} — ${Math.round(p.confianza * 100)}%</li>`;
+            });
+            html += `</ul></details>`;
+        }
+
+        html += `</div></div>`;
+        mostrarResultadoMaquina(null, html);
+
+    } catch (err) {
+        mostrarResultadoMaquina('danger', `<i class="bi bi-x-circle me-1"></i>Error de conexión: ${err.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-cpu me-1"></i> Detectar tipo automáticamente con IA';
+    }
+}
+
+function mostrarResultadoMaquina(tipo, html) {
+    const div = document.getElementById('visionResultMaquina');
+    div.className = 'mt-2';
+    if (tipo) {
+        div.innerHTML = `<div class="alert alert-${tipo} py-2 px-3 mb-0 small">${html}</div>`;
+    } else {
+        div.innerHTML = html;
+    }
+}
+
+function aplicarCategoriaMaquina(claseDisplay, categoriaNombre) {
+    // Rellenar nombre de la máquina si está vacío
+    const nombreInput = document.getElementById('id_nombre');
+    if (nombreInput && !nombreInput.value.trim()) {
+        nombreInput.value = claseDisplay;
+    }
+    // Seleccionar la categoría correcta en el dropdown
+    const catSelect = document.getElementById('id_categoria');
+    if (catSelect) {
+        for (const opt of catSelect.options) {
+            if (opt.text.trim() === categoriaNombre.trim()) {
+                catSelect.value = opt.value;
+                break;
+            }
+        }
+    }
+    updatePreview();
+    mostrarResultadoMaquina('success',
+        `<i class="bi bi-check-circle me-1"></i>Categoría "<strong>${categoriaNombre}</strong>" aplicada correctamente.`);
 }
 </script>
 {% endblock %}

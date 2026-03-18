@@ -71,6 +71,7 @@ urlpatterns = [
     path('reportes/', include('reportes.urls')),
     path('documentos/', include('documentos.urls')),
     path('inventario/', include('inventario.urls')),
+    path('vision/', include('vision.urls')),
     path('sistema/', include('sistema.urls')),
 
     # API URLs

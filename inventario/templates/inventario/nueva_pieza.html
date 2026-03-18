@@ -157,6 +157,11 @@
                         <small class="text-muted d-block mb-1">Vista previa:</small>
                         <img src="" class="foto-preview-img" style="border-color:var(--sena-primary);">
                     </div>
+                    <!-- Botón detección IA -->
+                    <button type="button" class="btn btn-outline-success btn-sm mt-2 w-100" id="btnDetectarPieza" onclick="detectarPieza()">
+                        <i class="bi bi-cpu me-1"></i> Identificar componente con IA
+                    </button>
+                    <div id="visionResultPieza" class="mt-2 d-none"></div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ form.foto_empaque.label }}</label>
@@ -532,5 +537,110 @@ document.addEventListener('DOMContentLoaded', function () {
         Object.keys(fotosCapturadas).length + ' / 6';
     {% endif %}
 });
+
+/* ── Reconocimiento Visual IA ───────────────────────────────── */
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        for (const cookie of document.cookie.split(';')) {
+            const c = cookie.trim();
+            if (c.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(c.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+async function detectarPieza() {
+    const input = document.getElementById('id_foto_pieza');
+    if (!input || !input.files.length) {
+        mostrarResultadoPieza('warning', '<i class="bi bi-exclamation-triangle me-1"></i>Selecciona primero la fotografía de la pieza.');
+        return;
+    }
+    const btn = document.getElementById('btnDetectarPieza');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analizando...';
+
+    const formData = new FormData();
+    formData.append('imagen', input.files[0]);
+
+    try {
+        const resp = await fetch('/vision/api/detectar/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: formData,
+        });
+        const data = await resp.json();
+
+        if (!data.modelo_disponible) {
+            mostrarResultadoPieza('secondary', `<i class="bi bi-info-circle me-1"></i>${data.mensaje}`);
+            return;
+        }
+        if (!data.detectado) {
+            mostrarResultadoPieza('warning', `<i class="bi bi-exclamation-circle me-1"></i>${data.mensaje}`);
+            return;
+        }
+
+        const pct   = Math.round(data.confianza * 100);
+        const color = pct >= 80 ? 'success' : pct >= 60 ? 'warning' : 'secondary';
+
+        let html = `<div class="card border-${color} shadow-sm"><div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <strong class="text-${color}"><i class="bi bi-cpu me-1"></i>${data.clase_display}</strong>
+                <span class="badge bg-${color}">${pct}% confianza</span>
+            </div>`;
+
+        if (data.es_componente) {
+            html += `<div class="small text-muted mb-2">Tipo de componente detectado</div>
+                <button type="button" class="btn btn-${color} btn-sm" onclick="aplicarComponente('${data.clase_display}')">
+                    <i class="bi bi-check-circle me-1"></i>Aplicar nombre
+                </button>`;
+        } else if (data.categoria_maquina) {
+            html += `<div class="small text-muted mb-2">Máquina — categoría: <strong>${data.categoria_maquina}</strong></div>
+                <button type="button" class="btn btn-${color} btn-sm" onclick="aplicarComponente('${data.clase_display}', '${data.categoria_maquina}')">
+                    <i class="bi bi-check-circle me-1"></i>Aplicar nombre y categoría
+                </button>`;
+        }
+
+        if (data.top3 && data.top3.length > 1) {
+            html += `<details class="mt-2"><summary class="small text-muted" style="cursor:pointer;">Otras predicciones</summary><ul class="list-unstyled mb-0 mt-1">`;
+            data.top3.slice(1).forEach(p => {
+                html += `<li class="small">• ${p.clase_display} — ${Math.round(p.confianza * 100)}%</li>`;
+            });
+            html += `</ul></details>`;
+        }
+        html += `</div></div>`;
+        mostrarResultadoPieza(null, html);
+
+    } catch (err) {
+        mostrarResultadoPieza('danger', `<i class="bi bi-x-circle me-1"></i>Error: ${err.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-cpu me-1"></i> Identificar componente con IA';
+    }
+}
+
+function mostrarResultadoPieza(tipo, html) {
+    const div = document.getElementById('visionResultPieza');
+    div.className = 'mt-2';
+    div.innerHTML = tipo ? `<div class="alert alert-${tipo} py-2 px-3 mb-0 small">${html}</div>` : html;
+}
+
+function aplicarComponente(claseDisplay, categoriaNombre) {
+    // Rellenar nombre si está vacío
+    const nombreInput = document.getElementById('id_nombre');
+    if (nombreInput && !nombreInput.value.trim()) {
+        nombreInput.value = claseDisplay;
+    }
+    // Rellenar campo categoría (texto libre en inventario)
+    const catInput = document.getElementById('id_categoria');
+    if (catInput && !catInput.value.trim()) {
+        catInput.value = categoriaNombre || claseDisplay;
+    }
+    mostrarResultadoPieza('success',
+        `<i class="bi bi-check-circle me-1"></i><strong>${claseDisplay}</strong> aplicado correctamente.`);
+}
 </script>
 {% endblock %}

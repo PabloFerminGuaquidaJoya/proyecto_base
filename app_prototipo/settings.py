@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'reportes',
     'documentos',
     'inventario',
+    'vision.apps.VisionConfig',
 ]
 
 MIDDLEWARE = [
@@ -230,3 +231,14 @@ DEFAULT_CHARSET = 'utf-8'
 
 # Para volver a modo desarrollo (consola), comenta las líneas anteriores y descomenta esta:
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# ---------------------------------------------------------------------------
+# Reconocimiento Visual (app vision)
+# ---------------------------------------------------------------------------
+# Coloca el modelo entrenado en:  <BASE_DIR>/vision/models/heavy_machinery.tflite
+# y el archivo de etiquetas en:   <BASE_DIR>/vision/models/labels.txt
+# Si el archivo no existe, la detección IA estará desactivada pero la app
+# seguirá funcionando normalmente.
+VISION_MODEL_PATH = BASE_DIR / 'vision' / 'models' / 'heavy_machinery.tflite'
+VISION_LABELS_PATH = BASE_DIR / 'vision' / 'models' / 'labels.txt'
+VISION_CONFIDENCE_THRESHOLD = 0.5  # Confianza mínima para aceptar una detección

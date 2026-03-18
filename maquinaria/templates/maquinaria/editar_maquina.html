@@ -283,6 +283,15 @@
                                 {% if form.imagen.errors %}
                                     <div class="text-danger small">{{ form.imagen.errors.0 }}</div>
                                 {% endif %}
+                                <!-- Vista previa nueva imagen -->
+                                <div id="maq-img-preview" class="mt-2 d-none text-center">
+                                    <img id="maq-img-thumb" src="" alt="Vista previa" class="img-fluid rounded" style="max-height:160px;">
+                                </div>
+                                <!-- Botón detección IA -->
+                                <button type="button" class="btn btn-outline-success btn-sm mt-2 w-100" id="btnDetectarMaquina" onclick="detectarMaquina()">
+                                    <i class="bi bi-cpu me-1"></i> Detectar tipo automáticamente con IA
+                                </button>
+                                <div id="visionResultMaquina" class="mt-2 d-none"></div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -462,6 +471,112 @@ document.getElementById('editMaquinaForm').addEventListener('submit', function(e
 
 function showHistory() {
     new bootstrap.Modal(document.getElementById('historyModal')).show();
+}
+
+// ---------------------------------------------------------------------------
+// Reconocimiento Visual IA
+// ---------------------------------------------------------------------------
+document.getElementById('id_imagen').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById('maq-img-thumb').src = e.target.result;
+        document.getElementById('maq-img-preview').classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+    document.getElementById('visionResultMaquina').className = 'mt-2 d-none';
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        for (const cookie of document.cookie.split(';')) {
+            const c = cookie.trim();
+            if (c.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(c.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+async function detectarMaquina() {
+    const input = document.getElementById('id_imagen');
+    if (!input.files.length) {
+        mostrarResultadoMaquina('warning', '<i class="bi bi-exclamation-triangle me-1"></i>Selecciona primero una nueva imagen para analizar.');
+        return;
+    }
+    const btn = document.getElementById('btnDetectarMaquina');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analizando...';
+    const formData = new FormData();
+    formData.append('imagen', input.files[0]);
+    try {
+        const resp = await fetch('/vision/api/detectar/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: formData,
+        });
+        const data = await resp.json();
+        if (!data.modelo_disponible) {
+            mostrarResultadoMaquina('secondary', `<i class="bi bi-info-circle me-1"></i>${data.mensaje}`);
+            return;
+        }
+        if (!data.detectado) {
+            mostrarResultadoMaquina('warning', `<i class="bi bi-exclamation-circle me-1"></i>${data.mensaje}`);
+            return;
+        }
+        const pct = Math.round(data.confianza * 100);
+        const color = pct >= 80 ? 'success' : pct >= 60 ? 'warning' : 'secondary';
+        let html = `<div class="card border-${color} shadow-sm"><div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <strong class="text-${color}"><i class="bi bi-cpu me-1"></i>${data.clase_display}</strong>
+                <span class="badge bg-${color}">${pct}% confianza</span>
+            </div>`;
+        if (!data.es_componente && data.categoria_maquina) {
+            html += `<div class="small text-muted mb-2">Categoría sugerida: <strong>${data.categoria_maquina}</strong></div>
+                <button type="button" class="btn btn-${color} btn-sm" onclick="aplicarCategoriaMaquina('${data.clase_display}','${data.categoria_maquina}')">
+                    <i class="bi bi-check-circle me-1"></i>Aplicar categoría
+                </button>`;
+        } else if (data.es_componente) {
+            html += `<div class="small text-muted">Es un componente/pieza — no una máquina completa.</div>`;
+        }
+        if (data.top3 && data.top3.length > 1) {
+            html += `<details class="mt-2"><summary class="small text-muted" style="cursor:pointer;">Otras predicciones</summary><ul class="list-unstyled mb-0 mt-1">`;
+            data.top3.slice(1).forEach(p => {
+                html += `<li class="small">• ${p.clase_display} — ${Math.round(p.confianza * 100)}%</li>`;
+            });
+            html += `</ul></details>`;
+        }
+        html += `</div></div>`;
+        mostrarResultadoMaquina(null, html);
+    } catch (err) {
+        mostrarResultadoMaquina('danger', `<i class="bi bi-x-circle me-1"></i>Error: ${err.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-cpu me-1"></i> Detectar tipo automáticamente con IA';
+    }
+}
+
+function mostrarResultadoMaquina(tipo, html) {
+    const div = document.getElementById('visionResultMaquina');
+    div.className = 'mt-2';
+    div.innerHTML = tipo ? `<div class="alert alert-${tipo} py-2 px-3 mb-0 small">${html}</div>` : html;
+}
+
+function aplicarCategoriaMaquina(claseDisplay, categoriaNombre) {
+    const catSelect = document.getElementById('id_categoria');
+    if (catSelect) {
+        for (const opt of catSelect.options) {
+            if (opt.text.trim() === categoriaNombre.trim()) {
+                catSelect.value = opt.value;
+                break;
+            }
+        }
+    }
+    mostrarResultadoMaquina('success', `<i class="bi bi-check-circle me-1"></i>Categoría "<strong>${categoriaNombre}</strong>" aplicada.`);
 }
 </script>
 {% endblock %}
