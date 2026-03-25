@@ -162,15 +162,24 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="8" class="text-center py-4">
-                                <div class="text-muted">
-                                    <i class="bi bi-gear fs-1 mb-3"></i>
-                                    <h5>No hay máquinas registradas</h5>
-                                    <p>Comienza agregando tu primera máquina al inventario</p>
-                                    {% if usuario_actual.cargo|lower != 'aprendiz' %}
-                                    <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-primary">
-                                        <i class="bi bi-plus-circle me-2"></i>Crear Primera Máquina
-                                    </a>
+                            <td colspan="8">
+                                <div class="text-center py-5">
+                                    {% if busqueda or categoria_filtro or estado_filtro %}
+                                        <i class="bi bi-search text-muted" style="font-size:3rem;"></i>
+                                        <h5 class="mt-3 text-muted">Sin resultados</h5>
+                                        <p class="text-muted mb-3">No hay máquinas que coincidan con los filtros aplicados.</p>
+                                        <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-outline-secondary">
+                                            <i class="bi bi-x-circle me-2"></i>Limpiar filtros
+                                        </a>
+                                    {% else %}
+                                        <i class="bi bi-gear" style="font-size:3rem; color:var(--sena-primary); opacity:.4;"></i>
+                                        <h5 class="mt-3">No hay máquinas registradas</h5>
+                                        <p class="text-muted mb-3">Comienza agregando la primera máquina al inventario.</p>
+                                        {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                                        <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-primary">
+                                            <i class="bi bi-plus-circle me-2"></i>Crear Primera Máquina
+                                        </a>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </td>

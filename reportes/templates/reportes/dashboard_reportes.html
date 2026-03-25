@@ -9,11 +9,11 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-sena-secondary shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-sena-secondary text-uppercase mb-1">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-secondary text-uppercase mb-1">
                             Reportes Generados</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_reportes|default:0 }}</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_reportes|default:0 }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-file-earmark-text fs-2 text-gray-300"></i>
@@ -26,11 +26,11 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-sena-primary shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-sena-primary text-uppercase mb-1">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-primary text-uppercase mb-1">
                             Este Mes</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ reportes_mes|default:0 }}</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ reportes_mes|default:0 }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-calendar-month fs-2 text-gray-300"></i>
@@ -43,11 +43,11 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-sena-accent shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-sena-accent text-uppercase mb-1">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-accent text-uppercase mb-1">
                             Tipos Disponibles</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ tipos_disponibles|default:0 }}</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ tipos_disponibles|default:0 }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-collection fs-2 text-gray-300"></i>
@@ -60,11 +60,11 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-sena-danger shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-sena-danger text-uppercase mb-1">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-danger text-uppercase mb-1">
                             Pendientes</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ reportes_pendientes|default:0 }}</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ reportes_pendientes|default:0 }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-clock-history fs-2 text-gray-300"></i>
@@ -79,7 +79,7 @@
 {% if usuario_actual.cargo|lower != 'aprendiz' %}
 <div class="card mb-4">
     <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-sena-gradient">Acciones Rápidas</h6>
+        <h6 class="m-0 fw-bold text-sena-gradient">Acciones Rápidas</h6>
     </div>
     <div class="card-body">
         <div class="row">
@@ -96,7 +96,7 @@
 <!-- Filtros y Lista de Reportes -->
 <div class="card">
     <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-sena-gradient">Todos los Reportes</h6>
+        <h6 class="m-0 fw-bold text-sena-gradient">Todos los Reportes</h6>
     </div>
     <div class="card-body">
         <!-- Filtros -->

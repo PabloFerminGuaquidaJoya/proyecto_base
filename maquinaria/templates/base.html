@@ -11,6 +11,8 @@
             --sena-primary: #39a900;
             --sena-secondary: #00324d;
             --sena-accent: #ff6b35;
+            --sena-gradient: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+            --sena-danger: #cc4400;
             --sidebar-width: 280px;
         }
 
@@ -1571,6 +1573,29 @@
                 notif.remove();
             }, 5000);
         }
+    </script>
+
+    <script>
+        // ── Estado de carga global para formularios ──
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form').forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    const submitBtn = form.querySelector('[type="submit"]');
+                    if (!submitBtn || submitBtn.dataset.noLoading) return;
+
+                    const originalHtml = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...';
+
+                    // Restaurar si hay error de validación (página recargada en < 3s)
+                    window.addEventListener('pageshow', function () {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalHtml;
+                    });
+                });
+            });
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
