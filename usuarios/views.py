@@ -370,7 +370,8 @@ def register_view(request):
             )
 
             usuario.tipo_usuario = tipo_usuario
-            usuario.estado = 'pendiente'
+            usuario.estado = 'activo'
+            usuario.fecha_aprobacion = timezone.now()
 
             # Crear usuario de Django para autenticación
             password = form.cleaned_data.get('password')
@@ -383,7 +384,7 @@ def register_view(request):
             usuario.save()
 
             messages.success(request,
-                'Registro exitoso como Instructor. Tu cuenta está pendiente de aprobación por un administrador.')
+                'Registro exitoso. Ya puedes iniciar sesión.')
             return redirect('usuarios:login')
 
     return render(request, 'usuarios/register.html', {
@@ -826,6 +827,7 @@ def login_facial_view(request):
         # AUTENTICACIÓN EXITOSA
         # Crear sesión de Django
         django_user = User.objects.get(username=numero_documento)
+        django_user.backend = 'django.contrib.auth.backends.ModelBackend'
         login(request, django_user)
 
         # Registrar sesión en SesionUsuario
