@@ -60,8 +60,6 @@
         background-clip: text;
     }
 
-    .font-weight-bold { font-weight: 700 !important; }
-    .text-xs { font-size: 0.75rem; }
     .text-gray-300 { color: #dddfeb !important; }
     .text-gray-800 { color: #5a5c69 !important; }
 </style>
@@ -73,11 +71,11 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-sena-secondary shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-sena-secondary text-uppercase mb-1">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-secondary text-uppercase mb-1">
                             Total Piezas</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_piezas }}</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_piezas }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-box-seam fs-2 text-gray-300"></i>
@@ -90,11 +88,11 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-sena-primary shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-sena-primary text-uppercase mb-1">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-primary text-uppercase mb-1">
                             Usadas</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ piezas_usadas }}</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ piezas_usadas }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-arrow-repeat fs-2 text-gray-300"></i>
@@ -107,11 +105,11 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-sena-accent shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-sena-accent text-uppercase mb-1">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-accent text-uppercase mb-1">
                             Cambiadas</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ piezas_cambiadas }}</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ piezas_cambiadas }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-wrench fs-2 text-gray-300"></i>
@@ -124,11 +122,11 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-sena-danger shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-sena-danger text-uppercase mb-1">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-danger text-uppercase mb-1">
                             Alertas Activas</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alertas_activas }}</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ alertas_activas }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-exclamation-triangle fs-2 text-gray-300"></i>
@@ -142,7 +140,7 @@
 <!-- ── Acciones Rápidas ───────────────────────────────────── -->
 <div class="card mb-4">
     <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-sena-gradient">Acciones Rápidas</h6>
+        <h6 class="m-0 fw-bold text-sena-gradient">Acciones Rápidas</h6>
     </div>
     <div class="card-body">
         <div class="row">
@@ -176,7 +174,7 @@
 <!-- ── Últimas piezas registradas ─────────────────────────── -->
 <div class="card">
     <div class="card-header">
-        <h6 class="m-0 font-weight-bold text-sena-gradient">
+        <h6 class="m-0 fw-bold text-sena-gradient">
             <i class="bi bi-clock-history me-2"></i>Últimas Piezas Registradas
         </h6>
     </div>

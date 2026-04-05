@@ -736,6 +736,7 @@
                 <div class="modal-body">
                     <!-- Paso 1: Solicitar documento -->
                     <div id="paso-documento" class="facial-step">
+                        <div id="facial-error" class="alert alert-danger d-none mb-3"></div>
                         <div class="mb-3">
                             <label for="numero_documento_facial" class="form-label">Número de Documento</label>
                             <input type="text" class="form-control" id="numero_documento_facial" placeholder="Ingrese su número de documento">
@@ -1153,7 +1154,17 @@
             document.getElementById('paso-documento').style.display = 'block';
             document.getElementById('paso-captura').style.display = 'none';
             document.getElementById('paso-procesando').style.display = 'none';
-            document.getElementById('numero_documento_facial').value = '';
+            document.getElementById('facial-error').classList.add('d-none');
+            document.getElementById('facial-error').textContent = '';
+
+            // Pre-llenar documento desde el campo del formulario de login
+            const docLogin = document.getElementById('id_username').value.trim();
+            document.getElementById('numero_documento_facial').value = docLogin;
+        });
+
+        // Limpiar error al escribir
+        document.getElementById('numero_documento_facial').addEventListener('input', function() {
+            document.getElementById('facial-error').classList.add('d-none');
         });
 
         // Continuar a captura
@@ -1161,7 +1172,9 @@
             const numeroDocumento = document.getElementById('numero_documento_facial').value.trim();
 
             if (!numeroDocumento) {
-                alert('Por favor ingrese su número de documento');
+                const errDiv = document.getElementById('facial-error');
+                errDiv.textContent = 'Por favor ingrese su número de documento';
+                errDiv.classList.remove('d-none');
                 return;
             }
 
@@ -1250,20 +1263,21 @@
                     // Éxito - redirigir
                     window.location.href = data.redirect_url || '/usuarios/dashboard/';
                 } else {
-                    // Error
-                    alert('Error: ' + data.error);
-
-                    // Volver a paso documento
+                    // Mostrar error dentro del modal
                     document.getElementById('paso-procesando').style.display = 'none';
                     document.getElementById('paso-documento').style.display = 'block';
+                    const errDiv = document.getElementById('facial-error');
+                    errDiv.textContent = data.error;
+                    errDiv.classList.remove('d-none');
                 }
 
             } catch (error) {
                 console.error('Error en autenticación facial:', error);
-                alert('Error de conexión. Por favor intente nuevamente.');
-
                 document.getElementById('paso-procesando').style.display = 'none';
                 document.getElementById('paso-documento').style.display = 'block';
+                const errDiv = document.getElementById('facial-error');
+                errDiv.textContent = 'Error de conexión. Por favor intente nuevamente.';
+                errDiv.classList.remove('d-none');
             }
         });
 
