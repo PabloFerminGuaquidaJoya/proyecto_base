@@ -278,23 +278,38 @@
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">{{ form.centro_formacion.label }}</label>
-                        {{ form.centro_formacion }}
-                        {% if form.centro_formacion.errors %}
-                            <div class="text-danger small">{{ form.centro_formacion.errors }}</div>
+                        {% if usuario.cargo == 'Aprendiz' %}
+                            <input type="text" class="form-control" value="{{ usuario.centro_formacion }}" disabled>
+                            <small class="text-muted"><i class="bi bi-lock-fill me-1"></i>No editable para Aprendices</small>
+                        {% else %}
+                            {{ form.centro_formacion }}
+                            {% if form.centro_formacion.errors %}
+                                <div class="text-danger small">{{ form.centro_formacion.errors }}</div>
+                            {% endif %}
                         {% endif %}
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">{{ form.especialidad.label }}</label>
-                        {{ form.especialidad }}
-                        {% if form.especialidad.errors %}
-                            <div class="text-danger small">{{ form.especialidad.errors }}</div>
+                        {% if usuario.cargo == 'Aprendiz' %}
+                            <input type="text" class="form-control" value="{{ usuario.especialidad }}" disabled>
+                            <small class="text-muted"><i class="bi bi-lock-fill me-1"></i>No editable para Aprendices</small>
+                        {% else %}
+                            {{ form.especialidad }}
+                            {% if form.especialidad.errors %}
+                                <div class="text-danger small">{{ form.especialidad.errors }}</div>
+                            {% endif %}
                         {% endif %}
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">{{ form.cargo.label }}</label>
-                        {{ form.cargo }}
-                        {% if form.cargo.errors %}
-                            <div class="text-danger small">{{ form.cargo.errors }}</div>
+                        {% if usuario.cargo == 'Aprendiz' %}
+                            <input type="text" class="form-control" value="{{ usuario.cargo }}" disabled>
+                            <small class="text-muted"><i class="bi bi-lock-fill me-1"></i>No editable para Aprendices</small>
+                        {% else %}
+                            {{ form.cargo }}
+                            {% if form.cargo.errors %}
+                                <div class="text-danger small">{{ form.cargo.errors }}</div>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

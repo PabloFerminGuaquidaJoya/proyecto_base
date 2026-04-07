@@ -1101,6 +1101,9 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- CSRF token global para peticiones AJAX -->
+    {% csrf_token %}
+
     <!-- Sidebar Backdrop (mobile) -->
     <div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
 
@@ -1121,7 +1124,7 @@
             <li class="nav-item">
                 <a href="{% url 'usuarios:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="bi bi-house"></i>
-                    <span>Dashboard</span>
+                    <span>Panel Principal</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -1188,6 +1191,15 @@
                     <i class="bi bi-shield-check"></i>
                     <span class="d-none d-md-inline ms-1">Backup</span>
                 </button>
+
+                <!-- Rol del usuario -->
+                {% if usuario_actual and usuario_actual.cargo %}
+                <span class="badge d-none d-md-inline-flex align-items-center gap-1"
+                      style="background-color: var(--sena-secondary); font-size: 0.78rem; padding: 6px 10px; border-radius: 20px;">
+                    <i class="bi bi-person-badge"></i>
+                    {{ usuario_actual.cargo }}
+                </span>
+                {% endif %}
 
                 <!-- Menú de Manuales -->
                 <div class="help-dropdown" id="helpDropdown">
@@ -1471,7 +1483,7 @@
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Creando...';
 
             // Obtener CSRF token
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+            const csrftoken = document.querySelector('input[name=csrfmiddlewaretoken]')?.value ||
                               getCookie('csrftoken');
 
             // Hacer petición AJAX

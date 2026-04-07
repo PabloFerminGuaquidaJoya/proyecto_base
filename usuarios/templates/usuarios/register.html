@@ -306,9 +306,27 @@
                 {% endfor %}
             {% endif %}
 
-            <form method="post">
+            <form method="post" id="registerForm">
                 {% csrf_token %}
                 {{ form.as_p }}
+
+                <!-- Medidor de fortaleza (se inserta via JS después del campo password) -->
+                <div id="password-strength-container" style="display:none; margin-top:-1rem; margin-bottom:1rem;">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="text-muted">Fortaleza de la contraseña</small>
+                        <small id="strength-label" class="fw-semibold"></small>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div id="strength-bar" class="progress-bar" role="progressbar" style="width:0%; transition: width 0.3s, background-color 0.3s;"></div>
+                    </div>
+                    <ul id="password-rules" class="mt-2 mb-0 ps-3" style="font-size:0.8rem; list-style:none; padding-left:0;">
+                        <li id="rule-length"><i class="bi bi-x-circle-fill text-danger me-1"></i>Mínimo 8 caracteres</li>
+                        <li id="rule-upper"><i class="bi bi-x-circle-fill text-danger me-1"></i>Al menos una mayúscula</li>
+                        <li id="rule-lower"><i class="bi bi-x-circle-fill text-danger me-1"></i>Al menos una minúscula</li>
+                        <li id="rule-digit"><i class="bi bi-x-circle-fill text-danger me-1"></i>Al menos un número</li>
+                        <li id="rule-special"><i class="bi bi-x-circle-fill text-danger me-1"></i>Al menos un carácter especial (!@#$%...)</li>
+                    </ul>
+                </div>
 
                 <button type="submit" class="btn btn-primary w-100">
                     <i class="bi bi-send me-2"></i>Enviar Solicitud
@@ -354,6 +372,90 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // ── Medidor de fortaleza de contraseña ──
+            const pwInput = document.getElementById('id_password');
+            const container = document.getElementById('password-strength-container');
+
+            if (pwInput && container) {
+                // Mover el medidor justo después del campo password
+                pwInput.closest('p')?.after(container);
+
+                pwInput.addEventListener('input', function () {
+                    const val = this.value;
+                    container.style.display = val.length > 0 ? 'block' : 'none';
+
+                    const rules = {
+                        length:  val.length >= 8,
+                        upper:   /[A-Z]/.test(val),
+                        lower:   /[a-z]/.test(val),
+                        digit:   /\d/.test(val),
+                        special: /[!@#$%^&*(),.?":{}|<>_\-\+\=\[\]\\\/]/.test(val),
+                    };
+
+                    ['length','upper','lower','digit','special'].forEach(function(r) {
+                        const li = document.getElementById('rule-' + r);
+                        if (rules[r]) {
+                            li.innerHTML = li.innerHTML.replace('bi-x-circle-fill text-danger', 'bi-check-circle-fill text-success');
+                        } else {
+                            li.innerHTML = li.innerHTML.replace('bi-check-circle-fill text-success', 'bi-x-circle-fill text-danger');
+                        }
+                    });
+
+                    const passed = Object.values(rules).filter(Boolean).length;
+                    const bar = document.getElementById('strength-bar');
+                    const label = document.getElementById('strength-label');
+                    const pct = (passed / 5) * 100;
+                    bar.style.width = pct + '%';
+
+                    if (passed <= 2) {
+                        bar.style.backgroundColor = '#dc3545';
+                        label.textContent = 'Débil'; label.style.color = '#dc3545';
+                    } else if (passed <= 3) {
+                        bar.style.backgroundColor = '#fd7e14';
+                        label.textContent = 'Regular'; label.style.color = '#fd7e14';
+                    } else if (passed === 4) {
+                        bar.style.backgroundColor = '#ffc107';
+                        label.textContent = 'Buena'; label.style.color = '#ffc107';
+                    } else {
+                        bar.style.backgroundColor = '#39a900';
+                        label.textContent = 'Fuerte'; label.style.color = '#39a900';
+                    }
+                });
+            }
+
+            // Agregar botón ojo a todos los campos de contraseña del formulario
+            const passwordInputs = document.querySelectorAll('input[type="password"]');
+            passwordInputs.forEach(function (input) {
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'position:relative;display:block;';
+                input.parentNode.insertBefore(wrapper, input);
+                wrapper.appendChild(input);
+                input.style.paddingRight = '3rem';
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.title = 'Ver/ocultar contraseña';
+                btn.style.cssText = 'position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#666;font-size:1.1rem;padding:0;';
+                btn.innerHTML = '<i class="bi bi-eye"></i>';
+                btn.addEventListener('click', function () { togglePassword(input.id, this); });
+                wrapper.appendChild(btn);
+            });
+        });
+    </script>
     <script>
         // Funciones de accesibilidad
         let ttsEnabled = false;

@@ -164,7 +164,12 @@ def perfil_view(request):
             usuario_actualizado = form.save(commit=False)
             # Sincronizar tipo_usuario con el cargo seleccionado
             nuevo_cargo = form.cleaned_data.get('cargo', '')
-            if nuevo_cargo:
+            if usuario.cargo == 'Aprendiz':
+                # Restaurar campos protegidos para aprendices
+                usuario_actualizado.centro_formacion = usuario.centro_formacion
+                usuario_actualizado.especialidad = usuario.especialidad
+                usuario_actualizado.cargo = usuario.cargo
+            elif nuevo_cargo:
                 tipo_usuario, _ = TipoUsuario.objects.get_or_create(
                     nombre=nuevo_cargo,
                     defaults={'descripcion': f'{nuevo_cargo} SENA', 'permisos': {}, 'activo': True}
@@ -383,8 +388,31 @@ def register_view(request):
 
             usuario.save()
 
+            # Enviar correo de bienvenida
+            try:
+                contexto_email = {
+                    'nombres': usuario.nombres,
+                    'apellidos': usuario.apellidos,
+                    'numero_documento': usuario.numero_documento,
+                    'email': usuario.email,
+                    'cargo': usuario.cargo,
+                    'fecha_registro': timezone.now().strftime('%d/%m/%Y %H:%M'),
+                }
+                html_message = render_to_string('usuarios/email_bienvenida.html', contexto_email)
+                plain_message = strip_tags(html_message)
+                send_mail(
+                    subject='✅ Tu cuenta en SENA Maquinaria fue creada exitosamente',
+                    message=plain_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[usuario.email],
+                    html_message=html_message,
+                    fail_silently=True,
+                )
+            except Exception:
+                pass  # El registro no falla si el correo no se envía
+
             messages.success(request,
-                'Registro exitoso. Ya puedes iniciar sesión.')
+                'Registro exitoso. Hemos enviado un correo de confirmación a tu dirección de email.')
             return redirect('usuarios:login')
 
     return render(request, 'usuarios/register.html', {

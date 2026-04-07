@@ -678,13 +678,22 @@
                     <label for="id_password">
                         <i class="bi bi-lock"></i>Contraseña
                     </label>
-                    <input type="password"
-                           class="form-control"
-                           id="id_password"
-                           name="password"
-                           placeholder="Ingrese su contraseña"
-                           required
-                           autocomplete="current-password">
+                    <div style="position:relative;">
+                        <input type="password"
+                               class="form-control"
+                               id="id_password"
+                               name="password"
+                               placeholder="Ingrese su contraseña"
+                               required
+                               autocomplete="current-password"
+                               style="padding-right: 3rem;">
+                        <button type="button"
+                                onclick="togglePassword('id_password', this)"
+                                title="Ver/ocultar contraseña"
+                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#666;font-size:1.1rem;padding:0;">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 
@@ -960,6 +969,18 @@
             });
         });
         
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+
         function showForgotPassword() {
             const email = prompt('Ingresa tu correo electrónico para recuperar tu contraseña:');
             if (email && email.includes('@')) {

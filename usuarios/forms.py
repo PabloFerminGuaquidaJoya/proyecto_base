@@ -2,7 +2,9 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.contrib.auth.password_validation import validate_password
 from .models import Usuario, TipoUsuario, SesionUsuario
+from .validators import ComplejidadPasswordValidator
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
@@ -189,15 +191,20 @@ class RegistroUsuarioForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Contraseña (mínimo 6 caracteres)'
+            'placeholder': 'Mínimo 8 caracteres, mayúscula, número y símbolo',
+            'id': 'id_password',
         }),
-        min_length=6
+        min_length=8,
+        label='Contraseña',
+        help_text='Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.'
     )
     confirmar_password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Confirmar contraseña'
-        })
+            'placeholder': 'Repite la contraseña',
+            'id': 'id_confirmar_password',
+        }),
+        label='Confirmar contraseña'
     )
 
     class Meta:
@@ -254,12 +261,19 @@ class RegistroUsuarioForm(forms.ModelForm):
 
         return email
 
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if password:
+            validator = ComplejidadPasswordValidator()
+            validator.validate(password)
+        return password
+
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         confirmar_password = cleaned_data.get('confirmar_password')
 
-        if password != confirmar_password:
+        if password and confirmar_password and password != confirmar_password:
             raise forms.ValidationError('Las contraseñas no coinciden.')
 
         return cleaned_data

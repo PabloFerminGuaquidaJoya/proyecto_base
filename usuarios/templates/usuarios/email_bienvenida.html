@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta creada exitosamente - SENA</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f4f4; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4; padding: 30px 0;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #00324d 0%, #39a900 100%); padding: 35px 40px; text-align:center;">
+                            <h1 style="color:#ffffff; margin:0; font-size:26px; font-weight:700; letter-spacing:1px;">
+                                SENA Maquinaria
+                            </h1>
+                            <p style="color:rgba(255,255,255,0.85); margin:6px 0 0 0; font-size:14px;">
+                                Sistema de Gestión de Maquinaria
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Ícono de éxito -->
+                    <tr>
+                        <td align="center" style="padding: 35px 40px 10px 40px;">
+                            <div style="background-color:#e8f5e9; border-radius:50%; width:70px; height:70px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                                <span style="font-size:36px; line-height:70px;">&#10003;</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Contenido principal -->
+                    <tr>
+                        <td style="padding: 10px 40px 30px 40px; text-align:center;">
+                            <h2 style="color:#00324d; font-size:22px; margin:0 0 10px 0;">
+                                ¡Tu cuenta fue creada exitosamente!
+                            </h2>
+                            <p style="color:#555; font-size:15px; line-height:1.6; margin:0 0 25px 0;">
+                                Hola <strong>{{ nombres }}</strong>, tu perfil en el sistema SENA Maquinaria ha sido registrado correctamente. A continuación encontrarás los detalles de tu cuenta:
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Detalles de la cuenta -->
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f9fa; border-radius:10px; overflow:hidden; border: 1px solid #e2e8f0;">
+                                <tr>
+                                    <td style="padding:14px 20px; border-bottom:1px solid #e2e8f0;">
+                                        <span style="color:#718096; font-size:13px;">Nombre completo</span><br>
+                                        <strong style="color:#00324d; font-size:15px;">{{ nombres }} {{ apellidos }}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:14px 20px; border-bottom:1px solid #e2e8f0;">
+                                        <span style="color:#718096; font-size:13px;">Número de documento</span><br>
+                                        <strong style="color:#00324d; font-size:15px;">{{ numero_documento }}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:14px 20px; border-bottom:1px solid #e2e8f0;">
+                                        <span style="color:#718096; font-size:13px;">Correo electrónico</span><br>
+                                        <strong style="color:#00324d; font-size:15px;">{{ email }}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:14px 20px; border-bottom:1px solid #e2e8f0;">
+                                        <span style="color:#718096; font-size:13px;">Cargo</span><br>
+                                        <strong style="color:#00324d; font-size:15px;">{{ cargo }}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:14px 20px;">
+                                        <span style="color:#718096; font-size:13px;">Fecha de registro</span><br>
+                                        <strong style="color:#00324d; font-size:15px;">{{ fecha_registro }}</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Aviso de seguridad -->
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#fff3cd; border-radius:8px; border-left: 4px solid #ff6b35;">
+                                <tr>
+                                    <td style="padding:14px 18px;">
+                                        <p style="margin:0; color:#856404; font-size:13px; line-height:1.5;">
+                                            <strong>&#9888; Importante:</strong> Si no reconoces este registro, comunícate de inmediato con el administrador del sistema.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color:#f8f9fa; padding:20px 40px; text-align:center; border-top:1px solid #e2e8f0;">
+                            <p style="margin:0; color:#a0aec0; font-size:12px; line-height:1.6;">
+                                Este es un mensaje automático del sistema SENA Maquinaria.<br>
+                                Por favor no respondas a este correo.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

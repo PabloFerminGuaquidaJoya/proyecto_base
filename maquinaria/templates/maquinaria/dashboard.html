@@ -112,6 +112,11 @@
             </div>
             {% endif %}
             <div class="col-md-3 mb-3">
+                <button type="button" class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#modalDetectarIA">
+                    <i class="bi bi-cpu me-2"></i>Detectar con IA
+                </button>
+            </div>
+            <div class="col-md-3 mb-3">
                 <a href="{% url 'maquinaria:lista_uso_maquinaria' %}" class="btn btn-outline-sena-primary w-100">
                     <i class="bi bi-clock-history me-2"></i>Ver Usos
                 </a>
@@ -174,6 +179,139 @@
         </div>
     </div>
 </div>
+<!-- Modal Detectar con IA -->
+<div class="modal fade" id="modalDetectarIA" tabindex="-1" aria-labelledby="modalDetectarIALabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #00324d, #39a900); color: white;">
+                <h5 class="modal-title" id="modalDetectarIALabel">
+                    <i class="bi bi-cpu me-2"></i>Detectar Tipo de Máquina con IA
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Sube una imagen de la máquina y la IA identificará su tipo y categoría automáticamente.</p>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Imagen de la máquina</label>
+                    <input type="file" class="form-control" id="iaImagenInput" accept="image/*">
+                </div>
+
+                <!-- Vista previa de imagen -->
+                <div id="iaImgPreviewWrap" class="text-center mb-3" style="display:none;">
+                    <img id="iaImgPreview" src="" alt="Vista previa" class="img-fluid rounded" style="max-height:180px;">
+                </div>
+
+                <!-- Resultado -->
+                <div id="iaResultado" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnIADetectar" onclick="dashboardDetectarIA()" disabled>
+                    <i class="bi bi-cpu me-1"></i>Detectar
+                </button>
+                <a href="{% url 'maquinaria:crear_maquina' %}" id="btnIACrearMaquina" class="btn btn-primary" style="display:none;">
+                    <i class="bi bi-plus-circle me-1"></i>Crear Máquina
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CATEGORIA_MAP_DASH = {
+    'excavadora':       'Maquinaria de Excavación y Movimiento de Tierras',
+    'bulldozer':        'Maquinaria de Excavación y Movimiento de Tierras',
+    'retroexcavadora':  'Maquinaria de Excavación y Movimiento de Tierras',
+    'grua_torre':       'Maquinaria de Elevación y Izaje',
+    'grua_movil':       'Maquinaria de Elevación y Izaje',
+    'compactadora':     'Maquinaria de Nivelación y Compactación',
+    'cargador_frontal': 'Maquinaria de Carga y Transporte',
+    'camion_minero':    'Maquinaria de Carga y Transporte',
+    'perforadora':      'Maquinaria de Perforación',
+    'motoniveladora':   'Maquinaria de Nivelación y Compactación',
+    'pavimentadora':    'Maquinaria de Nivelación y Compactación',
+    'volquete':         'Maquinaria de Carga y Transporte',
+};
+
+document.getElementById('iaImagenInput').addEventListener('change', function() {
+    const file = this.files[0];
+    const btnDetectar = document.getElementById('btnIADetectar');
+    const previewWrap = document.getElementById('iaImgPreviewWrap');
+    const preview = document.getElementById('iaImgPreview');
+    document.getElementById('iaResultado').innerHTML = '';
+    document.getElementById('btnIACrearMaquina').style.display = 'none';
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            previewWrap.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+        btnDetectar.disabled = false;
+    } else {
+        previewWrap.style.display = 'none';
+        btnDetectar.disabled = true;
+    }
+});
+
+async function dashboardDetectarIA() {
+    const input = document.getElementById('iaImagenInput');
+    const resultado = document.getElementById('iaResultado');
+    const btn = document.getElementById('btnIADetectar');
+
+    if (!input.files[0]) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analizando...';
+    resultado.innerHTML = '';
+
+    const formData = new FormData();
+    formData.append('imagen', input.files[0]);
+    const csrftoken = document.querySelector('input[name=csrfmiddlewaretoken]')?.value || '';
+
+    try {
+        const resp = await fetch('/vision/api/detectar/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData
+        });
+        const data = await resp.json();
+        const pct = Math.round((data.confianza || 0) * 100);
+        const color = pct >= 70 ? 'success' : pct >= 40 ? 'warning' : 'danger';
+
+        let html = `<div class="alert alert-${color} py-2">
+            <strong><i class="bi bi-robot me-1"></i>${data.clase_display || 'Desconocido'}</strong>
+            <span class="badge bg-${color} ms-2">${pct}% confianza</span>`;
+
+        if (data.categoria_maquina) {
+            html += `<div class="small mt-1">Categoría: <strong>${data.categoria_maquina}</strong></div>`;
+            // Mostrar botón Crear Máquina
+            const btnCrear = document.getElementById('btnIACrearMaquina');
+            btnCrear.style.display = 'inline-block';
+        }
+        html += '</div>';
+        resultado.innerHTML = html;
+    } catch(e) {
+        resultado.innerHTML = '<div class="alert alert-danger py-2"><i class="bi bi-x-circle me-1"></i>Error al conectar con el servicio de IA.</div>';
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-cpu me-1"></i>Detectar';
+}
+
+// Limpiar modal al cerrarse
+document.getElementById('modalDetectarIA').addEventListener('hidden.bs.modal', function() {
+    document.getElementById('iaImagenInput').value = '';
+    document.getElementById('iaImgPreviewWrap').style.display = 'none';
+    document.getElementById('iaResultado').innerHTML = '';
+    document.getElementById('btnIADetectar').disabled = true;
+    document.getElementById('btnIACrearMaquina').style.display = 'none';
+});
+</script>
 {% endblock %}
 
 {% block extra_css %}

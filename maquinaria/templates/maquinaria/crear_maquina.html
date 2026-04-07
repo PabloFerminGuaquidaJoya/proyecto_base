@@ -189,13 +189,6 @@
                                 {% endif %}
                             </div>
 
-                            <div class="mb-3">
-                                <label for="{{ form.condicion.id_for_label }}" class="form-label">{{ form.condicion.label }}</label>
-                                {{ form.condicion }}
-                                {% if form.condicion.errors %}
-                                    <div class="text-danger small">{{ form.condicion.errors.0 }}</div>
-                                {% endif %}
-                            </div>
                         </div>
 
                         <!-- Proveedor y Costos -->
@@ -216,6 +209,7 @@
                                 {% if form.responsable.errors %}
                                     <div class="text-danger small">{{ form.responsable.errors.0 }}</div>
                                 {% endif %}
+                                <small class="text-muted">Busca por nombre o número de documento</small>
                             </div>
 
                             <div class="mb-3">
@@ -255,14 +249,6 @@
                                 {% endif %}
                             </div>
 
-                            <div class="mb-3">
-                                <label for="{{ form.eficiencia.id_for_label }}" class="form-label">{{ form.eficiencia.label }}</label>
-                                {{ form.eficiencia }}
-                                <div class="form-text">Porcentaje de eficiencia (0-100)</div>
-                                {% if form.eficiencia.errors %}
-                                    <div class="text-danger small">{{ form.eficiencia.errors.0 }}</div>
-                                {% endif %}
-                            </div>
                         </div>
                     </div>
 
@@ -419,6 +405,30 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Tom Select: selector con búsqueda -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Selector con búsqueda para Responsable
+    const responsableEl = document.getElementById('id_responsable');
+    if (responsableEl) {
+        new TomSelect(responsableEl, {
+            placeholder: 'Buscar por nombre o número...',
+            searchField: ['text'],
+            maxOptions: 50,
+            render: {
+                option: function(data, escape) {
+                    return '<div>' + escape(data.text) + '</div>';
+                },
+                item: function(data, escape) {
+                    return '<div>' + escape(data.text) + '</div>';
+                }
+            }
+        });
+    }
+});
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Validación básica del formulario
