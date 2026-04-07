@@ -90,11 +90,6 @@
             </div>
             {% endif %}
             <div class="col-md-3 mb-3">
-                <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-outline-sena-secondary w-100">
-                    <i class="bi bi-list me-2"></i>Ver Todas
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
                 <a href="{% url 'maquinaria:alertas' %}" class="btn btn-outline-sena-accent w-100">
                     <i class="bi bi-bell me-2"></i>Ver Alertas
                 </a>
@@ -125,56 +120,235 @@
     </div>
 </div>
 
-<!-- Recent Activity -->
-<div class="row">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="m-0 fw-bold text-sena-gradient">Actividad Reciente</h6>
+<!-- Filtros de máquinas -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="busqueda" placeholder="Buscar por código o nombre..." value="{{ busqueda|default:'' }}">
             </div>
-            <div class="card-body">
-                <div class="timeline">
-                    {% if actividad_reciente %}
-                        {% for actividad in actividad_reciente %}
-                        <div class="timeline-item">
-                            {% if actividad.tipo_evento == 'mantenimiento' %}
-                                <div class="timeline-marker bg-sena-primary"></div>
-                            {% elif actividad.tipo_evento == 'reparacion' %}
-                                <div class="timeline-marker bg-sena-danger"></div>
-                            {% elif actividad.tipo_evento == 'creacion' %}
-                                <div class="timeline-marker bg-sena-secondary"></div>
-                            {% elif actividad.tipo_evento == 'cambio_estado' %}
-                                <div class="timeline-marker bg-sena-accent"></div>
-                            {% else %}
-                                <div class="timeline-marker bg-sena-secondary"></div>
-                            {% endif %}
-                            <div class="timeline-content">
-                                <h6>{{ actividad.maquina.codigo_inventario }} - {{ actividad.maquina.nombre }}</h6>
-                                <p class="text-muted small">{{ actividad.get_tipo_evento_display }} - {{ actividad.fecha_evento|timesince }}</p>
-                            </div>
-                        </div>
+            <div class="col-md-2">
+                <select class="form-select" name="categoria">
+                    <option value="">Todas las categorías</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if categoria_filtro == categoria.id|stringformat:"s" %}selected{% endif %}>
+                            {{ categoria.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="estado">
+                    <option value="">Todos los estados</option>
+                    <option value="disponible" {% if estado_filtro == 'disponible' %}selected{% endif %}>Disponible</option>
+                    <option value="operativa" {% if estado_filtro == 'operativa' %}selected{% endif %}>Operativa</option>
+                    <option value="mantenimiento" {% if estado_filtro == 'mantenimiento' %}selected{% endif %}>En Mantenimiento</option>
+                    <option value="reparacion" {% if estado_filtro == 'reparacion' %}selected{% endif %}>En Reparación</option>
+                    <option value="fuera_servicio" {% if estado_filtro == 'fuera_servicio' %}selected{% endif %}>Fuera de Servicio</option>
+                    <option value="retirada" {% if estado_filtro == 'retirada' %}selected{% endif %}>Retirada</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-search me-2"></i>Filtrar
+                </button>
+            </div>
+            {% if usuario_actual.cargo|lower != 'aprendiz' %}
+            <div class="col-md-3">
+                <a href="{% url 'maquinaria:exportar_maquinas' %}" class="btn btn-outline-success">
+                    <i class="bi bi-download me-2"></i>Exportar
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if busqueda or categoria_filtro or estado_filtro %}
+<div class="alert alert-info">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <i class="bi bi-funnel me-2"></i>
+            <strong>Filtros activos:</strong>
+            {% if busqueda %} Búsqueda: "{{ busqueda }}"{% endif %}
+            {% if estado_filtro %} Estado: {{ estado_filtro|title }}{% endif %}
+        </div>
+        <a href="{% url 'maquinaria:dashboard' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Tabla de Máquinas -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Estado</th>
+                        <th>Condición</th>
+                        <th>Ubicación</th>
+                        <th>Fecha Adquisición</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if maquinas %}
+                        {% for maquina in maquinas %}
+                        <tr>
+                            <td><strong>{{ maquina.codigo_inventario }}</strong></td>
+                            <td>{{ maquina.nombre }}</td>
+                            <td>
+                                <span class="badge" style="background-color: {{ maquina.categoria.color|default:'#007bff' }}">
+                                    {{ maquina.categoria.nombre }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if maquina.estado == 'operativa' %}
+                                    <span class="badge bg-success">{{ maquina.get_estado_display }}</span>
+                                {% elif maquina.estado == 'mantenimiento' %}
+                                    <span class="badge bg-warning">{{ maquina.get_estado_display }}</span>
+                                {% elif maquina.estado == 'disponible' %}
+                                    <span class="badge bg-info">{{ maquina.get_estado_display }}</span>
+                                {% elif maquina.estado == 'reparacion' %}
+                                    <span class="badge bg-danger">{{ maquina.get_estado_display }}</span>
+                                {% elif maquina.estado == 'fuera_servicio' %}
+                                    <span class="badge bg-dark">{{ maquina.get_estado_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ maquina.get_estado_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if maquina.condicion == 'excelente' %}
+                                    <span class="badge bg-success">{{ maquina.get_condicion_display }}</span>
+                                {% elif maquina.condicion == 'buena' %}
+                                    <span class="badge bg-primary">{{ maquina.get_condicion_display }}</span>
+                                {% elif maquina.condicion == 'regular' %}
+                                    <span class="badge bg-warning">{{ maquina.get_condicion_display }}</span>
+                                {% elif maquina.condicion == 'mala' %}
+                                    <span class="badge bg-danger">{{ maquina.get_condicion_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-dark">{{ maquina.get_condicion_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ maquina.ubicacion|default:"-" }}</td>
+                            <td>{{ maquina.fecha_adquisicion|date:"d/m/Y"|default:"-" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'maquinaria:editar_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'maquinaria:generar_qr' pk=maquina.pk %}" class="btn btn-sm btn-outline-info" title="Código QR">
+                                        <i class="bi bi-qr-code"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="confirmarEliminacion('{{ maquina.pk }}', '{{ maquina.codigo_inventario }}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                         {% endfor %}
                     {% else %}
-                        <div class="timeline-item">
-                            <div class="timeline-marker bg-sena-primary"></div>
-                            <div class="timeline-content">
-                                <h6>Sistema Iniciado</h6>
-                                <p class="text-muted small">No hay actividad reciente registrada</p>
-                            </div>
-                        </div>
+                        <tr>
+                            <td colspan="8">
+                                <div class="text-center py-5">
+                                    {% if busqueda or categoria_filtro or estado_filtro %}
+                                        <i class="bi bi-search text-muted" style="font-size:3rem;"></i>
+                                        <h5 class="mt-3 text-muted">Sin resultados</h5>
+                                        <p class="text-muted mb-3">No hay máquinas que coincidan con los filtros aplicados.</p>
+                                        <a href="{% url 'maquinaria:dashboard' %}" class="btn btn-outline-secondary">
+                                            <i class="bi bi-x-circle me-2"></i>Limpiar filtros
+                                        </a>
+                                    {% else %}
+                                        <i class="bi bi-gear" style="font-size:3rem; color:var(--sena-primary); opacity:.4;"></i>
+                                        <h5 class="mt-3">No hay máquinas registradas</h5>
+                                        <p class="text-muted mb-3">Comienza agregando la primera máquina al inventario.</p>
+                                        {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                                        <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-primary">
+                                            <i class="bi bi-plus-circle me-2"></i>Crear Primera Máquina
+                                        </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
                     {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if maquinas.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if maquinas.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if categoria_filtro %}&categoria={{ categoria_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Primera</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ maquinas.previous_page_number }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if categoria_filtro %}&categoria={{ categoria_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Anterior</a>
+                    </li>
+                {% endif %}
+                <li class="page-item active">
+                    <span class="page-link">Página {{ maquinas.number }} de {{ maquinas.paginator.num_pages }}</span>
+                </li>
+                {% if maquinas.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ maquinas.next_page_number }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if categoria_filtro %}&categoria={{ categoria_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Siguiente</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ maquinas.paginator.num_pages }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}{% if categoria_filtro %}&categoria={{ categoria_filtro }}{% endif %}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}">Última</a>
+                    </li>
+                {% endif %}
+            </ul>
+            <div class="text-center text-muted">
+                Mostrando {{ maquinas.start_index }} - {{ maquinas.end_index }} de {{ maquinas.paginator.count }} máquinas
+            </div>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="bi bi-trash text-danger fs-1 mb-3"></i>
+                    <h5>¿Está seguro que desea eliminar esta máquina?</h5>
+                    <p class="text-muted"><strong id="maquinaCodigo"></strong></p>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>Todos los datos serán preservados en el archivo de máquinas eliminadas.</small>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="m-0 fw-bold text-sena-primary">Estado por Categorías</h6>
-            </div>
-            <div class="card-body">
-                <canvas id="categoryChart" width="400" height="300"></canvas>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                </button>
+                <form method="post" id="deleteForm" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="motivo_eliminacion" value="Eliminación desde dashboard de maquinaria">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Eliminar Permanentemente
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -301,6 +475,14 @@ async function dashboardDetectarIA() {
 
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-cpu me-1"></i>Detectar';
+}
+
+function confirmarEliminacion(maquinaId, codigoInventario) {
+    document.getElementById('maquinaCodigo').textContent = codigoInventario;
+    const form = document.getElementById('deleteForm');
+    form.action = `/maquinaria/eliminar/${maquinaId}/`;
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
 }
 
 // Limpiar modal al cerrarse
@@ -431,19 +613,5 @@ document.getElementById('modalDetectarIA').addEventListener('hidden.bs.modal', f
         color: white;
     }
 
-    /* ── Timeline ── */
-    .timeline { position: relative; }
-    .timeline-item {
-        display: flex;
-        margin-bottom: 1rem;
-    }
-    .timeline-marker {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 1rem;
-        margin-top: 0.25rem;
-        flex-shrink: 0;
-    }
 </style>
 {% endblock %}

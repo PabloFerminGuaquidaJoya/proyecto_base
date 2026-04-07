@@ -12,27 +12,42 @@ from usuarios.models import Usuario
 # Dashboard
 @login_required
 def dashboard_view(request):
-    """Dashboard principal de maquinaria con estadísticas reales"""
+    """Dashboard principal de maquinaria con estadísticas reales y lista de máquinas"""
     # Estadísticas básicas
     total_maquinas = Maquina.objects.count()
     maquinas_operativas = Maquina.objects.filter(estado='operativa').count()
     maquinas_mantenimiento = Maquina.objects.filter(estado='mantenimiento').count()
     alertas_activas = AlertaMaquina.objects.filter(estado='activa').count()
 
-    # Estadísticas por categoría
-    stats_por_categoria = CategoriaMaquina.objects.annotate(
-        total_maquinas=Count('maquina')
-    ).order_by('-total_maquinas')[:5]
-
-    # Actividad reciente
-    actividad_reciente = HistorialMaquina.objects.select_related(
-        'maquina', 'usuario'
-    ).order_by('-fecha_evento')[:10]
-
     # Alertas recientes
     alertas_recientes = AlertaMaquina.objects.select_related(
         'maquina'
     ).filter(estado='activa').order_by('-fecha_creacion')[:5]
+
+    # Lista de máquinas con filtros (igual que lista_maquinas_view)
+    maquinas_list = Maquina.objects.select_related('categoria', 'proveedor', 'responsable').all()
+
+    estado_filtro = request.GET.get('estado')
+    categoria_filtro = request.GET.get('categoria')
+    busqueda = request.GET.get('busqueda')
+
+    if estado_filtro:
+        maquinas_list = maquinas_list.filter(estado=estado_filtro)
+    if categoria_filtro:
+        maquinas_list = maquinas_list.filter(categoria_id=categoria_filtro)
+    if busqueda:
+        maquinas_list = maquinas_list.filter(
+            Q(codigo_inventario__icontains=busqueda) |
+            Q(nombre__icontains=busqueda) |
+            Q(marca__icontains=busqueda) |
+            Q(modelo__icontains=busqueda)
+        )
+
+    paginator = Paginator(maquinas_list, 20)
+    page = request.GET.get('page')
+    maquinas = paginator.get_page(page)
+
+    categorias = CategoriaMaquina.objects.filter(activa=True)
 
     context = {
         'title': 'Dashboard Maquinaria',
@@ -40,9 +55,12 @@ def dashboard_view(request):
         'maquinas_operativas': maquinas_operativas,
         'maquinas_mantenimiento': maquinas_mantenimiento,
         'alertas_activas': alertas_activas,
-        'stats_por_categoria': stats_por_categoria,
-        'actividad_reciente': actividad_reciente,
         'alertas_recientes': alertas_recientes,
+        'maquinas': maquinas,
+        'categorias': categorias,
+        'estado_filtro': estado_filtro,
+        'categoria_filtro': categoria_filtro,
+        'busqueda': busqueda,
     }
 
     return render(request, 'maquinaria/dashboard.html', context)
