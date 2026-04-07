@@ -17,6 +17,10 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('perfil/', views.perfil_view, name='perfil'),
 
+    # Centro de control (solo staff)
+    path('centro-control/', views.centro_control_view, name='centro_control'),
+    path('admin-editar-ajax/<int:pk>/', views.admin_editar_usuario_ajax, name='admin_editar_ajax'),
+
     # Gestión de usuarios (solo admin)
     path('lista/', views.lista_usuarios_view, name='lista'),
     path('crear/', views.crear_usuario_view, name='crear'),

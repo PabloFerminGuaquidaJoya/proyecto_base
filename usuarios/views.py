@@ -318,6 +318,103 @@ def cambiar_estado_usuario(request, pk):
     return JsonResponse({'error': 'Estado no válido'}, status=400)
 
 @login_required
+def centro_control_view(request):
+    """Centro de control de administración de usuarios — solo staff."""
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+
+    q               = request.GET.get('q', '').strip()
+    estado_filter   = request.GET.get('estado_filter', '').strip()
+    programa_filter = request.GET.get('programa_filter', '').strip()
+
+    usuarios_qs = Usuario.objects.select_related('tipo_usuario').all()
+
+    if q:
+        usuarios_qs = usuarios_qs.filter(
+            Q(nombres__icontains=q) |
+            Q(apellidos__icontains=q) |
+            Q(numero_documento__icontains=q) |
+            Q(especialidad__icontains=q)
+        )
+    if estado_filter:
+        usuarios_qs = usuarios_qs.filter(estado=estado_filter)
+    if programa_filter:
+        usuarios_qs = usuarios_qs.filter(
+            Q(centro_formacion__icontains=programa_filter) |
+            Q(especialidad__icontains=programa_filter)
+        )
+
+    usuarios_qs = usuarios_qs.order_by('-fecha_registro')
+
+    pendientes       = Usuario.objects.select_related('tipo_usuario').filter(estado='pendiente').order_by('fecha_registro')
+    total            = Usuario.objects.count()
+    activos          = Usuario.objects.filter(estado='activo').count()
+    pendientes_count = Usuario.objects.filter(estado='pendiente').count()
+    inactivos        = Usuario.objects.filter(Q(estado='inactivo') | Q(estado='suspendido')).count()
+    tipos_usuario    = TipoUsuario.objects.filter(activo=True).order_by('nombre')
+
+    paginator   = Paginator(usuarios_qs, 15)
+    page_obj    = paginator.get_page(request.GET.get('page'))
+
+    return render(request, 'usuarios/centro_control.html', {
+        'title':            'Centro de Control - SENA',
+        'usuarios':         page_obj.object_list,
+        'pendientes':       pendientes,
+        'total':            total,
+        'activos':          activos,
+        'pendientes_count': pendientes_count,
+        'inactivos':        inactivos,
+        'page_obj':         page_obj,
+        'tipos_usuario':    tipos_usuario,
+        'estado_choices':   Usuario.ESTADO_CHOICES,
+        'form_search': {
+            'q':               q,
+            'estado_filter':   estado_filter,
+            'programa_filter': programa_filter,
+        },
+    })
+
+@login_required
+@require_POST
+def admin_editar_usuario_ajax(request, pk):
+    """Edición inline de usuario vía AJAX — solo staff."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos'}, status=403)
+
+    usuario = get_object_or_404(Usuario, pk=pk)
+
+    for campo in ['nombres', 'apellidos', 'telefono', 'cargo', 'especialidad', 'centro_formacion']:
+        valor = request.POST.get(campo, '').strip()
+        if valor:
+            setattr(usuario, campo, valor)
+
+    email = request.POST.get('email', '').strip()
+    if email:
+        if Usuario.objects.exclude(pk=pk).filter(email=email).exists():
+            return JsonResponse({'success': False, 'message': 'Ya existe un usuario con ese email.'}, status=400)
+        usuario.email = email
+
+    nuevo_estado = request.POST.get('estado', '').strip()
+    if nuevo_estado and nuevo_estado in dict(Usuario.ESTADO_CHOICES):
+        usuario.estado = nuevo_estado
+        if nuevo_estado == 'activo' and not usuario.fecha_aprobacion:
+            usuario.fecha_aprobacion = timezone.now()
+
+    tipo_usuario_id = request.POST.get('tipo_usuario_id', '').strip()
+    if tipo_usuario_id:
+        try:
+            usuario.tipo_usuario = TipoUsuario.objects.get(pk=int(tipo_usuario_id), activo=True)
+        except (TipoUsuario.DoesNotExist, ValueError):
+            return JsonResponse({'success': False, 'message': 'Tipo de usuario no válido.'}, status=400)
+
+    try:
+        usuario.save()
+        return JsonResponse({'success': True, 'message': f'Usuario {usuario.nombres} {usuario.apellidos} actualizado correctamente.'})
+    except Exception as exc:
+        return JsonResponse({'success': False, 'message': f'Error al guardar: {str(exc)}'}, status=500)
+
+@login_required
 def configuracion_view(request):
     """Vista de configuración general de usuarios"""
     if not request.user.is_staff:

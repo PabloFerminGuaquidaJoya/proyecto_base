@@ -1164,6 +1164,12 @@
                     <span>Historial de Copias</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{% url 'usuarios:centro_control' %}" class="nav-link {% if request.resolver_match.url_name == 'centro_control' %}active{% endif %}">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Centro de Control</span>
+                </a>
+            </li>
             {% endif %}
             <li class="nav-item">
                 <a href="{% url 'usuarios:logout' %}" class="nav-link">

@@ -1,0 +1,847 @@
+{% extends 'base.html' %}
+
+{% block title %}Centro de Control - SENA{% endblock %}
+{% block page_title %}Centro de Control{% endblock %}
+
+{% block content %}
+<style>
+    /* ── Stat cards ─────────────────────────────────────────── */
+    .stat-card {
+        border: none;
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        transition: transform .2s ease, box-shadow .2s ease;
+        overflow: hidden;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+    }
+    .stat-card .card-body {
+        padding: 1.4rem 1.6rem;
+    }
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        flex-shrink: 0;
+    }
+    .stat-label {
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: #6c757d;
+    }
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    /* ── Pending cards ──────────────────────────────────────── */
+    .pending-card {
+        border: none;
+        border-radius: 12px;
+        border-left: 4px solid #ffc107;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        transition: box-shadow .2s;
+    }
+    .pending-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+    .pending-card .card-body { padding: 1.1rem 1.3rem; }
+
+    /* ── Search bar ─────────────────────────────────────────── */
+    .search-section {
+        background: white;
+        border-radius: 14px;
+        padding: 1.4rem 1.6rem;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        margin-bottom: 1.6rem;
+    }
+
+    /* ── User table ─────────────────────────────────────────── */
+    .usuarios-table th {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, #004d73 100%);
+        color: white;
+        font-size: .82rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        white-space: nowrap;
+        border: none;
+    }
+    .usuarios-table td {
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f3f5;
+        font-size: .9rem;
+    }
+    .usuarios-table tbody tr:hover { background: #f8fcf4; }
+
+    /* ── Estado badges ──────────────────────────────────────── */
+    .badge-activo    { background:#d1fae5; color:#065f46; border:1px solid #a7f3d0; }
+    .badge-pendiente { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+    .badge-inactivo  { background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
+    .badge-suspendido{ background:#fce7f3; color:#9d174d; border:1px solid #fbcfe8; }
+    .estado-badge {
+        display: inline-block;
+        padding: .28em .75em;
+        border-radius: 999px;
+        font-size: .78rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* ── Avatar initials ────────────────────────────────────── */
+    .avatar-initials {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--sena-secondary), var(--sena-primary));
+        color: white;
+        font-size: .85rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* ── Section headings ───────────────────────────────────── */
+    .section-heading {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--sena-secondary);
+        border-left: 4px solid var(--sena-primary);
+        padding-left: .75rem;
+        margin-bottom: 1rem;
+    }
+
+    /* ── Pagination ─────────────────────────────────────────── */
+    .page-link {
+        color: var(--sena-primary);
+        border-radius: 8px !important;
+        margin: 0 2px;
+    }
+    .page-item.active .page-link {
+        background: var(--sena-primary);
+        border-color: var(--sena-primary);
+    }
+    .page-link:hover { background: #e8f8e8; color: var(--sena-primary); }
+
+    /* ── Edit modal ─────────────────────────────────────────── */
+    #editModal .modal-header {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+    }
+    #editModal .modal-header .btn-close { filter: invert(1); }
+    #editModal .modal-content { border: none; border-radius: 14px; }
+    #editModal .form-label { font-size: .82rem; font-weight: 600; color: #374151; }
+</style>
+
+<!-- ═══════════════ STAT CARDS ═══════════════════════════════════════════ -->
+<div class="row g-3 mb-4">
+    <!-- Total -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background:#e0f2fe;">
+                    <i class="bi bi-people-fill" style="color:#0369a1;"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Total usuarios</div>
+                    <div class="stat-value" style="color:#0369a1;">{{ total }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activos -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background:#d1fae5;">
+                    <i class="bi bi-person-check-fill" style="color:#065f46;"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Activos</div>
+                    <div class="stat-value" style="color:#065f46;">{{ activos }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pendientes -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background:#fef3c7;">
+                    <i class="bi bi-hourglass-split" style="color:#92400e;"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Pendientes</div>
+                    <div class="stat-value" style="color:#92400e;">{{ pendientes_count }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inactivos / Suspendidos -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background:#fee2e2;">
+                    <i class="bi bi-person-x-fill" style="color:#991b1b;"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Inactivos / Suspendidos</div>
+                    <div class="stat-value" style="color:#991b1b;">{{ inactivos }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ SEARCH BAR ══════════════════════════════════════════ -->
+<div class="search-section">
+    <form method="get" action="" id="searchForm">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold mb-1" style="font-size:.82rem;">
+                    <i class="bi bi-search me-1"></i>Buscar (documento / nombre)
+                </label>
+                <input
+                    type="text"
+                    name="q"
+                    class="form-control"
+                    placeholder="Ej: 1234567, Juan Pérez…"
+                    value="{{ form_search.q }}"
+                >
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold mb-1" style="font-size:.82rem;">
+                    <i class="bi bi-funnel me-1"></i>Estado
+                </label>
+                <select name="estado_filter" class="form-select">
+                    <option value="">Todos los estados</option>
+                    {% for val, label in estado_choices %}
+                        <option value="{{ val }}"
+                            {% if form_search.estado_filter == val %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold mb-1" style="font-size:.82rem;">
+                    <i class="bi bi-building me-1"></i>Programa / Centro
+                </label>
+                <input
+                    type="text"
+                    name="programa_filter"
+                    class="form-control"
+                    placeholder="Ej: Centro Minero…"
+                    value="{{ form_search.programa_filter }}"
+                >
+            </div>
+
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100" title="Buscar">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+
+        {% if form_search.q or form_search.estado_filter or form_search.programa_filter %}
+        <div class="mt-2">
+            <a href="{% url 'usuarios:centro_control' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+            </a>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- ═══════════════ SOLICITUDES PENDIENTES ══════════════════════════════ -->
+{% if pendientes %}
+<div class="mb-4">
+    <h6 class="section-heading">
+        <i class="bi bi-hourglass-split me-1 text-warning"></i>
+        Solicitudes Pendientes de Aprobación
+        <span class="badge rounded-pill ms-2" style="background:#fef3c7;color:#92400e;font-size:.8rem;">
+            {{ pendientes|length }}
+        </span>
+    </h6>
+
+    <div class="row g-3">
+        {% for u in pendientes %}
+        <div class="col-xl-4 col-md-6" id="pending-card-{{ u.pk }}">
+            <div class="card pending-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-3 mb-3">
+                        <div class="avatar-initials">{{ u.iniciales }}</div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="fw-bold text-truncate" style="color:var(--sena-secondary);">
+                                {{ u.nombre_completo }}
+                            </div>
+                            <div class="text-muted" style="font-size:.8rem;">
+                                {{ u.get_tipo_documento_display }} {{ u.numero_documento }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <dl class="row mb-0" style="font-size:.82rem;">
+                        <dt class="col-4 text-muted fw-normal">Cargo</dt>
+                        <dd class="col-8 mb-1 fw-semibold">{{ u.cargo|default:"—" }}</dd>
+
+                        <dt class="col-4 text-muted fw-normal">Email</dt>
+                        <dd class="col-8 mb-1 text-truncate">
+                            <a href="mailto:{{ u.email }}" class="text-decoration-none">{{ u.email }}</a>
+                        </dd>
+
+                        <dt class="col-4 text-muted fw-normal">Registro</dt>
+                        <dd class="col-8 mb-0">{{ u.fecha_registro|date:"d/m/Y H:i" }}</dd>
+                    </dl>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button
+                            class="btn btn-sm btn-success flex-fill fw-semibold aprobar-btn"
+                            data-pk="{{ u.pk }}"
+                            data-nombre="{{ u.nombre_completo }}"
+                        >
+                            <i class="bi bi-check-lg me-1"></i>Aprobar
+                        </button>
+                        <button
+                            class="btn btn-sm btn-danger flex-fill fw-semibold rechazar-btn"
+                            data-pk="{{ u.pk }}"
+                            data-nombre="{{ u.nombre_completo }}"
+                        >
+                            <i class="bi bi-x-lg me-1"></i>Rechazar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ═══════════════ TABLA DE USUARIOS ══════════════════════════════════ -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center"
+         style="background:white;border-bottom:2px solid #f1f3f5;padding:1rem 1.5rem;">
+        <h6 class="mb-0 fw-bold" style="color:var(--sena-secondary);">
+            <i class="bi bi-table me-2"></i>Listado de Usuarios
+        </h6>
+        <small class="text-muted">
+            {{ page_obj.paginator.count }} resultado{% if page_obj.paginator.count != 1 %}s{% endif %}
+        </small>
+    </div>
+
+    <div class="card-body p-0">
+        {% if usuarios %}
+        <div class="table-responsive">
+            <table class="table usuarios-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Nombre</th>
+                        <th>Documento</th>
+                        <th>Cargo</th>
+                        <th>Programa / Especialidad</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center pe-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr id="row-{{ u.pk }}">
+                        <!-- Nombre -->
+                        <td class="ps-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-initials" style="width:32px;height:32px;font-size:.75rem;">
+                                    {{ u.iniciales }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold" style="font-size:.88rem;">{{ u.nombre_completo }}</div>
+                                    <div class="text-muted" style="font-size:.75rem;">{{ u.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Documento -->
+                        <td>
+                            <span class="text-muted" style="font-size:.78rem;">{{ u.get_tipo_documento_display }}</span><br>
+                            <span class="fw-semibold" style="font-size:.88rem;">{{ u.numero_documento }}</span>
+                        </td>
+
+                        <!-- Cargo -->
+                        <td style="font-size:.88rem;">{{ u.cargo|default:"—" }}</td>
+
+                        <!-- Programa / Especialidad -->
+                        <td style="font-size:.82rem;max-width:200px;">
+                            {% if u.especialidad %}
+                                <span class="d-block text-truncate" title="{{ u.especialidad }}">{{ u.especialidad }}</span>
+                            {% endif %}
+                            {% if u.centro_formacion %}
+                                <span class="text-muted d-block text-truncate" title="{{ u.centro_formacion }}"
+                                      style="font-size:.76rem;">{{ u.centro_formacion }}</span>
+                            {% endif %}
+                            {% if not u.especialidad and not u.centro_formacion %}—{% endif %}
+                        </td>
+
+                        <!-- Estado -->
+                        <td class="text-center" id="estado-cell-{{ u.pk }}">
+                            {% if u.estado == 'activo' %}
+                                <span class="estado-badge badge-activo">Activo</span>
+                            {% elif u.estado == 'pendiente' %}
+                                <span class="estado-badge badge-pendiente">Pendiente</span>
+                            {% elif u.estado == 'suspendido' %}
+                                <span class="estado-badge badge-suspendido">Suspendido</span>
+                            {% else %}
+                                <span class="estado-badge badge-inactivo">Inactivo</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="text-center pe-3">
+                            <button
+                                class="btn btn-sm btn-outline-primary editar-btn"
+                                data-pk="{{ u.pk }}"
+                                data-nombres="{{ u.nombres }}"
+                                data-apellidos="{{ u.apellidos }}"
+                                data-email="{{ u.email }}"
+                                data-telefono="{{ u.telefono }}"
+                                data-cargo="{{ u.cargo }}"
+                                data-especialidad="{{ u.especialidad }}"
+                                data-centro="{{ u.centro_formacion }}"
+                                data-estado="{{ u.estado }}"
+                                data-tipo-usuario-id="{{ u.tipo_usuario_id }}"
+                                title="Editar usuario"
+                            >
+                                <i class="bi bi-pencil-square me-1"></i>Editar
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ── Paginación ────────────────────────────────────────── -->
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-between align-items-center px-3 py-3"
+             style="border-top:1px solid #f1f3f5;">
+            <small class="text-muted">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                ({{ page_obj.paginator.count }} registros)
+            </small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if form_search.q %}q={{ form_search.q }}&{% endif %}{% if form_search.estado_filter %}estado_filter={{ form_search.estado_filter }}&{% endif %}{% if form_search.programa_filter %}programa_filter={{ form_search.programa_filter }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if form_search.q %}q={{ form_search.q }}&{% endif %}{% if form_search.estado_filter %}estado_filter={{ form_search.estado_filter }}&{% endif %}{% if form_search.programa_filter %}programa_filter={{ form_search.programa_filter }}&{% endif %}page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if form_search.q %}q={{ form_search.q }}&{% endif %}{% if form_search.estado_filter %}estado_filter={{ form_search.estado_filter }}&{% endif %}{% if form_search.programa_filter %}programa_filter={{ form_search.programa_filter }}&{% endif %}page={{ page_obj.next_page_number }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-search fs-1 d-block mb-2" style="opacity:.3;"></i>
+            <p class="mb-0">No se encontraron usuarios con los filtros aplicados.</p>
+            {% if form_search.q or form_search.estado_filter or form_search.programa_filter %}
+            <a href="{% url 'usuarios:centro_control' %}" class="btn btn-sm btn-outline-secondary mt-3">
+                <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- ═══════════════ MODAL DE EDICIÓN ════════════════════════════════════ -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="editModalLabel">
+                    <i class="bi bi-pencil-square me-2"></i>Editar Usuario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                {% csrf_token %}
+                <div id="editAlertContainer"></div>
+
+                <div class="row g-3">
+                    <!-- Nombres -->
+                    <div class="col-md-6">
+                        <label class="form-label">Nombres <span class="text-danger">*</span></label>
+                        <input type="text" id="edit_nombres" class="form-control" placeholder="Nombres completos">
+                    </div>
+
+                    <!-- Apellidos -->
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos <span class="text-danger">*</span></label>
+                        <input type="text" id="edit_apellidos" class="form-control" placeholder="Apellidos completos">
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" id="edit_email" class="form-control" placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="col-md-6">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" id="edit_telefono" class="form-control" placeholder="+57 300 000 0000">
+                    </div>
+
+                    <!-- Cargo -->
+                    <div class="col-md-6">
+                        <label class="form-label">Cargo</label>
+                        <input type="text" id="edit_cargo" class="form-control" placeholder="Cargo o rol">
+                    </div>
+
+                    <!-- Tipo de usuario -->
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo de usuario</label>
+                        <select id="edit_tipo_usuario_id" class="form-select">
+                            {% for tipo in tipos_usuario %}
+                            <option value="{{ tipo.pk }}">{{ tipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Especialidad -->
+                    <div class="col-md-6">
+                        <label class="form-label">Especialidad</label>
+                        <input type="text" id="edit_especialidad" class="form-control" placeholder="Programa o especialidad">
+                    </div>
+
+                    <!-- Centro de formación -->
+                    <div class="col-md-6">
+                        <label class="form-label">Centro de formación</label>
+                        <input type="text" id="edit_centro_formacion" class="form-control" placeholder="Centro SENA">
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="col-md-6">
+                        <label class="form-label">Estado</label>
+                        <select id="edit_estado" class="form-select">
+                            {% for val, label in estado_choices %}
+                            <option value="{{ val }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary fw-semibold" id="saveEditBtn">
+                    <i class="bi bi-floppy me-1"></i>Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════ JAVASCRIPT ════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    /* ── CSRF helper ────────────────────────────────────────────────────── */
+    function getCsrf() {
+        const el = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return el ? el.value : '';
+    }
+
+    /* ── Estado badge HTML ──────────────────────────────────────────────── */
+    const ESTADO_LABELS = {
+        'activo':     ['badge-activo',     'Activo'],
+        'pendiente':  ['badge-pendiente',  'Pendiente'],
+        'inactivo':   ['badge-inactivo',   'Inactivo'],
+        'suspendido': ['badge-suspendido', 'Suspendido'],
+    };
+    function estadoBadge(estado) {
+        const [cls, label] = ESTADO_LABELS[estado] || ['badge-inactivo', estado];
+        return `<span class="estado-badge ${cls}">${label}</span>`;
+    }
+
+    /* ── Show inline alert inside modal ────────────────────────────────── */
+    function showModalAlert(msg, type) {
+        const c = document.getElementById('editAlertContainer');
+        c.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible py-2 mb-3" role="alert">
+                ${msg}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+     *  PENDIENTES — Aprobar / Rechazar
+     * ───────────────────────────────────────────────────────────────────── */
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.aprobar-btn, .rechazar-btn');
+        if (!btn) return;
+
+        const pk     = btn.dataset.pk;
+        const nombre = btn.dataset.nombre;
+        const nuevo  = btn.classList.contains('aprobar-btn') ? 'activo' : 'inactivo';
+        const accion = nuevo === 'activo' ? 'aprobar' : 'rechazar';
+
+        if (!confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} la solicitud de ${nombre}?`)) return;
+
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+
+        const url = `/usuarios/cambiar-estado/${pk}/`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrf(),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `estado=${nuevo}`,
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the pending card with animation
+                const card = document.getElementById(`pending-card-${pk}`);
+                if (card) {
+                    card.style.transition = 'opacity .4s, transform .4s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(.95)';
+                    setTimeout(() => card.remove(), 400);
+                }
+                // Update estado badge in the main table row
+                const estadoCell = document.getElementById(`estado-cell-${pk}`);
+                if (estadoCell) estadoCell.innerHTML = estadoBadge(nuevo);
+
+                showToast(
+                    nuevo === 'activo'
+                        ? `Usuario ${nombre} aprobado correctamente.`
+                        : `Usuario ${nombre} rechazado.`,
+                    nuevo === 'activo' ? 'success' : 'warning'
+                );
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo procesar la solicitud.'));
+                btn.disabled = false;
+                btn.innerHTML = btn.classList.contains('aprobar-btn')
+                    ? '<i class="bi bi-check-lg me-1"></i>Aprobar'
+                    : '<i class="bi bi-x-lg me-1"></i>Rechazar';
+            }
+        })
+        .catch(() => {
+            alert('Error de red. Inténtalo de nuevo.');
+            btn.disabled = false;
+        });
+    });
+
+    /* ─────────────────────────────────────────────────────────────────────
+     *  EDITAR — abrir modal
+     * ───────────────────────────────────────────────────────────────────── */
+    let currentEditPk = null;
+
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.editar-btn');
+        if (!btn) return;
+
+        currentEditPk = btn.dataset.pk;
+
+        // Populate fields
+        document.getElementById('edit_nombres').value          = btn.dataset.nombres    || '';
+        document.getElementById('edit_apellidos').value        = btn.dataset.apellidos  || '';
+        document.getElementById('edit_email').value            = btn.dataset.email      || '';
+        document.getElementById('edit_telefono').value         = btn.dataset.telefono   || '';
+        document.getElementById('edit_cargo').value            = btn.dataset.cargo      || '';
+        document.getElementById('edit_especialidad').value     = btn.dataset.especialidad || '';
+        document.getElementById('edit_centro_formacion').value = btn.dataset.centro     || '';
+        document.getElementById('edit_estado').value           = btn.dataset.estado     || 'activo';
+
+        const tipoSel = document.getElementById('edit_tipo_usuario_id');
+        if (tipoSel) tipoSel.value = btn.dataset.tipoUsuarioId || '';
+
+        // Clear previous alerts
+        document.getElementById('editAlertContainer').innerHTML = '';
+
+        const modal = new bootstrap.Modal(document.getElementById('editModal'));
+        modal.show();
+    });
+
+    /* ─────────────────────────────────────────────────────────────────────
+     *  EDITAR — guardar (AJAX)
+     * ───────────────────────────────────────────────────────────────────── */
+    document.getElementById('saveEditBtn').addEventListener('click', function () {
+        if (!currentEditPk) return;
+
+        const saveBtn = this;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Guardando…';
+
+        const params = new URLSearchParams({
+            nombres:           document.getElementById('edit_nombres').value.trim(),
+            apellidos:         document.getElementById('edit_apellidos').value.trim(),
+            email:             document.getElementById('edit_email').value.trim(),
+            telefono:          document.getElementById('edit_telefono').value.trim(),
+            cargo:             document.getElementById('edit_cargo').value.trim(),
+            especialidad:      document.getElementById('edit_especialidad').value.trim(),
+            centro_formacion:  document.getElementById('edit_centro_formacion').value.trim(),
+            estado:            document.getElementById('edit_estado').value,
+            tipo_usuario_id:   document.getElementById('edit_tipo_usuario_id').value,
+        });
+
+        // Use the named URL pattern built from data attribute on save button
+        const url = `/usuarios/admin-editar-ajax/${currentEditPk}/`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrf(),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params.toString(),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showModalAlert(
+                    `<i class="bi bi-check-circle-fill me-1"></i>${data.message}`,
+                    'success'
+                );
+
+                // Update table row estado badge
+                const estadoCell = document.getElementById(`estado-cell-${currentEditPk}`);
+                if (estadoCell) {
+                    estadoCell.innerHTML = estadoBadge(document.getElementById('edit_estado').value);
+                }
+
+                // Update editar-btn dataset so re-opening shows fresh data
+                const editBtn = document.querySelector(`.editar-btn[data-pk="${currentEditPk}"]`);
+                if (editBtn) {
+                    editBtn.dataset.nombres        = document.getElementById('edit_nombres').value.trim();
+                    editBtn.dataset.apellidos      = document.getElementById('edit_apellidos').value.trim();
+                    editBtn.dataset.email          = document.getElementById('edit_email').value.trim();
+                    editBtn.dataset.telefono       = document.getElementById('edit_telefono').value.trim();
+                    editBtn.dataset.cargo          = document.getElementById('edit_cargo').value.trim();
+                    editBtn.dataset.especialidad   = document.getElementById('edit_especialidad').value.trim();
+                    editBtn.dataset.centro         = document.getElementById('edit_centro_formacion').value.trim();
+                    editBtn.dataset.estado         = document.getElementById('edit_estado').value;
+                    editBtn.dataset.tipoUsuarioId  = document.getElementById('edit_tipo_usuario_id').value;
+                }
+
+                setTimeout(() => {
+                    const modalEl = document.getElementById('editModal');
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                    showToast(data.message, 'success');
+                }, 900);
+            } else {
+                showModalAlert(
+                    `<i class="bi bi-exclamation-triangle-fill me-1"></i>${data.message}`,
+                    'danger'
+                );
+            }
+        })
+        .catch(() => {
+            showModalAlert(
+                '<i class="bi bi-wifi-off me-1"></i>Error de red. Inténtalo de nuevo.',
+                'danger'
+            );
+        })
+        .finally(() => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="bi bi-floppy me-1"></i>Guardar cambios';
+        });
+    });
+
+    /* ─────────────────────────────────────────────────────────────────────
+     *  Toast notifications (Bootstrap 5 toast component)
+     * ───────────────────────────────────────────────────────────────────── */
+    function showToast(message, type) {
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;';
+            document.body.appendChild(container);
+        }
+
+        const colors = {
+            success: { bg: '#d1fae5', border: '#a7f3d0', text: '#065f46', icon: 'bi-check-circle-fill' },
+            warning: { bg: '#fef3c7', border: '#fde68a', text: '#92400e', icon: 'bi-exclamation-triangle-fill' },
+            danger:  { bg: '#fee2e2', border: '#fecaca', text: '#991b1b', icon: 'bi-x-circle-fill' },
+        };
+        const c = colors[type] || colors.success;
+
+        const t = document.createElement('div');
+        t.style.cssText = `
+            background:${c.bg};border:1px solid ${c.border};color:${c.text};
+            padding:.75rem 1rem;border-radius:10px;font-size:.88rem;font-weight:500;
+            box-shadow:0 4px 14px rgba(0,0,0,.12);display:flex;align-items:center;gap:.5rem;
+            min-width:260px;max-width:360px;animation:fadeInUp .25s ease;
+        `;
+        t.innerHTML = `<i class="bi ${c.icon}"></i><span>${message}</span>`;
+        container.appendChild(t);
+
+        setTimeout(() => {
+            t.style.transition = 'opacity .3s,transform .3s';
+            t.style.opacity = '0';
+            t.style.transform = 'translateY(8px)';
+            setTimeout(() => t.remove(), 300);
+        }, 3500);
+    }
+
+    /* ── CSS animation ─────────────────────────────────────────────────── */
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInUp {
+            from { opacity:0; transform:translateY(12px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+
+})();
+</script>
+{% endblock %}
