@@ -20,6 +20,8 @@ urlpatterns = [
     # Centro de control (solo staff)
     path('centro-control/', views.centro_control_view, name='centro_control'),
     path('admin-editar-ajax/<int:pk>/', views.admin_editar_usuario_ajax, name='admin_editar_ajax'),
+    path('admin-crear-ajax/', views.admin_crear_usuario_ajax, name='admin_crear_ajax'),
+    path('admin-cambiar-password-ajax/<int:pk>/', views.admin_cambiar_password_ajax, name='admin_cambiar_password_ajax'),
 
     # Gestión de usuarios (solo admin)
     path('lista/', views.lista_usuarios_view, name='lista'),

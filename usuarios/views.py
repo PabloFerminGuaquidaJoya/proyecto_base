@@ -415,6 +415,153 @@ def admin_editar_usuario_ajax(request, pk):
         return JsonResponse({'success': False, 'message': f'Error al guardar: {str(exc)}'}, status=500)
 
 @login_required
+@require_POST
+def admin_crear_usuario_ajax(request):
+    """Crea un nuevo usuario desde el Centro de Control — solo staff."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+
+    # Recoger campos
+    nombres          = request.POST.get('nombres', '').strip()
+    apellidos        = request.POST.get('apellidos', '').strip()
+    tipo_documento   = request.POST.get('tipo_documento', 'CC').strip()
+    numero_documento = request.POST.get('numero_documento', '').strip()
+    email            = request.POST.get('email', '').strip()
+    telefono         = request.POST.get('telefono', '').strip()
+    cargo            = request.POST.get('cargo', '').strip()
+    especialidad     = request.POST.get('especialidad', '').strip()
+    centro_formacion = request.POST.get('centro_formacion', '').strip()
+    tipo_usuario_id  = request.POST.get('tipo_usuario_id', '').strip()
+    password         = request.POST.get('password', '').strip()
+    confirmar        = request.POST.get('confirmar_password', '').strip()
+
+    # Validaciones básicas
+    if not all([nombres, apellidos, numero_documento, email, password]):
+        return JsonResponse({'success': False, 'message': 'Faltan campos obligatorios.'}, status=400)
+
+    if password != confirmar:
+        return JsonResponse({'success': False, 'message': 'Las contraseñas no coinciden.'}, status=400)
+
+    if len(password) < 8:
+        return JsonResponse({'success': False, 'message': 'La contraseña debe tener al menos 8 caracteres.'}, status=400)
+
+    if Usuario.objects.filter(numero_documento=numero_documento).exists():
+        return JsonResponse({'success': False, 'message': 'Ya existe un usuario con ese número de documento.'}, status=400)
+
+    if Usuario.objects.filter(email=email).exists():
+        return JsonResponse({'success': False, 'message': 'Ya existe un usuario con ese email.'}, status=400)
+
+    if User.objects.filter(username=numero_documento).exists():
+        return JsonResponse({'success': False, 'message': 'Ya existe una cuenta con ese número de documento.'}, status=400)
+
+    try:
+        tipo_usuario_id = int(tipo_usuario_id)
+        tipo_usuario = TipoUsuario.objects.get(pk=tipo_usuario_id)
+    except (ValueError, TipoUsuario.DoesNotExist):
+        return JsonResponse({'success': False, 'message': 'Tipo de usuario no válido.'}, status=400)
+
+    try:
+        # Crear usuario Django (hashea con PBKDF2 automáticamente)
+        django_user = User.objects.create_user(
+            username=numero_documento,
+            email=email,
+            password=password,
+        )
+
+        usuario = Usuario.objects.create(
+            nombres=nombres,
+            apellidos=apellidos,
+            tipo_documento=tipo_documento,
+            numero_documento=numero_documento,
+            email=email,
+            telefono=telefono,
+            cargo=cargo,
+            especialidad=especialidad,
+            centro_formacion=centro_formacion,
+            tipo_usuario=tipo_usuario,
+            estado='activo',
+            fecha_aprobacion=timezone.now(),
+        )
+
+        # Enviar correo de bienvenida
+        try:
+            contexto_email = {
+                'nombres': usuario.nombres,
+                'apellidos': usuario.apellidos,
+                'numero_documento': usuario.numero_documento,
+                'email': usuario.email,
+                'cargo': usuario.cargo,
+                'fecha_registro': timezone.now().strftime('%d/%m/%Y %H:%M'),
+            }
+            html_message = render_to_string('usuarios/email_bienvenida.html', contexto_email)
+            send_mail(
+                subject='✅ Tu cuenta en SENA Maquinaria fue creada exitosamente',
+                message=strip_tags(html_message),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                html_message=html_message,
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Usuario {usuario.nombre_completo} creado correctamente.',
+            'usuario': {
+                'pk': usuario.pk,
+                'nombre_completo': usuario.nombre_completo,
+                'numero_documento': usuario.numero_documento,
+                'cargo': usuario.cargo,
+                'estado': usuario.estado,
+                'iniciales': usuario.iniciales,
+                'email': usuario.email,
+                'especialidad': usuario.especialidad,
+                'centro_formacion': usuario.centro_formacion,
+                'tipo_usuario_id': usuario.tipo_usuario_id,
+                'tipo_documento_display': usuario.get_tipo_documento_display(),
+                'telefono': usuario.telefono,
+                'apellidos': usuario.apellidos,
+                'nombres': usuario.nombres,
+            }
+        })
+
+    except Exception as exc:
+        return JsonResponse({'success': False, 'message': f'Error al crear usuario: {str(exc)}'}, status=500)
+
+
+@login_required
+@require_POST
+def admin_cambiar_password_ajax(request, pk):
+    """Cambia la contraseña de un usuario — solo staff."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+
+    usuario = get_object_or_404(Usuario, pk=pk)
+    nueva_password   = request.POST.get('nueva_password', '').strip()
+    confirmar        = request.POST.get('confirmar_password', '').strip()
+
+    if not nueva_password:
+        return JsonResponse({'success': False, 'message': 'La contraseña no puede estar vacía.'}, status=400)
+
+    if nueva_password != confirmar:
+        return JsonResponse({'success': False, 'message': 'Las contraseñas no coinciden.'}, status=400)
+
+    if len(nueva_password) < 8:
+        return JsonResponse({'success': False, 'message': 'La contraseña debe tener al menos 8 caracteres.'}, status=400)
+
+    try:
+        django_user = User.objects.get(username=usuario.numero_documento)
+        django_user.set_password(nueva_password)  # PBKDF2-SHA256
+        django_user.save()
+        return JsonResponse({'success': True, 'message': f'Contraseña de {usuario.nombre_completo} actualizada correctamente.'})
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'No se encontró la cuenta de autenticación del usuario.'}, status=404)
+    except Exception as exc:
+        return JsonResponse({'success': False, 'message': f'Error: {str(exc)}'}, status=500)
+
+
+@login_required
 def configuracion_view(request):
     """Vista de configuración general de usuarios"""
     if not request.user.is_staff:
