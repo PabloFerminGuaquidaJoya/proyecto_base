@@ -41,15 +41,33 @@ def dashboard_inventario_view(request):
     usadas    = PiezaInventario.objects.filter(condicion='usada').count()
     cambiadas = PiezaInventario.objects.filter(condicion='cambiada').count()
     alertas   = sum(1 for p in PiezaInventario.objects.all() if p.tiene_alerta)
-    recientes = PiezaInventario.objects.order_by('-fecha_registro')[:5]
+
+    # Lista completa con filtros (igual que lista_piezas_view)
+    piezas = PiezaInventario.objects.all().order_by('-fecha_registro')
+
+    q = request.GET.get('q', '').strip()
+    if q:
+        piezas = piezas.filter(
+            Q(nombre__icontains=q) |
+            Q(codigo_inventario__icontains=q) |
+            Q(marca__icontains=q) |
+            Q(categoria__icontains=q)
+        )
+
+    condicion = request.GET.get('condicion', '')
+    if condicion:
+        piezas = piezas.filter(condicion=condicion)
 
     return render(request, 'inventario/dashboard_inventario.html', {
-        'title':           'Inventario - SENA',
-        'total_piezas':    total,
-        'piezas_usadas':   usadas,
+        'title':            'Inventario - SENA',
+        'total_piezas':     total,
+        'piezas_usadas':    usadas,
         'piezas_cambiadas': cambiadas,
-        'alertas_activas': alertas,
-        'recientes':       recientes,
+        'alertas_activas':  alertas,
+        'piezas':           piezas,
+        'q':                q,
+        'condicion_filtro': condicion,
+        'condicion_choices': PiezaInventario.CONDICION_CHOICES,
         'usuarios_activos': Usuario.objects.filter(estado='activo').order_by('nombres'),
     })
 
