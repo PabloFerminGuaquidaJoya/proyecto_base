@@ -100,6 +100,24 @@
             margin-bottom: 1.5rem;
         }
 
+        /* ── Animación global para stat cards (todos los templates) ── */
+        .card.shadow.h-100,
+        .stat-card,
+        .stat-card-critica,
+        .stat-card-alta,
+        .stat-card-media,
+        .stat-card-resuelta {
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .card.shadow.h-100:hover,
+        .stat-card-critica:hover,
+        .stat-card-alta:hover,
+        .stat-card-media:hover,
+        .stat-card-resuelta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.14) !important;
+        }
+
         .btn-primary {
             background: var(--sena-primary);
             border-color: var(--sena-primary);

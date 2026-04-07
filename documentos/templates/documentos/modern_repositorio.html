@@ -118,11 +118,11 @@
         text-align: center;
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         border: 1px solid rgba(255,255,255,0.1);
-        transition: all 0.3s ease;
+        transition: transform .2s ease, box-shadow .2s ease;
         position: relative;
         overflow: hidden;
     }
-    
+
     .stat-card::before {
         content: '';
         position: absolute;
@@ -132,10 +132,10 @@
         height: 4px;
         background: linear-gradient(90deg, #007bff, #0056b3);
     }
-    
+
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.14);
     }
     
     .stat-icon {
