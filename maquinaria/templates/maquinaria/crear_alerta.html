@@ -283,29 +283,6 @@
                         </div>
                     </div>
 
-                    <!-- Vista Previa Completa -->
-                    <div class="card bg-light mb-4">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                <i class="bi bi-eye me-2"></i>Vista Previa de la Alerta
-                            </h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div><strong>Tipo:</strong> <span id="preview-tipo">-</span></div>
-                                    <div><strong>Máquina:</strong> <span id="preview-maquina">-</span></div>
-                                    <div><strong>Título:</strong> <span id="preview-titulo">-</span></div>
-                                    <div><strong>Prioridad:</strong> <span id="preview-prioridad-badge">-</span></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div><strong>Categoría:</strong> <span id="preview-categoria-alert">-</span></div>
-                                    <div><strong>Fecha Detección:</strong> <span id="preview-fecha">-</span></div>
-                                    <div><strong>Impacto:</strong> <span id="preview-impacto">-</span></div>
-                                    <div><strong>Técnico:</strong> <span id="preview-tecnico-alert">-</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Action Buttons -->
                     <div class="d-flex justify-content-between">
                         <a href="{% url 'maquinaria:alertas' %}" class="btn btn-secondary">
@@ -324,6 +301,55 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Vista Previa Alerta -->
+<div class="modal fade" id="modalVistaPreviaAlerta" tabindex="-1" aria-labelledby="modalVistaPreviaAlertaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #00324d, #39a900); color: white;">
+                <h5 class="modal-title" id="modalVistaPreviaAlertaLabel">
+                    <i class="bi bi-eye me-2"></i>Vista Previa: Nueva Alerta
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Badges resumen -->
+                <div class="mb-3 d-flex flex-wrap gap-2">
+                    <span class="badge fs-6" id="badge-tipo-prev" style="background:var(--sena-secondary)">Tipo: -</span>
+                    <span id="preview-prioridad-badge" class="fs-6">-</span>
+                </div>
+                <!-- Detalle -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr><th class="text-muted" style="width:40%">Tipo</th><td id="preview-tipo">-</td></tr>
+                                <tr><th class="text-muted">Máquina</th><td id="preview-maquina">-</td></tr>
+                                <tr><th class="text-muted">Título</th><td><strong id="preview-titulo">-</strong></td></tr>
+                                <tr><th class="text-muted">Prioridad</th><td id="preview-prioridad-text">-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr><th class="text-muted" style="width:40%">Categoría</th><td id="preview-categoria-alert">-</td></tr>
+                                <tr><th class="text-muted">Fecha Detección</th><td id="preview-fecha">-</td></tr>
+                                <tr><th class="text-muted">Impacto</th><td id="preview-impacto">-</td></tr>
+                                <tr><th class="text-muted">Técnico</th><td id="preview-tecnico-alert">-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cerrar
+                </button>
             </div>
         </div>
     </div>
@@ -705,7 +731,16 @@ function updateAlertPreview() {
     const tecnico = tecnicoSelect?.selectedOptions[0]?.textContent || 'Asignar automáticamente';
     document.getElementById('preview-tecnico-alert').textContent = tecnico;
 
-    alert('Vista previa actualizada. Revisa el cuadro debajo del formulario.');
+    // Actualizar badge de tipo en modal
+    const tipoText = tipoRadio ? tipoRadio.nextElementSibling.querySelector('strong').textContent : '-';
+    document.getElementById('badge-tipo-prev').textContent = 'Tipo: ' + tipoText;
+
+    // Actualizar texto de prioridad en la tabla (además del badge)
+    const prioridadTextEl = document.getElementById('preview-prioridad-text');
+    if (prioridadTextEl) prioridadTextEl.textContent = prioridadText;
+
+    // Abrir modal
+    new bootstrap.Modal(document.getElementById('modalVistaPreviaAlerta')).show();
 }
 
 // Form submission - submit real form

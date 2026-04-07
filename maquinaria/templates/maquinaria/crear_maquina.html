@@ -360,29 +360,6 @@
                         </div>
                     </div>
 
-                    <!-- Vista Previa -->
-                    <div class="card bg-light mb-4">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                <i class="bi bi-eye me-2"></i>Vista Previa de la Máquina
-                            </h6>
-                            <div class="row" id="preview-section">
-                                <div class="col-md-6">
-                                    <div><strong>Código:</strong> <span id="preview-codigo">-</span></div>
-                                    <div><strong>Nombre:</strong> <span id="preview-nombre">-</span></div>
-                                    <div><strong>Marca/Modelo:</strong> <span id="preview-marca-modelo">-</span></div>
-                                    <div><strong>Categoría:</strong> <span id="preview-categoria">-</span></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div><strong>Estado:</strong> <span id="preview-estado">-</span></div>
-                                    <div><strong>Ubicación:</strong> <span id="preview-ubicacion">-</span></div>
-                                    <div><strong>Responsable:</strong> <span id="preview-responsable">-</span></div>
-                                    <div><strong>Valor:</strong> <span id="preview-valor">-</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Buttons -->
                     <div class="d-flex justify-content-between">
                         <a href="{% url 'maquinaria:lista_maquinas' %}" class="btn btn-secondary">
@@ -398,6 +375,55 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Vista Previa Máquina -->
+<div class="modal fade" id="modalVistaPrevia" tabindex="-1" aria-labelledby="modalVistaPreviaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #00324d, #39a900); color: white;">
+                <h5 class="modal-title" id="modalVistaPreviaLabel">
+                    <i class="bi bi-eye me-2"></i>Vista Previa: Nueva Máquina
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Badges resumen -->
+                <div class="mb-3 d-flex flex-wrap gap-2">
+                    <span class="badge bg-success fs-6" id="badge-estado-prev">Estado: -</span>
+                    <span class="badge bg-primary fs-6" id="badge-categoria-prev">Categoría: -</span>
+                </div>
+                <!-- Detalle -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr><th class="text-muted" style="width:40%">Código</th><td><strong id="preview-codigo">-</strong></td></tr>
+                                <tr><th class="text-muted">Nombre</th><td id="preview-nombre">-</td></tr>
+                                <tr><th class="text-muted">Marca / Modelo</th><td id="preview-marca-modelo">-</td></tr>
+                                <tr><th class="text-muted">Categoría</th><td id="preview-categoria">-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr><th class="text-muted" style="width:40%">Estado</th><td id="preview-estado">-</td></tr>
+                                <tr><th class="text-muted">Ubicación</th><td id="preview-ubicacion">-</td></tr>
+                                <tr><th class="text-muted">Responsable</th><td id="preview-responsable">-</td></tr>
+                                <tr><th class="text-muted">Valor</th><td id="preview-valor">-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cerrar
+                </button>
             </div>
         </div>
     </div>
@@ -502,7 +528,13 @@ function updatePreview() {
 
 function previewMachine() {
     updatePreview();
-    alert('Vista previa actualizada. Revisa el cuadro debajo del formulario.');
+    // Actualizar badges del modal
+    const estado = document.getElementById('preview-estado').textContent;
+    const categoria = document.getElementById('preview-categoria').textContent;
+    document.getElementById('badge-estado-prev').textContent = 'Estado: ' + estado;
+    document.getElementById('badge-categoria-prev').textContent = 'Categoría: ' + categoria;
+    // Abrir modal
+    new bootstrap.Modal(document.getElementById('modalVistaPrevia')).show();
 }
 
 // ---------------------------------------------------------------------------
