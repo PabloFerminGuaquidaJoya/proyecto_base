@@ -1,0 +1,724 @@
+{% extends 'base.html' %}
+
+{% block title %}Centro Administrativo - SENA{% endblock %}
+{% block page_title %}Centro Administrativo{% endblock %}
+
+{% block content %}
+<style>
+    /* ── Colores SENA ──────────────────────────────────────────── */
+    .text-sena-primary   { color: var(--sena-primary)   !important; }
+    .text-sena-secondary { color: var(--sena-secondary) !important; }
+    .text-sena-accent    { color: var(--sena-accent)    !important; }
+    .text-sena-danger    { color: var(--sena-danger)    !important; }
+
+    .text-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* ── Bordes izquierdos ─────────────────────────────────────── */
+    .border-left-sena-primary   { border-left: 0.25rem solid var(--sena-primary)   !important; }
+    .border-left-sena-secondary { border-left: 0.25rem solid var(--sena-secondary) !important; }
+    .border-left-sena-accent    { border-left: 0.25rem solid var(--sena-accent)    !important; }
+    .border-left-sena-danger    { border-left: 0.25rem solid var(--sena-danger)    !important; }
+
+    /* ── Botón degradado ───────────────────────────────────────── */
+    .btn-sena-gradient {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        border: none;
+        color: white;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-sena-gradient:hover {
+        background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* ── Botones outline ───────────────────────────────────────── */
+    .btn-outline-sena-secondary {
+        background: transparent;
+        border: 2px solid var(--sena-secondary);
+        color: var(--sena-secondary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-sena-secondary:hover {
+        background: var(--sena-secondary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+
+    /* ── Card header ───────────────────────────────────────────── */
+    .section-card > .card-header {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: white;
+        border-bottom: none;
+        padding: 1rem 1.4rem;
+    }
+    .section-card > .card-header h6 {
+        color: white !important;
+        -webkit-text-fill-color: white !important;
+    }
+</style>
+
+<!-- ═══ STAT CARDS ═══════════════════════════════════════════════════════ -->
+<div class="row mb-4">
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-sena-secondary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-secondary text-uppercase mb-1">Total Centros</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_centros }}</div>
+                    </div>
+                    <div class="col-auto"><i class="bi bi-building fs-2 text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-sena-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-primary text-uppercase mb-1">Centros Activos</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ activos_centros }}</div>
+                    </div>
+                    <div class="col-auto"><i class="bi bi-building-check fs-2 text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-sena-accent shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-accent text-uppercase mb-1">Total Ambientes</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_ambientes }}</div>
+                    </div>
+                    <div class="col-auto"><i class="bi bi-door-open fs-2 text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-sena-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-danger text-uppercase mb-1">Ambientes Activos</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ activos_ambientes }}</div>
+                    </div>
+                    <div class="col-auto"><i class="bi bi-door-closed fs-2 text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ═══ CENTROS DE FORMACIÓN ═════════════════════════════════════════════ -->
+<div class="card section-card mb-4" style="border:none;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 fw-bold text-white">
+            <i class="bi bi-building me-2"></i>Centros de Formación
+        </h6>
+        <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearCentro">
+            <i class="bi bi-plus-circle me-1"></i>Agregar Centro
+        </button>
+    </div>
+    <div class="card-body p-0">
+        {% if centros %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Nombre</th>
+                        <th>Código</th>
+                        <th>Dirección</th>
+                        <th>Contacto</th>
+                        <th>Ambientes</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center pe-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCentros">
+                    {% for centro in centros %}
+                    <tr id="centro-row-{{ centro.pk }}">
+                        <td class="ps-3 fw-semibold" style="vertical-align:middle;">{{ centro.nombre }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">{{ centro.codigo|default:"—" }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;max-width:200px;" class="text-truncate" title="{{ centro.direccion }}">{{ centro.direccion|default:"—" }}</td>
+                        <td style="vertical-align:middle;font-size:.82rem;">
+                            {% if centro.telefono %}<div><i class="bi bi-telephone me-1"></i>{{ centro.telefono }}</div>{% endif %}
+                            {% if centro.email %}<div class="text-muted"><i class="bi bi-envelope me-1"></i>{{ centro.email }}</div>{% endif %}
+                            {% if not centro.telefono and not centro.email %}—{% endif %}
+                        </td>
+                        <td style="vertical-align:middle;">
+                            <span class="badge bg-secondary">{{ centro.ambientes.count }}</span>
+                        </td>
+                        <td class="text-center" style="vertical-align:middle;">
+                            {% if centro.activo %}
+                                <span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span>
+                            {% else %}
+                                <span class="badge rounded-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-3" style="vertical-align:middle;">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <button class="btn btn-sm btn-outline-sena-secondary editar-centro-btn"
+                                    data-pk="{{ centro.pk }}"
+                                    data-nombre="{{ centro.nombre }}"
+                                    data-codigo="{{ centro.codigo }}"
+                                    data-direccion="{{ centro.direccion }}"
+                                    data-telefono="{{ centro.telefono }}"
+                                    data-email="{{ centro.email }}"
+                                    data-descripcion="{{ centro.descripcion }}"
+                                    data-activo="{{ centro.activo|lower }}"
+                                    title="Editar"><i class="bi bi-pencil-square"></i></button>
+                                <button class="btn btn-sm btn-outline-danger eliminar-centro-btn"
+                                    data-pk="{{ centro.pk }}"
+                                    data-nombre="{{ centro.nombre }}"
+                                    title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted" id="centros-vacio">
+            <i class="bi bi-building fs-1 d-block mb-2" style="opacity:.3;"></i>
+            <p class="mb-0">No hay centros de formación registrados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ═══ AMBIENTES DE FORMACIÓN ════════════════════════════════════════════ -->
+<div class="card section-card mb-4" style="border:none;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 fw-bold text-white">
+            <i class="bi bi-door-open me-2"></i>Ambientes de Formación
+        </h6>
+        <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearAmbiente">
+            <i class="bi bi-plus-circle me-1"></i>Agregar Ambiente
+        </button>
+    </div>
+    <div class="card-body p-0">
+        {% if ambientes %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Nombre</th>
+                        <th>Centro</th>
+                        <th>Código</th>
+                        <th>Capacidad</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center pe-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaAmbientes">
+                    {% for amb in ambientes %}
+                    <tr id="ambiente-row-{{ amb.pk }}">
+                        <td class="ps-3 fw-semibold" style="vertical-align:middle;">{{ amb.nombre }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">{{ amb.centro.nombre }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">{{ amb.codigo|default:"—" }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">
+                            {% if amb.capacidad %}<i class="bi bi-people me-1"></i>{{ amb.capacidad }}{% else %}—{% endif %}
+                        </td>
+                        <td class="text-center" style="vertical-align:middle;">
+                            {% if amb.activo %}
+                                <span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span>
+                            {% else %}
+                                <span class="badge rounded-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-3" style="vertical-align:middle;">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <button class="btn btn-sm btn-outline-sena-secondary editar-ambiente-btn"
+                                    data-pk="{{ amb.pk }}"
+                                    data-nombre="{{ amb.nombre }}"
+                                    data-centro-id="{{ amb.centro_id }}"
+                                    data-codigo="{{ amb.codigo }}"
+                                    data-capacidad="{{ amb.capacidad }}"
+                                    data-descripcion="{{ amb.descripcion }}"
+                                    data-activo="{{ amb.activo|lower }}"
+                                    title="Editar"><i class="bi bi-pencil-square"></i></button>
+                                <button class="btn btn-sm btn-outline-danger eliminar-ambiente-btn"
+                                    data-pk="{{ amb.pk }}"
+                                    data-nombre="{{ amb.nombre }}"
+                                    title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted" id="ambientes-vacio">
+            <i class="bi bi-door-open fs-1 d-block mb-2" style="opacity:.3;"></i>
+            <p class="mb-0">No hay ambientes de formación registrados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ═══ MODAL CREAR CENTRO ═══════════════════════════════════════════════ -->
+<div class="modal fade" id="modalCrearCentro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary),var(--sena-primary));color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-building-add me-2"></i>Agregar Centro de Formación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertCrearCentro"></div>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="cc_nombre" class="form-control" placeholder="Ej: Centro Minero">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Código</label>
+                        <input type="text" id="cc_codigo" class="form-control" placeholder="Ej: CM-001">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" id="cc_direccion" class="form-control" placeholder="Dirección del centro">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" id="cc_telefono" class="form-control" placeholder="+57 300 000 0000">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" id="cc_email" class="form-control" placeholder="centro@sena.edu.co">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea id="cc_descripcion" class="form-control" rows="2" placeholder="Descripción breve del centro..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-sena-gradient fw-semibold" id="btnGuardarCentro"><i class="bi bi-floppy me-1"></i>Guardar Centro</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL EDITAR CENTRO ══════════════════════════════════════════════ -->
+<div class="modal fade" id="modalEditarCentro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary),var(--sena-primary));color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Centro de Formación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertEditarCentro"></div>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="ec_nombre" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Código</label>
+                        <input type="text" id="ec_codigo" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" id="ec_direccion" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" id="ec_telefono" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" id="ec_email" class="form-control">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea id="ec_descripcion" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select id="ec_activo" class="form-select">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-sena-gradient fw-semibold" id="btnActualizarCentro"><i class="bi bi-floppy me-1"></i>Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL CREAR AMBIENTE ════════════════════════════════════════════= -->
+<div class="modal fade" id="modalCrearAmbiente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary),var(--sena-primary));color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-door-open me-2"></i>Agregar Ambiente de Formación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertCrearAmbiente"></div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Centro <span class="text-danger">*</span></label>
+                        <select id="ca_centro_id" class="form-select">
+                            <option value="">— Seleccione un centro —</option>
+                            {% for c in centros %}
+                            <option value="{{ c.pk }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Nombre del Ambiente <span class="text-danger">*</span></label>
+                        <input type="text" id="ca_nombre" class="form-control" placeholder="Ej: Taller de Maquinaria 1">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Código</label>
+                        <input type="text" id="ca_codigo" class="form-control" placeholder="Ej: TM-01">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Capacidad</label>
+                        <input type="number" id="ca_capacidad" class="form-control" placeholder="N° de personas" min="0">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea id="ca_descripcion" class="form-control" rows="2" placeholder="Descripción del ambiente..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-sena-gradient fw-semibold" id="btnGuardarAmbiente"><i class="bi bi-floppy me-1"></i>Guardar Ambiente</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL EDITAR AMBIENTE ════════════════════════════════════════════ -->
+<div class="modal fade" id="modalEditarAmbiente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary),var(--sena-primary));color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Ambiente de Formación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertEditarAmbiente"></div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Centro <span class="text-danger">*</span></label>
+                        <select id="ea_centro_id" class="form-select">
+                            {% for c in centros %}
+                            <option value="{{ c.pk }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="ea_nombre" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Código</label>
+                        <input type="text" id="ea_codigo" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Capacidad</label>
+                        <input type="number" id="ea_capacidad" class="form-control" min="0">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select id="ea_activo" class="form-select">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea id="ea_descripcion" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-sena-gradient fw-semibold" id="btnActualizarAmbiente"><i class="bi bi-floppy me-1"></i>Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ JAVASCRIPT ════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    function getCsrf() {
+        return document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+    }
+
+    function showAlert(containerId, msg, type) {
+        document.getElementById(containerId).innerHTML =
+            `<div class="alert alert-${type} alert-dismissible py-2 mb-3">
+                <i class="bi bi-${type==='success'?'check-circle-fill':'exclamation-triangle-fill'} me-1"></i>${msg}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+    }
+
+    function showToast(msg, type) {
+        let c = document.getElementById('toastContainer');
+        if (!c) {
+            c = document.createElement('div');
+            c.id = 'toastContainer';
+            c.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;';
+            document.body.appendChild(c);
+        }
+        const colors = {
+            success: {bg:'#d1fae5',border:'#a7f3d0',text:'#065f46',icon:'bi-check-circle-fill'},
+            danger:  {bg:'#fee2e2',border:'#fecaca',text:'#991b1b',icon:'bi-x-circle-fill'},
+        };
+        const col = colors[type] || colors.success;
+        const t = document.createElement('div');
+        t.style.cssText = `background:${col.bg};border:1px solid ${col.border};color:${col.text};padding:.75rem 1rem;border-radius:10px;font-size:.88rem;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.12);display:flex;align-items:center;gap:.5rem;min-width:260px;max-width:360px;`;
+        t.innerHTML = `<i class="bi ${col.icon}"></i><span>${msg}</span>`;
+        c.appendChild(t);
+        setTimeout(() => { t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3500);
+    }
+
+    function postAjax(url, params, onSuccess, alertId, loadingBtn, defaultBtnHtml) {
+        loadingBtn.disabled = true;
+        loadingBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Guardando…';
+        fetch(url, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: params.toString(),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                onSuccess(data);
+            } else {
+                showAlert(alertId, data.message, 'danger');
+            }
+        })
+        .catch(() => showAlert(alertId, 'Error de red. Inténtalo de nuevo.', 'danger'))
+        .finally(() => { loadingBtn.disabled = false; loadingBtn.innerHTML = defaultBtnHtml; });
+    }
+
+    /* ── CENTROS ── */
+    let editCentroPk = null;
+
+    document.getElementById('btnGuardarCentro').addEventListener('click', function() {
+        const params = new URLSearchParams({
+            nombre:      document.getElementById('cc_nombre').value.trim(),
+            codigo:      document.getElementById('cc_codigo').value.trim(),
+            direccion:   document.getElementById('cc_direccion').value.trim(),
+            telefono:    document.getElementById('cc_telefono').value.trim(),
+            email:       document.getElementById('cc_email').value.trim(),
+            descripcion: document.getElementById('cc_descripcion').value.trim(),
+        });
+        postAjax('/sistema/centros/crear/', params, data => {
+            const tbody = document.getElementById('tablaCentros');
+            if (tbody) {
+                const tr = document.createElement('tr');
+                tr.id = `centro-row-${data.id}`;
+                tr.innerHTML = `
+                    <td class="ps-3 fw-semibold" style="vertical-align:middle;">${data.nombre}</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">—</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">—</td>
+                    <td style="vertical-align:middle;font-size:.82rem;">—</td>
+                    <td style="vertical-align:middle;"><span class="badge bg-secondary">0</span></td>
+                    <td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>
+                    <td class="text-center pe-3" style="vertical-align:middle;">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <button class="btn btn-sm btn-outline-sena-secondary editar-centro-btn"
+                                data-pk="${data.id}" data-nombre="${data.nombre}" data-codigo="" data-direccion=""
+                                data-telefono="" data-email="" data-descripcion="" data-activo="true"
+                                title="Editar"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm btn-outline-danger eliminar-centro-btn"
+                                data-pk="${data.id}" data-nombre="${data.nombre}"
+                                title="Eliminar"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>`;
+                tbody.prepend(tr);
+                document.getElementById('centros-vacio')?.remove();
+            }
+            bootstrap.Modal.getInstance(document.getElementById('modalCrearCentro'))?.hide();
+            ['cc_nombre','cc_codigo','cc_direccion','cc_telefono','cc_email','cc_descripcion'].forEach(id => document.getElementById(id).value = '');
+            showToast(data.message, 'success');
+        }, 'alertCrearCentro', this, '<i class="bi bi-floppy me-1"></i>Guardar Centro');
+    });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.editar-centro-btn');
+        if (!btn) return;
+        editCentroPk = btn.dataset.pk;
+        document.getElementById('ec_nombre').value      = btn.dataset.nombre      || '';
+        document.getElementById('ec_codigo').value      = btn.dataset.codigo      || '';
+        document.getElementById('ec_direccion').value   = btn.dataset.direccion   || '';
+        document.getElementById('ec_telefono').value    = btn.dataset.telefono    || '';
+        document.getElementById('ec_email').value       = btn.dataset.email       || '';
+        document.getElementById('ec_descripcion').value = btn.dataset.descripcion || '';
+        document.getElementById('ec_activo').value      = btn.dataset.activo      || 'true';
+        document.getElementById('alertEditarCentro').innerHTML = '';
+        new bootstrap.Modal(document.getElementById('modalEditarCentro')).show();
+    });
+
+    document.getElementById('btnActualizarCentro').addEventListener('click', function() {
+        if (!editCentroPk) return;
+        const params = new URLSearchParams({
+            nombre:      document.getElementById('ec_nombre').value.trim(),
+            codigo:      document.getElementById('ec_codigo').value.trim(),
+            direccion:   document.getElementById('ec_direccion').value.trim(),
+            telefono:    document.getElementById('ec_telefono').value.trim(),
+            email:       document.getElementById('ec_email').value.trim(),
+            descripcion: document.getElementById('ec_descripcion').value.trim(),
+            activo:      document.getElementById('ec_activo').value,
+        });
+        postAjax(`/sistema/centros/${editCentroPk}/editar/`, params, data => {
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarCentro'))?.hide();
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 800);
+        }, 'alertEditarCentro', this, '<i class="bi bi-floppy me-1"></i>Actualizar');
+    });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.eliminar-centro-btn');
+        if (!btn) return;
+        if (!confirm(`¿Eliminar el centro "${btn.dataset.nombre}"? También se eliminarán sus ambientes.`)) return;
+        fetch(`/sistema/centros/${btn.dataset.pk}/eliminar/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: '',
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`centro-row-${btn.dataset.pk}`)?.remove();
+                showToast(data.message, 'success');
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    /* ── AMBIENTES ── */
+    let editAmbientePk = null;
+
+    document.getElementById('btnGuardarAmbiente').addEventListener('click', function() {
+        const params = new URLSearchParams({
+            centro_id:   document.getElementById('ca_centro_id').value,
+            nombre:      document.getElementById('ca_nombre').value.trim(),
+            codigo:      document.getElementById('ca_codigo').value.trim(),
+            capacidad:   document.getElementById('ca_capacidad').value || '0',
+            descripcion: document.getElementById('ca_descripcion').value.trim(),
+        });
+        postAjax('/sistema/ambientes/crear/', params, data => {
+            const tbody = document.getElementById('tablaAmbientes');
+            if (tbody) {
+                const tr = document.createElement('tr');
+                tr.id = `ambiente-row-${data.id}`;
+                tr.innerHTML = `
+                    <td class="ps-3 fw-semibold" style="vertical-align:middle;">${data.nombre}</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">${data.centro}</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">—</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">—</td>
+                    <td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>
+                    <td class="text-center pe-3" style="vertical-align:middle;">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <button class="btn btn-sm btn-outline-sena-secondary editar-ambiente-btn"
+                                data-pk="${data.id}" data-nombre="${data.nombre}" data-centro-id="" data-codigo=""
+                                data-capacidad="" data-descripcion="" data-activo="true"
+                                title="Editar"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm btn-outline-danger eliminar-ambiente-btn"
+                                data-pk="${data.id}" data-nombre="${data.nombre}"
+                                title="Eliminar"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>`;
+                tbody.prepend(tr);
+                document.getElementById('ambientes-vacio')?.remove();
+            }
+            bootstrap.Modal.getInstance(document.getElementById('modalCrearAmbiente'))?.hide();
+            ['ca_nombre','ca_codigo','ca_capacidad','ca_descripcion'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('ca_centro_id').value = '';
+            showToast(data.message, 'success');
+        }, 'alertCrearAmbiente', this, '<i class="bi bi-floppy me-1"></i>Guardar Ambiente');
+    });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.editar-ambiente-btn');
+        if (!btn) return;
+        editAmbientePk = btn.dataset.pk;
+        document.getElementById('ea_centro_id').value   = btn.dataset.centroId   || '';
+        document.getElementById('ea_nombre').value      = btn.dataset.nombre      || '';
+        document.getElementById('ea_codigo').value      = btn.dataset.codigo      || '';
+        document.getElementById('ea_capacidad').value   = btn.dataset.capacidad   || '';
+        document.getElementById('ea_descripcion').value = btn.dataset.descripcion || '';
+        document.getElementById('ea_activo').value      = btn.dataset.activo      || 'true';
+        document.getElementById('alertEditarAmbiente').innerHTML = '';
+        new bootstrap.Modal(document.getElementById('modalEditarAmbiente')).show();
+    });
+
+    document.getElementById('btnActualizarAmbiente').addEventListener('click', function() {
+        if (!editAmbientePk) return;
+        const params = new URLSearchParams({
+            centro_id:   document.getElementById('ea_centro_id').value,
+            nombre:      document.getElementById('ea_nombre').value.trim(),
+            codigo:      document.getElementById('ea_codigo').value.trim(),
+            capacidad:   document.getElementById('ea_capacidad').value || '0',
+            descripcion: document.getElementById('ea_descripcion').value.trim(),
+            activo:      document.getElementById('ea_activo').value,
+        });
+        postAjax(`/sistema/ambientes/${editAmbientePk}/editar/`, params, data => {
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarAmbiente'))?.hide();
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 800);
+        }, 'alertEditarAmbiente', this, '<i class="bi bi-floppy me-1"></i>Actualizar');
+    });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.eliminar-ambiente-btn');
+        if (!btn) return;
+        if (!confirm(`¿Eliminar el ambiente "${btn.dataset.nombre}"?`)) return;
+        fetch(`/sistema/ambientes/${btn.dataset.pk}/eliminar/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: '',
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`ambiente-row-${btn.dataset.pk}`)?.remove();
+                showToast(data.message, 'success');
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+})();
+</script>
+{% endblock %}

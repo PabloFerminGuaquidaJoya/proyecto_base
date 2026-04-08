@@ -26,8 +26,8 @@ class LogActividadAdmin(admin.ModelAdmin):
 
 @admin.register(BackupDatabase)
 class BackupDatabaseAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'estado', 'tipo', 'tamaño_mb', 'creado_por', 'fecha_creacion']
+    list_display = ['nombre', 'estado', 'tipo', 'creado_por', 'fecha_creacion']
     list_filter = ['estado', 'tipo', 'fecha_creacion']
     search_fields = ['nombre', 'descripcion']
     ordering = ['-fecha_creacion']
-    readonly_fields = ['id', 'fecha_creacion', 'tamaño_bytes', 'total_tablas', 'total_registros']
+    readonly_fields = ['id', 'fecha_creacion', 'total_tablas', 'total_registros']

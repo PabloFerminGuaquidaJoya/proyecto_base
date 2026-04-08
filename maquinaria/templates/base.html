@@ -1188,6 +1188,12 @@
                     <span>Centro de Control</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{% url 'sistema:centro_administrativo' %}" class="nav-link {% if request.resolver_match.url_name == 'centro_administrativo' %}active{% endif %}">
+                    <i class="bi bi-building-gear"></i>
+                    <span>Centro Administrativo</span>
+                </a>
+            </li>
             {% endif %}
             <li class="nav-item">
                 <a href="{% url 'usuarios:logout' %}" class="nav-link">

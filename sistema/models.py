@@ -262,6 +262,46 @@ class BackupDatabase(models.Model):
             models.Index(fields=['creado_por']),
         ]
 
+
+class CentroFormacion(models.Model):
+    nombre      = models.CharField(max_length=200, unique=True)
+    codigo      = models.CharField(max_length=20, blank=True)
+    direccion   = models.CharField(max_length=300, blank=True)
+    telefono    = models.CharField(max_length=30, blank=True)
+    email       = models.EmailField(blank=True)
+    descripcion = models.TextField(blank=True)
+    activo      = models.BooleanField(default=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Centro de Formación"
+        verbose_name_plural = "Centros de Formación"
+        ordering = ['nombre']
+
+    def __str__(self):
+        return self.nombre
+
+
+class AmbienteFormacion(models.Model):
+    centro      = models.ForeignKey(CentroFormacion, on_delete=models.CASCADE, related_name='ambientes')
+    nombre      = models.CharField(max_length=200)
+    codigo      = models.CharField(max_length=20, blank=True)
+    capacidad   = models.PositiveIntegerField(default=0)
+    descripcion = models.TextField(blank=True)
+    activo      = models.BooleanField(default=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Ambiente de Formación"
+        verbose_name_plural = "Ambientes de Formación"
+        ordering = ['centro', 'nombre']
+        unique_together = [['centro', 'nombre']]
+
+    def __str__(self):
+        return f"{self.nombre} — {self.centro.nombre}"
+
     def __str__(self):
         return f"Backup: {self.nombre} ({self.get_estado_display()})"
 

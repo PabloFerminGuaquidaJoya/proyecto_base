@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.conf import settings
 from django.db import connection
-from .models import BackupDatabase, LogActividad
+from .models import BackupDatabase, LogActividad, CentroFormacion, AmbienteFormacion
+from django.views.decorators.http import require_POST
 from usuarios.models import Usuario
 import os
 import subprocess
@@ -703,3 +704,159 @@ def crear_backup_rapido(request):
         'success': False,
         'message': 'Método no permitido'
     }, status=405)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  CENTRO ADMINISTRATIVO — Centros y Ambientes de Formación
+# ═══════════════════════════════════════════════════════════════════════
+
+def _solo_staff(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return False
+    return True
+
+
+@login_required
+def centro_administrativo_view(request):
+    """Vista principal del Centro Administrativo — solo staff."""
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+
+    centros   = CentroFormacion.objects.prefetch_related('ambientes').all()
+    ambientes = AmbienteFormacion.objects.select_related('centro').all()
+
+    return render(request, 'sistema/centro_administrativo.html', {
+        'title':    'Centro Administrativo - SENA',
+        'centros':  centros,
+        'ambientes': ambientes,
+        'total_centros':   centros.count(),
+        'total_ambientes': ambientes.count(),
+        'activos_centros': centros.filter(activo=True).count(),
+        'activos_ambientes': ambientes.filter(activo=True).count(),
+    })
+
+
+# ── Centros ────────────────────────────────────────────────────────────
+
+@login_required
+@require_POST
+def admin_crear_centro(request):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    nombre = request.POST.get('nombre', '').strip()
+    if not nombre:
+        return JsonResponse({'success': False, 'message': 'El nombre es obligatorio.'}, status=400)
+    if CentroFormacion.objects.filter(nombre__iexact=nombre).exists():
+        return JsonResponse({'success': False, 'message': 'Ya existe un centro con ese nombre.'}, status=400)
+    centro = CentroFormacion.objects.create(
+        nombre      = nombre,
+        codigo      = request.POST.get('codigo', '').strip(),
+        direccion   = request.POST.get('direccion', '').strip(),
+        telefono    = request.POST.get('telefono', '').strip(),
+        email       = request.POST.get('email', '').strip(),
+        descripcion = request.POST.get('descripcion', '').strip(),
+        activo      = True,
+    )
+    return JsonResponse({'success': True, 'message': f'Centro "{centro.nombre}" creado.', 'id': centro.pk, 'nombre': centro.nombre})
+
+
+@login_required
+@require_POST
+def admin_editar_centro(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    centro = get_object_or_404(CentroFormacion, pk=pk)
+    nombre = request.POST.get('nombre', '').strip()
+    if not nombre:
+        return JsonResponse({'success': False, 'message': 'El nombre es obligatorio.'}, status=400)
+    if CentroFormacion.objects.exclude(pk=pk).filter(nombre__iexact=nombre).exists():
+        return JsonResponse({'success': False, 'message': 'Ya existe otro centro con ese nombre.'}, status=400)
+    centro.nombre      = nombre
+    centro.codigo      = request.POST.get('codigo', centro.codigo).strip()
+    centro.direccion   = request.POST.get('direccion', centro.direccion).strip()
+    centro.telefono    = request.POST.get('telefono', centro.telefono).strip()
+    centro.email       = request.POST.get('email', centro.email).strip()
+    centro.descripcion = request.POST.get('descripcion', centro.descripcion).strip()
+    centro.activo      = request.POST.get('activo', 'true').lower() == 'true'
+    centro.save()
+    return JsonResponse({'success': True, 'message': f'Centro "{centro.nombre}" actualizado.'})
+
+
+@login_required
+@require_POST
+def admin_eliminar_centro(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    centro = get_object_or_404(CentroFormacion, pk=pk)
+    nombre = centro.nombre
+    centro.delete()
+    return JsonResponse({'success': True, 'message': f'Centro "{nombre}" eliminado.'})
+
+
+# ── Ambientes ──────────────────────────────────────────────────────────
+
+@login_required
+@require_POST
+def admin_crear_ambiente(request):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    centro_id = request.POST.get('centro_id', '').strip()
+    nombre    = request.POST.get('nombre', '').strip()
+    if not nombre or not centro_id:
+        return JsonResponse({'success': False, 'message': 'Centro y nombre son obligatorios.'}, status=400)
+    centro = get_object_or_404(CentroFormacion, pk=centro_id)
+    if AmbienteFormacion.objects.filter(centro=centro, nombre__iexact=nombre).exists():
+        return JsonResponse({'success': False, 'message': 'Ya existe ese ambiente en este centro.'}, status=400)
+    try:
+        capacidad = int(request.POST.get('capacidad', 0))
+    except ValueError:
+        capacidad = 0
+    ambiente = AmbienteFormacion.objects.create(
+        centro      = centro,
+        nombre      = nombre,
+        codigo      = request.POST.get('codigo', '').strip(),
+        capacidad   = capacidad,
+        descripcion = request.POST.get('descripcion', '').strip(),
+        activo      = True,
+    )
+    return JsonResponse({
+        'success': True,
+        'message': f'Ambiente "{ambiente.nombre}" creado en {centro.nombre}.',
+        'id': ambiente.pk, 'nombre': ambiente.nombre, 'centro': centro.nombre,
+    })
+
+
+@login_required
+@require_POST
+def admin_editar_ambiente(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    ambiente  = get_object_or_404(AmbienteFormacion, pk=pk)
+    nombre    = request.POST.get('nombre', '').strip()
+    centro_id = request.POST.get('centro_id', '').strip()
+    if not nombre:
+        return JsonResponse({'success': False, 'message': 'El nombre es obligatorio.'}, status=400)
+    if centro_id:
+        ambiente.centro = get_object_or_404(CentroFormacion, pk=centro_id)
+    try:
+        ambiente.capacidad = int(request.POST.get('capacidad', ambiente.capacidad))
+    except ValueError:
+        pass
+    ambiente.nombre      = nombre
+    ambiente.codigo      = request.POST.get('codigo', ambiente.codigo).strip()
+    ambiente.descripcion = request.POST.get('descripcion', ambiente.descripcion).strip()
+    ambiente.activo      = request.POST.get('activo', 'true').lower() == 'true'
+    ambiente.save()
+    return JsonResponse({'success': True, 'message': f'Ambiente "{ambiente.nombre}" actualizado.'})
+
+
+@login_required
+@require_POST
+def admin_eliminar_ambiente(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    ambiente = get_object_or_404(AmbienteFormacion, pk=pk)
+    nombre   = ambiente.nombre
+    ambiente.delete()
+    return JsonResponse({'success': True, 'message': f'Ambiente "{nombre}" eliminado.'})

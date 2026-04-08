@@ -83,7 +83,7 @@ class UsuarioForm(forms.ModelForm):
             }),
             'especialidad': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Especialidad o programa'
+                'placeholder': 'Programa de formación'
             }),
             'cargo': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -172,12 +172,12 @@ class RegistroUsuarioForm(forms.ModelForm):
     )
     especialidad = forms.ChoiceField(
         choices=[
-            ('', 'Seleccione una especialidad'),
+            ('', 'Seleccione un programa de formación'),
             ('Técnico en Operación de Maquinaria Pesada', 'Técnico en Operación de Maquinaria Pesada'),
             ('Curso complementario en Sistemas Hidráulicos en Maquinaria Pesada', 'Curso complementario en Sistemas Hidráulicos en Maquinaria Pesada'),
         ],
         widget=forms.Select(attrs={'class': 'form-select'}),
-        label='Especialidad'
+        label='Programa de Formación'
     )
     cargo = forms.ChoiceField(
         choices=[
@@ -336,7 +336,7 @@ class PerfilUsuarioForm(forms.ModelForm):
             }),
             'especialidad': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Especialidad o programa'
+                'placeholder': 'Programa de formación'
             }),
             'cargo': forms.Select(attrs={
                 'class': 'form-select'

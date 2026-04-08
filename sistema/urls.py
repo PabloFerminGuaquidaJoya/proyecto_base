@@ -18,4 +18,13 @@ urlpatterns = [
     path('backups/<uuid:backup_id>/descargar/', views.descargar_backup, name='descargar_backup'),
     path('backups/<uuid:backup_id>/eliminar/', views.eliminar_backup, name='eliminar_backup'),
     path('backups/<uuid:backup_id>/detalle/', views.detalle_backup, name='detalle_backup'),
+
+    # Centro Administrativo
+    path('centro-administrativo/', views.centro_administrativo_view, name='centro_administrativo'),
+    path('centros/crear/', views.admin_crear_centro, name='admin_crear_centro'),
+    path('centros/<int:pk>/editar/', views.admin_editar_centro, name='admin_editar_centro'),
+    path('centros/<int:pk>/eliminar/', views.admin_eliminar_centro, name='admin_eliminar_centro'),
+    path('ambientes/crear/', views.admin_crear_ambiente, name='admin_crear_ambiente'),
+    path('ambientes/<int:pk>/editar/', views.admin_editar_ambiente, name='admin_editar_ambiente'),
+    path('ambientes/<int:pk>/eliminar/', views.admin_eliminar_ambiente, name='admin_eliminar_ambiente'),
 ]

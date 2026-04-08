@@ -112,22 +112,10 @@
     }
 
     /* ── User table ─────────────────────────────────────────── */
-    .usuarios-table th {
-        background: linear-gradient(135deg, var(--sena-secondary) 0%, #004d73 100%);
-        color: white;
-        font-size: .82rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: .04em;
-        white-space: nowrap;
-        border: none;
-    }
     .usuarios-table td {
         vertical-align: middle;
-        border-bottom: 1px solid #f1f3f5;
         font-size: .9rem;
     }
-    .usuarios-table tbody tr:hover { background: #f8fcf4; }
 
     /* ── Estado badges ──────────────────────────────────────── */
     .badge-activo    { background:#d1fae5; color:#065f46; border:1px solid #a7f3d0; }
@@ -407,13 +395,13 @@
     <div class="card-body p-0">
         {% if usuarios %}
         <div class="table-responsive">
-            <table class="table usuarios-table mb-0">
+            <table class="table table-hover usuarios-table mb-0">
                 <thead>
                     <tr>
                         <th class="ps-3">Nombre</th>
                         <th>Documento</th>
                         <th>Cargo</th>
-                        <th>Programa / Especialidad</th>
+                        <th>Programa de Formación</th>
                         <th class="text-center">Estado</th>
                         <th class="text-center pe-3">Acciones</th>
                     </tr>
@@ -443,7 +431,7 @@
                         <!-- Cargo -->
                         <td style="font-size:.88rem;">{{ u.cargo|default:"—" }}</td>
 
-                        <!-- Programa / Especialidad -->
+                        <!-- Programa de Formación -->
                         <td style="font-size:.82rem;max-width:200px;">
                             {% if u.especialidad %}
                                 <span class="d-block text-truncate" title="{{ u.especialidad }}">{{ u.especialidad }}</span>
@@ -603,8 +591,8 @@
                         <input type="text" id="crear_cargo" class="form-control" placeholder="Ej: Instructor, Aprendiz">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Especialidad / Programa</label>
-                        <input type="text" id="crear_especialidad" class="form-control" placeholder="Programa de formación">
+                        <label class="form-label fw-semibold">Programa de Formación</label>
+                        <input type="text" id="crear_especialidad" class="form-control" placeholder="Ej: Técnico en Maquinaria Pesada">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Centro de formación</label>
@@ -742,10 +730,10 @@
                         </select>
                     </div>
 
-                    <!-- Especialidad -->
+                    <!-- Programa de Formación -->
                     <div class="col-md-6">
-                        <label class="form-label">Especialidad</label>
-                        <input type="text" id="edit_especialidad" class="form-control" placeholder="Programa o especialidad">
+                        <label class="form-label">Programa de Formación</label>
+                        <input type="text" id="edit_especialidad" class="form-control" placeholder="Ej: Técnico en Maquinaria Pesada">
                     </div>
 
                     <!-- Centro de formación -->
