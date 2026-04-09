@@ -194,7 +194,6 @@
         </button>
     </div>
     <div class="card-body p-0">
-        {% if centros %}
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
@@ -249,15 +248,17 @@
                         </td>
                     </tr>
                     {% endfor %}
+                    {% if not centros %}
+                    <tr id="centros-vacio">
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-building d-block mb-2" style="font-size:2rem;opacity:.3;"></i>
+                            No hay centros de formación registrados.
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
-        {% else %}
-        <div class="text-center py-5 text-muted" id="centros-vacio">
-            <i class="bi bi-building fs-1 d-block mb-2" style="opacity:.3;"></i>
-            <p class="mb-0">No hay centros de formación registrados.</p>
-        </div>
-        {% endif %}
     </div>
 </div>
 
@@ -272,7 +273,6 @@
         </button>
     </div>
     <div class="card-body p-0">
-        {% if ambientes %}
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
@@ -320,15 +320,17 @@
                         </td>
                     </tr>
                     {% endfor %}
+                    {% if not ambientes %}
+                    <tr id="ambientes-vacio">
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-door-open d-block mb-2" style="font-size:2rem;opacity:.3;"></i>
+                            No hay ambientes de formación registrados.
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
-        {% else %}
-        <div class="text-center py-5 text-muted" id="ambientes-vacio">
-            <i class="bi bi-door-open fs-1 d-block mb-2" style="opacity:.3;"></i>
-            <p class="mb-0">No hay ambientes de formación registrados.</p>
-        </div>
-        {% endif %}
     </div>
 </div>
 
@@ -538,17 +540,16 @@
         </button>
     </div>
     <div class="card-body p-0">
-        {% if fichas %}
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
-                    <tr style="background:linear-gradient(135deg,var(--sena-secondary) 0%,var(--sena-primary) 100%);color:white;">
-                        <th class="ps-3" style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">N° Ficha</th>
-                        <th style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Nombre</th>
-                        <th style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Programa de Formación</th>
-                        <th style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Centro</th>
-                        <th class="text-center" style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Estado</th>
-                        <th class="text-center pe-3" style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Acciones</th>
+                    <tr>
+                        <th class="ps-3">N° Ficha</th>
+                        <th>Nombre</th>
+                        <th>Programa de Formación</th>
+                        <th>Centro</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center pe-3">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tablaFichas">
@@ -583,15 +584,17 @@
                         </td>
                     </tr>
                     {% endfor %}
+                    {% if not fichas %}
+                    <tr id="fichas-vacio">
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-journal-bookmark d-block mb-2" style="font-size:2rem;opacity:.3;"></i>
+                            No hay fichas registradas.
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
-        {% else %}
-        <div class="text-center py-5 text-muted" id="fichas-vacio">
-            <i class="bi bi-journal-bookmark fs-1 d-block mb-2" style="opacity:.3;"></i>
-            <p class="mb-0">No hay fichas registradas.</p>
-        </div>
-        {% endif %}
     </div>
 </div>
 
@@ -697,7 +700,6 @@
         </button>
     </div>
     <div class="card-body p-0">
-        {% if proveedores %}
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
@@ -758,15 +760,17 @@
                         </td>
                     </tr>
                     {% endfor %}
+                    {% if not proveedores %}
+                    <tr id="proveedores-vacio">
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-truck d-block mb-2" style="font-size:2rem;opacity:.3;"></i>
+                            No hay proveedores registrados.
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
-        {% else %}
-        <div class="text-center py-5 text-muted" id="proveedores-vacio">
-            <i class="bi bi-truck fs-1 d-block mb-2" style="opacity:.3;"></i>
-            <p class="mb-0">No hay proveedores registrados.</p>
-        </div>
-        {% endif %}
     </div>
 </div>
 
@@ -924,10 +928,10 @@
 
     function showAlert(containerId, msg, type) {
         document.getElementById(containerId).innerHTML =
-            `<div class="alert alert-${type} alert-dismissible py-2 mb-3">
-                <i class="bi bi-${type==='success'?'check-circle-fill':'exclamation-triangle-fill'} me-1"></i>${msg}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>`;
+            '<div class="alert alert-' + type + ' alert-dismissible py-2 mb-3">' +
+                '<i class="bi bi-' + (type==='success'?'check-circle-fill':'exclamation-triangle-fill') + ' me-1"></i>' + msg +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+            '</div>';
     }
 
     function showToast(msg, type) {
@@ -944,8 +948,8 @@
         };
         const col = colors[type] || colors.success;
         const t = document.createElement('div');
-        t.style.cssText = `background:${col.bg};border:1px solid ${col.border};color:${col.text};padding:.75rem 1rem;border-radius:10px;font-size:.88rem;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.12);display:flex;align-items:center;gap:.5rem;min-width:260px;max-width:360px;`;
-        t.innerHTML = `<i class="bi ${col.icon}"></i><span>${msg}</span>`;
+        t.style.cssText = 'background:' + col.bg + ';border:1px solid ' + col.border + ';color:' + col.text + ';padding:.75rem 1rem;border-radius:10px;font-size:.88rem;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.12);display:flex;align-items:center;gap:.5rem;min-width:260px;max-width:360px;';
+        t.innerHTML = '<i class="bi ' + col.icon + '"></i><span>' + msg + '</span>';
         c.appendChild(t);
         setTimeout(() => { t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3500);
     }
@@ -986,25 +990,25 @@
             const tbody = document.getElementById('tablaCentros');
             if (tbody) {
                 const tr = document.createElement('tr');
-                tr.id = `centro-row-${data.id}`;
-                tr.innerHTML = `
-                    <td class="ps-3 fw-semibold" style="vertical-align:middle;">${data.nombre}</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">—</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">—</td>
-                    <td style="vertical-align:middle;font-size:.82rem;">—</td>
-                    <td style="vertical-align:middle;"><span class="badge bg-secondary">0</span></td>
-                    <td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>
-                    <td class="text-center pe-3" style="vertical-align:middle;">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <button class="btn btn-sm btn-outline-sena-secondary editar-centro-btn"
-                                data-pk="${data.id}" data-nombre="${data.nombre}" data-codigo="" data-direccion=""
-                                data-telefono="" data-email="" data-descripcion="" data-activo="true"
-                                title="Editar"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-sm btn-outline-danger eliminar-centro-btn"
-                                data-pk="${data.id}" data-nombre="${data.nombre}"
-                                title="Eliminar"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </td>`;
+                tr.id = 'centro-row-' + data.id;
+                tr.innerHTML = 
+                    '<td class="ps-3 fw-semibold" style="vertical-align:middle;">' + data.nombre + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">---</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">---</td>' +
+                    '<td style="vertical-align:middle;font-size:.82rem;">---</td>' +
+                    '<td style="vertical-align:middle;"><span class="badge bg-secondary">0</span></td>' +
+                    '<td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>' +
+                    '<td class="text-center pe-3" style="vertical-align:middle;">' +
+                        '<div class="d-flex gap-1 justify-content-center">' +
+                            '<button class="btn btn-sm btn-outline-sena-secondary editar-centro-btn"' +
+                                ' data-pk="' + data.id + '" data-nombre="' + data.nombre + '" data-codigo="" data-direccion=""' +
+                                ' data-telefono="" data-email="" data-descripcion="" data-activo="true"' +
+                                ' title="Editar"><i class="bi bi-pencil-square"></i></button>' +
+                            '<button class="btn btn-sm btn-outline-danger eliminar-centro-btn"' +
+                                ' data-pk="' + data.id + '" data-nombre="' + data.nombre + '"' +
+                                ' title="Eliminar"><i class="bi bi-trash"></i></button>' +
+                        '</div>' +
+                    '</td>';
                 tbody.prepend(tr);
                 document.getElementById('centros-vacio')?.remove();
             }
@@ -1031,27 +1035,42 @@
 
     document.getElementById('btnActualizarCentro').addEventListener('click', function() {
         if (!editCentroPk) return;
-        const params = new URLSearchParams({
-            nombre:      document.getElementById('ec_nombre').value.trim(),
-            codigo:      document.getElementById('ec_codigo').value.trim(),
-            direccion:   document.getElementById('ec_direccion').value.trim(),
-            telefono:    document.getElementById('ec_telefono').value.trim(),
-            email:       document.getElementById('ec_email').value.trim(),
-            descripcion: document.getElementById('ec_descripcion').value.trim(),
-            activo:      document.getElementById('ec_activo').value,
-        });
-        postAjax(`/sistema/centros/${editCentroPk}/editar/`, params, data => {
+        const nombre    = document.getElementById('ec_nombre').value.trim();
+        const codigo    = document.getElementById('ec_codigo').value.trim();
+        const direccion = document.getElementById('ec_direccion').value.trim();
+        const telefono  = document.getElementById('ec_telefono').value.trim();
+        const email     = document.getElementById('ec_email').value.trim();
+        const descripcion = document.getElementById('ec_descripcion').value.trim();
+        const activo    = document.getElementById('ec_activo').value;
+        const params = new URLSearchParams({ nombre, codigo, direccion, telefono, email, descripcion, activo });
+        postAjax('/sistema/centros/' + editCentroPk + '/editar/', params, data => {
+            const row = document.getElementById('centro-row-' + editCentroPk);
+            if (row) {
+                const c = row.cells;
+                c[0].innerHTML = '<span class="fw-semibold">' + nombre + '</span>';
+                c[1].textContent = codigo || '---';
+                c[2].textContent = direccion || '---';
+                c[2].title = direccion || '';
+                c[3].innerHTML = [
+                    telefono ? '<div><i class="bi bi-telephone me-1"></i>' + telefono + '</div>' : '',
+                    email    ? '<div class="text-muted"><i class="bi bi-envelope me-1"></i>' + email + '</div>' : '',
+                ].join('') || '---';
+                c[5].innerHTML = activo === 'true'
+                    ? '<span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span>'
+                    : '<span class="badge rounded-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">Inactivo</span>';
+                const btn = row.querySelector('.editar-centro-btn');
+                if (btn) { Object.assign(btn.dataset, { nombre, codigo, direccion, telefono, email, descripcion, activo }); }
+            }
             bootstrap.Modal.getInstance(document.getElementById('modalEditarCentro'))?.hide();
             showToast(data.message, 'success');
-            setTimeout(() => location.reload(), 800);
         }, 'alertEditarCentro', this, '<i class="bi bi-floppy me-1"></i>Actualizar');
     });
 
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.eliminar-centro-btn');
         if (!btn) return;
-        if (!confirm(`¿Eliminar el centro "${btn.dataset.nombre}"? También se eliminarán sus ambientes.`)) return;
-        fetch(`/sistema/centros/${btn.dataset.pk}/eliminar/`, {
+        if (!confirm('¿Eliminar el centro "' + btn.dataset.nombre + '"? También se eliminarán sus ambientes.')) return;
+        fetch('/sistema/centros/' + btn.dataset.pk + '/eliminar/', {
             method: 'POST',
             headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
             body: '',
@@ -1059,7 +1078,7 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById(`centro-row-${btn.dataset.pk}`)?.remove();
+                document.getElementById('centro-row-' + btn.dataset.pk)?.remove();
                 showToast(data.message, 'success');
             } else {
                 alert(data.message);
@@ -1082,24 +1101,24 @@
             const tbody = document.getElementById('tablaAmbientes');
             if (tbody) {
                 const tr = document.createElement('tr');
-                tr.id = `ambiente-row-${data.id}`;
-                tr.innerHTML = `
-                    <td class="ps-3 fw-semibold" style="vertical-align:middle;">${data.nombre}</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">${data.centro}</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">—</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">—</td>
-                    <td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>
-                    <td class="text-center pe-3" style="vertical-align:middle;">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <button class="btn btn-sm btn-outline-sena-secondary editar-ambiente-btn"
-                                data-pk="${data.id}" data-nombre="${data.nombre}" data-centro-id="" data-codigo=""
-                                data-capacidad="" data-descripcion="" data-activo="true"
-                                title="Editar"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-sm btn-outline-danger eliminar-ambiente-btn"
-                                data-pk="${data.id}" data-nombre="${data.nombre}"
-                                title="Eliminar"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </td>`;
+                tr.id = 'ambiente-row-' + data.id;
+                tr.innerHTML = 
+                    '<td class="ps-3 fw-semibold" style="vertical-align:middle;">' + data.nombre + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">' + data.centro + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">---</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">---</td>' +
+                    '<td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>' +
+                    '<td class="text-center pe-3" style="vertical-align:middle;">' +
+                        '<div class="d-flex gap-1 justify-content-center">' +
+                            '<button class="btn btn-sm btn-outline-sena-secondary editar-ambiente-btn"' +
+                                ' data-pk="' + data.id + '" data-nombre="' + data.nombre + '" data-centro-id="" data-codigo=""' +
+                                ' data-capacidad="" data-descripcion="" data-activo="true"' +
+                                ' title="Editar"><i class="bi bi-pencil-square"></i></button>' +
+                            '<button class="btn btn-sm btn-outline-danger eliminar-ambiente-btn"' +
+                                ' data-pk="' + data.id + '" data-nombre="' + data.nombre + '"' +
+                                ' title="Eliminar"><i class="bi bi-trash"></i></button>' +
+                        '</div>' +
+                    '</td>';
                 tbody.prepend(tr);
                 document.getElementById('ambientes-vacio')?.remove();
             }
@@ -1126,26 +1145,40 @@
 
     document.getElementById('btnActualizarAmbiente').addEventListener('click', function() {
         if (!editAmbientePk) return;
-        const params = new URLSearchParams({
-            centro_id:   document.getElementById('ea_centro_id').value,
-            nombre:      document.getElementById('ea_nombre').value.trim(),
-            codigo:      document.getElementById('ea_codigo').value.trim(),
-            capacidad:   document.getElementById('ea_capacidad').value || '0',
-            descripcion: document.getElementById('ea_descripcion').value.trim(),
-            activo:      document.getElementById('ea_activo').value,
-        });
-        postAjax(`/sistema/ambientes/${editAmbientePk}/editar/`, params, data => {
+        const centroSel  = document.getElementById('ea_centro_id');
+        const centroId   = centroSel.value;
+        const centroNom  = centroSel.options[centroSel.selectedIndex]?.text || '—';
+        const nombre     = document.getElementById('ea_nombre').value.trim();
+        const codigo     = document.getElementById('ea_codigo').value.trim();
+        const capacidad  = document.getElementById('ea_capacidad').value || '0';
+        const descripcion= document.getElementById('ea_descripcion').value.trim();
+        const activo     = document.getElementById('ea_activo').value;
+        const params = new URLSearchParams({ centro_id: centroId, nombre, codigo, capacidad, descripcion, activo });
+        postAjax('/sistema/ambientes/' + editAmbientePk + '/editar/', params, data => {
+            const row = document.getElementById('ambiente-row-' + editAmbientePk);
+            if (row) {
+                const c = row.cells;
+                c[0].innerHTML = '<span class="fw-semibold">' + nombre + '</span>';
+                c[1].textContent = centroNom;
+                c[2].textContent = codigo || '---';
+                c[3].innerHTML = capacidad && capacidad !== '0'
+                    ? '<i class="bi bi-people me-1"></i>' + capacidad : '---';
+                c[4].innerHTML = activo === 'true'
+                    ? '<span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span>'
+                    : '<span class="badge rounded-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">Inactivo</span>';
+                const btn = row.querySelector('.editar-ambiente-btn');
+                if (btn) { Object.assign(btn.dataset, { nombre, centroId, codigo, capacidad, descripcion, activo }); }
+            }
             bootstrap.Modal.getInstance(document.getElementById('modalEditarAmbiente'))?.hide();
             showToast(data.message, 'success');
-            setTimeout(() => location.reload(), 800);
         }, 'alertEditarAmbiente', this, '<i class="bi bi-floppy me-1"></i>Actualizar');
     });
 
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.eliminar-ambiente-btn');
         if (!btn) return;
-        if (!confirm(`¿Eliminar el ambiente "${btn.dataset.nombre}"?`)) return;
-        fetch(`/sistema/ambientes/${btn.dataset.pk}/eliminar/`, {
+        if (!confirm('¿Eliminar el ambiente "' + btn.dataset.nombre + '"?')) return;
+        fetch('/sistema/ambientes/' + btn.dataset.pk + '/eliminar/', {
             method: 'POST',
             headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
             body: '',
@@ -1153,7 +1186,7 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById(`ambiente-row-${btn.dataset.pk}`)?.remove();
+                document.getElementById('ambiente-row-' + btn.dataset.pk)?.remove();
                 showToast(data.message, 'success');
             } else {
                 alert(data.message);
@@ -1175,24 +1208,24 @@
             const tbody = document.getElementById('tablaFichas');
             if (tbody) {
                 const tr = document.createElement('tr');
-                tr.id = `ficha-row-${data.id}`;
-                tr.innerHTML = `
-                    <td class="ps-3 fw-bold" style="vertical-align:middle;font-size:.95rem;">${data.numero}</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">${data.nombre}</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">${data.programa || '—'}</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">${data.centro || '—'}</td>
-                    <td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activa</span></td>
-                    <td class="text-center pe-3" style="vertical-align:middle;">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <button class="btn btn-sm btn-outline-sena-secondary editar-ficha-btn"
-                                data-pk="${data.id}" data-numero="${data.numero}" data-nombre="${data.nombre}"
-                                data-programa="${data.programa}" data-centro-id="" data-activo="true"
-                                title="Editar"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-sm btn-outline-danger eliminar-ficha-btn"
-                                data-pk="${data.id}" data-numero="${data.numero}"
-                                title="Eliminar"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </td>`;
+                tr.id = 'ficha-row-' + data.id;
+                tr.innerHTML = 
+                    '<td class="ps-3 fw-bold" style="vertical-align:middle;font-size:.95rem;">' + data.numero + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">' + data.nombre + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">' + (data.programa || '---') + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">' + (data.centro || '---') + '</td>' +
+                    '<td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activa</span></td>' +
+                    '<td class="text-center pe-3" style="vertical-align:middle;">' +
+                        '<div class="d-flex gap-1 justify-content-center">' +
+                            '<button class="btn btn-sm btn-outline-sena-secondary editar-ficha-btn"' +
+                                ' data-pk="' + data.id + '" data-numero="' + data.numero + '" data-nombre="' + data.nombre + '"' +
+                                ' data-programa="' + data.programa + '" data-centro-id="" data-activo="true"' +
+                                ' title="Editar"><i class="bi bi-pencil-square"></i></button>' +
+                            '<button class="btn btn-sm btn-outline-danger eliminar-ficha-btn"' +
+                                ' data-pk="' + data.id + '" data-numero="' + data.numero + '"' +
+                                ' title="Eliminar"><i class="bi bi-trash"></i></button>' +
+                        '</div>' +
+                    '</td>';
                 tbody.prepend(tr);
                 document.getElementById('fichas-vacio')?.remove();
             }
@@ -1218,25 +1251,38 @@
 
     document.getElementById('btnActualizarFicha').addEventListener('click', function() {
         if (!editFichaPk) return;
-        const params = new URLSearchParams({
-            numero:             document.getElementById('ef_numero').value.trim(),
-            nombre:             document.getElementById('ef_nombre').value.trim(),
-            programa_formacion: document.getElementById('ef_programa').value.trim(),
-            centro_id:          document.getElementById('ef_centro_id').value,
-            activo:             document.getElementById('ef_activo').value,
-        });
-        postAjax(`/sistema/fichas/${editFichaPk}/editar/`, params, data => {
+        const centroSel  = document.getElementById('ef_centro_id');
+        const centroId   = centroSel.value;
+        const centroNom  = centroSel.options[centroSel.selectedIndex]?.text || '—';
+        const numero     = document.getElementById('ef_numero').value.trim();
+        const nombre     = document.getElementById('ef_nombre').value.trim();
+        const programa   = document.getElementById('ef_programa').value.trim();
+        const activo     = document.getElementById('ef_activo').value;
+        const params = new URLSearchParams({ numero, nombre, programa_formacion: programa, centro_id: centroId, activo });
+        postAjax('/sistema/fichas/' + editFichaPk + '/editar/', params, data => {
+            const row = document.getElementById('ficha-row-' + editFichaPk);
+            if (row) {
+                const c = row.cells;
+                c[0].innerHTML = '<span class="fw-bold" style="font-size:.95rem;">' + numero + '</span>';
+                c[1].textContent = nombre;
+                c[2].textContent = programa || '---';
+                c[3].textContent = centroId ? centroNom.replace('— Sin centro asignado —','—') : '—';
+                c[4].innerHTML = activo === 'true'
+                    ? '<span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activa</span>'
+                    : '<span class="badge rounded-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">Inactiva</span>';
+                const btn = row.querySelector('.editar-ficha-btn');
+                if (btn) { Object.assign(btn.dataset, { numero, nombre, programa, centroId, activo }); }
+            }
             bootstrap.Modal.getInstance(document.getElementById('modalEditarFicha'))?.hide();
             showToast(data.message, 'success');
-            setTimeout(() => location.reload(), 800);
         }, 'alertEditarFicha', this, '<i class="bi bi-floppy me-1"></i>Actualizar');
     });
 
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.eliminar-ficha-btn');
         if (!btn) return;
-        if (!confirm(`¿Eliminar la ficha N° ${btn.dataset.numero}?`)) return;
-        fetch(`/sistema/fichas/${btn.dataset.pk}/eliminar/`, {
+        if (!confirm('¿Eliminar la ficha N° ' + btn.dataset.numero + '?')) return;
+        fetch('/sistema/fichas/' + btn.dataset.pk + '/eliminar/', {
             method: 'POST',
             headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
             body: '',
@@ -1244,7 +1290,7 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById(`ficha-row-${btn.dataset.pk}`)?.remove();
+                document.getElementById('ficha-row-' + btn.dataset.pk)?.remove();
                 showToast(data.message, 'success');
             } else {
                 alert(data.message);
@@ -1272,32 +1318,32 @@
             const tbody = document.getElementById('tablaProveedores');
             if (tbody) {
                 const tr = document.createElement('tr');
-                tr.id = `proveedor-row-${data.id}`;
+                tr.id = 'proveedor-row-' + data.id;
                 const contactoHtml = [
-                    data.contacto_telefono ? `<div><i class="bi bi-telephone me-1"></i>${data.contacto_telefono}</div>` : '',
-                    data.contacto_email    ? `<div class="text-muted"><i class="bi bi-envelope me-1"></i>${data.contacto_email}</div>` : '',
-                ].join('') || '—';
-                tr.innerHTML = `
-                    <td class="ps-3 fw-semibold" style="vertical-align:middle;">${data.nombre}</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">${data.nit}</td>
-                    <td style="vertical-align:middle;font-size:.88rem;">${data.ciudad || '—'}</td>
-                    <td style="vertical-align:middle;font-size:.82rem;">${contactoHtml}</td>
-                    <td class="text-center" style="vertical-align:middle;"><span class="badge bg-secondary">0</span></td>
-                    <td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>
-                    <td class="text-center pe-3" style="vertical-align:middle;">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <button class="btn btn-sm btn-outline-sena-secondary editar-proveedor-btn"
-                                data-pk="${data.id}" data-nombre="${data.nombre}" data-nit="${data.nit}"
-                                data-contacto-nombre="" data-contacto-telefono="${data.contacto_telefono}"
-                                data-contacto-email="${data.contacto_email}" data-direccion=""
-                                data-ciudad="${data.ciudad}" data-pais="Colombia" data-sitio-web=""
-                                data-calificacion="" data-activo="true"
-                                title="Editar"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-sm btn-outline-danger eliminar-proveedor-btn"
-                                data-pk="${data.id}" data-nombre="${data.nombre}" data-maquinas="0"
-                                title="Eliminar"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </td>`;
+                    data.contacto_telefono ? '<div><i class="bi bi-telephone me-1"></i>' + data.contacto_telefono + '</div>' : '',
+                    data.contacto_email    ? '<div class="text-muted"><i class="bi bi-envelope me-1"></i>' + data.contacto_email + '</div>' : '',
+                ].join('') || '---';
+                tr.innerHTML = 
+                    '<td class="ps-3 fw-semibold" style="vertical-align:middle;">' + data.nombre + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">' + data.nit + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.88rem;">' + (data.ciudad || '---') + '</td>' +
+                    '<td style="vertical-align:middle;font-size:.82rem;">' + contactoHtml + '</td>' +
+                    '<td class="text-center" style="vertical-align:middle;"><span class="badge bg-secondary">0</span></td>' +
+                    '<td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>' +
+                    '<td class="text-center pe-3" style="vertical-align:middle;">' +
+                        '<div class="d-flex gap-1 justify-content-center">' +
+                            '<button class="btn btn-sm btn-outline-sena-secondary editar-proveedor-btn"' +
+                                ' data-pk="' + data.id + '" data-nombre="' + data.nombre + '" data-nit="' + data.nit + '"' +
+                                ' data-contacto-nombre="" data-contacto-telefono="' + data.contacto_telefono + '"' +
+                                ' data-contacto-email="' + data.contacto_email + '" data-direccion=""' +
+                                ' data-ciudad="' + data.ciudad + '" data-pais="Colombia" data-sitio-web=""' +
+                                ' data-calificacion="" data-activo="true"' +
+                                ' title="Editar"><i class="bi bi-pencil-square"></i></button>' +
+                            '<button class="btn btn-sm btn-outline-danger eliminar-proveedor-btn"' +
+                                ' data-pk="' + data.id + '" data-nombre="' + data.nombre + '" data-maquinas="0"' +
+                                ' title="Eliminar"><i class="bi bi-trash"></i></button>' +
+                        '</div>' +
+                    '</td>';
                 tbody.prepend(tr);
                 document.getElementById('proveedores-vacio')?.remove();
             }
@@ -1331,23 +1377,47 @@
 
     document.getElementById('btnActualizarProveedor').addEventListener('click', function() {
         if (!editProveedorPk) return;
+        const nombre           = document.getElementById('ep_nombre').value.trim();
+        const nit              = document.getElementById('ep_nit').value.trim();
+        const contactoNombre   = document.getElementById('ep_contacto_nombre').value.trim();
+        const contactoTelefono = document.getElementById('ep_contacto_telefono').value.trim();
+        const contactoEmail    = document.getElementById('ep_contacto_email').value.trim();
+        const direccion        = document.getElementById('ep_direccion').value.trim();
+        const ciudad           = document.getElementById('ep_ciudad').value.trim();
+        const pais             = document.getElementById('ep_pais').value.trim();
+        const sitioWeb         = document.getElementById('ep_sitio_web').value.trim();
+        const calificacion     = document.getElementById('ep_calificacion').value;
+        const activo           = document.getElementById('ep_activo').value;
         const params = new URLSearchParams({
-            nombre:            document.getElementById('ep_nombre').value.trim(),
-            nit:               document.getElementById('ep_nit').value.trim(),
-            contacto_nombre:   document.getElementById('ep_contacto_nombre').value.trim(),
-            contacto_telefono: document.getElementById('ep_contacto_telefono').value.trim(),
-            contacto_email:    document.getElementById('ep_contacto_email').value.trim(),
-            direccion:         document.getElementById('ep_direccion').value.trim(),
-            ciudad:            document.getElementById('ep_ciudad').value.trim(),
-            pais:              document.getElementById('ep_pais').value.trim(),
-            sitio_web:         document.getElementById('ep_sitio_web').value.trim(),
-            calificacion:      document.getElementById('ep_calificacion').value,
-            activo:            document.getElementById('ep_activo').value,
+            nombre, nit,
+            contacto_nombre: contactoNombre, contacto_telefono: contactoTelefono, contacto_email: contactoEmail,
+            direccion, ciudad, pais, sitio_web: sitioWeb, calificacion, activo,
         });
-        postAjax(`/sistema/proveedores/${editProveedorPk}/editar/`, params, data => {
+        postAjax('/sistema/proveedores/' + editProveedorPk + '/editar/', params, data => {
+            const row = document.getElementById('proveedor-row-' + editProveedorPk);
+            if (row) {
+                const c = row.cells;
+                c[0].innerHTML = '<span class="fw-semibold">' + nombre + '</span>';
+                c[1].textContent = nit;
+                c[2].textContent = ciudad || '---';
+                c[3].innerHTML = [
+                    contactoNombre   ? '<div class="fw-semibold">' + contactoNombre + '</div>' : '',
+                    contactoTelefono ? '<div><i class="bi bi-telephone me-1"></i>' + contactoTelefono + '</div>' : '',
+                    contactoEmail    ? '<div class="text-muted"><i class="bi bi-envelope me-1"></i>' + contactoEmail + '</div>' : '',
+                ].join('') || '---';
+                c[5].innerHTML = activo === 'true'
+                    ? '<span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span>'
+                    : '<span class="badge rounded-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">Inactivo</span>';
+                const btn = row.querySelector('.editar-proveedor-btn');
+                if (btn) {
+                    Object.assign(btn.dataset, {
+                        nombre, nit, contactoNombre, contactoTelefono, contactoEmail,
+                        direccion, ciudad, pais, sitioWeb, calificacion, activo,
+                    });
+                }
+            }
             bootstrap.Modal.getInstance(document.getElementById('modalEditarProveedor'))?.hide();
             showToast(data.message, 'success');
-            setTimeout(() => location.reload(), 800);
         }, 'alertEditarProveedor', this, '<i class="bi bi-floppy me-1"></i>Actualizar');
     });
 
@@ -1356,11 +1426,11 @@
         if (!btn) return;
         const maquinas = parseInt(btn.dataset.maquinas || '0');
         if (maquinas > 0) {
-            alert(`No se puede eliminar: "${btn.dataset.nombre}" tiene ${maquinas} máquina(s) asignada(s).`);
+            alert('No se puede eliminar: "' + btn.dataset.nombre + '" tiene ' + maquinas + ' máquina(s) asignada(s).');
             return;
         }
-        if (!confirm(`¿Eliminar el proveedor "${btn.dataset.nombre}"?`)) return;
-        fetch(`/sistema/proveedores/${btn.dataset.pk}/eliminar/`, {
+        if (!confirm('¿Eliminar el proveedor "' + btn.dataset.nombre + '"?')) return;
+        fetch('/sistema/proveedores/' + btn.dataset.pk + '/eliminar/', {
             method: 'POST',
             headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
             body: '',
@@ -1368,7 +1438,7 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById(`proveedor-row-${btn.dataset.pk}`)?.remove();
+                document.getElementById('proveedor-row-' + btn.dataset.pk)?.remove();
                 showToast(data.message, 'success');
             } else {
                 alert(data.message);
