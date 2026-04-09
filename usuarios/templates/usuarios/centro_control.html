@@ -3,6 +3,33 @@
 {% block title %}Centro de Control - SENA{% endblock %}
 {% block page_title %}Centro de Control{% endblock %}
 
+{% block extra_css %}
+<style>
+    .sena-table thead th {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .sena-table tbody tr:hover {
+        background-color: rgba(57, 169, 0, 0.05);
+    }
+    .sena-table tbody td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        border-color: rgba(0,0,0,0.06);
+    }
+    .sena-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <style>
     /* Colores de texto consistentes con el Panel Principal */
@@ -395,7 +422,7 @@
     <div class="card-body p-0">
         {% if usuarios %}
         <div class="table-responsive">
-            <table class="table table-hover usuarios-table mb-0">
+            <table class="table table-hover sena-table usuarios-table mb-0">
                 <thead>
                     <tr>
                         <th class="ps-3">Nombre</th>

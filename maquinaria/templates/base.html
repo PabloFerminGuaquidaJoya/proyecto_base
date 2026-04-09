@@ -132,8 +132,7 @@
         .accessibility-panel {
             position: fixed;
             right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+            bottom: 20px;
             z-index: 1001;
             background: transparent;
             border: none;
@@ -1179,13 +1178,13 @@
             <li class="nav-item">
                 <a href="{% url 'sistema:gestionar_backups' %}" class="nav-link {% if request.resolver_match.app_name == 'sistema' and 'backup' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="bi bi-clock-history"></i>
-                    <span>Historial de Copias</span>
+                    <span>Copias de Seguridad</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{% url 'usuarios:centro_control' %}" class="nav-link {% if request.resolver_match.url_name == 'centro_control' %}active{% endif %}">
                     <i class="bi bi-shield-lock"></i>
-                    <span>Centro de Control</span>
+                    <span>Gestion de Usuarios</span>
                 </a>
             </li>
             <li class="nav-item">

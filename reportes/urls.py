@@ -16,6 +16,7 @@ urlpatterns = [
     path('detalle/<uuid:pk>/', views.detalle_reporte_view, name='detalle_reporte'),
     path('descargar/<uuid:pk>/', views.descargar_reporte, name='descargar_reporte'),
     path('cancelar/<uuid:pk>/', views.cancelar_reporte, name='cancelar_reporte'),
+    path('eliminar/<uuid:pk>/', views.eliminar_reporte, name='eliminar_reporte'),
 
     # Tipos de reporte
     path('tipos/', views.tipos_reporte_view, name='tipos_reporte'),

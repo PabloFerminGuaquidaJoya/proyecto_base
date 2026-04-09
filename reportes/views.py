@@ -1015,6 +1015,26 @@ def cancelar_reporte(request, pk):
         }, status=500)
 
 @login_required
+@require_http_methods(["POST"])
+def eliminar_reporte(request, pk):
+    """Elimina un reporte y redirige al dashboard."""
+    from usuarios.models import Usuario
+    reporte = get_object_or_404(Reporte, id=pk)
+    try:
+        usuario_actual = Usuario.objects.get(numero_documento=request.user.username)
+        if reporte.usuario_solicitante != usuario_actual and not request.user.is_staff:
+            messages.error(request, 'No tienes permiso para eliminar este reporte.')
+            return redirect('reportes:dashboard')
+    except Usuario.DoesNotExist:
+        if not request.user.is_staff:
+            messages.error(request, 'No tienes permiso para eliminar este reporte.')
+            return redirect('reportes:dashboard')
+    titulo = reporte.titulo
+    reporte.delete()
+    messages.success(request, f'Reporte "{titulo}" eliminado correctamente.')
+    return redirect('reportes:dashboard')
+
+@login_required
 def tipos_reporte_view(request):
     return render(request, 'reportes/tipos_reporte.html', {'title': 'Tipos de Reporte'})
 

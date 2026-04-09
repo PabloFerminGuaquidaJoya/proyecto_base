@@ -3,6 +3,33 @@
 {% block title %}{{ objeto.nombre }} - Detalle Objeto{% endblock %}
 {% block page_title %}Detalle del Objeto{% endblock %}
 
+{% block extra_css %}
+<style>
+    .sena-table thead th {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .sena-table tbody tr:hover {
+        background-color: rgba(57, 169, 0, 0.05);
+    }
+    .sena-table tbody td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        border-color: rgba(0,0,0,0.06);
+    }
+    .sena-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
@@ -134,7 +161,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
-                <table class="table table-borderless">
+                <div class="table-responsive"><table class="table table-borderless sena-table">
                     <tr><th class="text-muted" style="width:40%">Nombre</th><td>{{ objeto.nombre }}</td></tr>
                     <tr><th class="text-muted">Modelo</th><td>{{ objeto.modelo|default:"-" }}</td></tr>
                     <tr><th class="text-muted">Serie</th><td>{{ objeto.serie|default:"-" }}</td></tr>
@@ -156,10 +183,10 @@
                             </span>
                         </td>
                     </tr>
-                </table>
+                </table></div>
             </div>
             <div class="col-md-6">
-                <table class="table table-borderless">
+                <div class="table-responsive"><table class="table table-borderless sena-table">
                     <tr><th class="text-muted" style="width:40%">Máquina asociada</th><td>{{ objeto.maquina.nombre|default:"-" }}</td></tr>
                     <tr><th class="text-muted">Costo</th><td>{% if objeto.costo %}${{ objeto.costo|floatformat:2 }}{% else %}-{% endif %}</td></tr>
                     <tr><th class="text-muted">Ubicación almacén</th><td>{{ objeto.ubicacion_almacen|default:"-" }}</td></tr>
@@ -168,7 +195,7 @@
                     <tr><th class="text-muted">Fecha de uso</th><td>{{ objeto.fecha_uso|date:"d/m/Y"|default:"-" }}</td></tr>
                     <tr><th class="text-muted">Fecha de cambio</th><td>{{ objeto.fecha_cambio|date:"d/m/Y"|default:"-" }}</td></tr>
                     <tr><th class="text-muted">Registrado</th><td>{{ objeto.created_at|date:"d/m/Y H:i" }}</td></tr>
-                </table>
+                </table></div>
             </div>
         </div>
         {% if objeto.observaciones %}

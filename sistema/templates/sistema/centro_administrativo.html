@@ -3,6 +3,33 @@
 {% block title %}Centro Administrativo - SENA{% endblock %}
 {% block page_title %}Centro Administrativo{% endblock %}
 
+{% block extra_css %}
+<style>
+    .sena-table thead th {
+        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .sena-table tbody tr:hover {
+        background-color: rgba(57, 169, 0, 0.05);
+    }
+    .sena-table tbody td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        border-color: rgba(0,0,0,0.06);
+    }
+    .sena-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <style>
     /* ── Colores SENA ──────────────────────────────────────────── */
@@ -63,6 +90,26 @@
     .section-card > .card-header h6 {
         color: white !important;
         -webkit-text-fill-color: white !important;
+    }
+
+    /* ── Search bar en header ──────────────────────────────────── */
+    .header-search {
+        background: rgba(255,255,255,.15);
+        border: 1px solid rgba(255,255,255,.45);
+        color: white;
+        border-radius: 8px;
+        font-size: .82rem;
+        width: 210px;
+        transition: background .2s, width .2s;
+    }
+    .header-search::placeholder { color: rgba(255,255,255,.7); }
+    .header-search:focus {
+        background: rgba(255,255,255,.25);
+        border-color: rgba(255,255,255,.8);
+        color: white;
+        outline: none;
+        box-shadow: none;
+        width: 250px;
     }
 </style>
 
@@ -185,17 +232,23 @@
 
 <!-- ═══ CENTROS DE FORMACIÓN ═════════════════════════════════════════════ -->
 <div class="card section-card mb-4" style="border:none;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h6 class="m-0 fw-bold text-white">
             <i class="bi bi-building me-2"></i>Centros de Formación
         </h6>
-        <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearCentro">
-            <i class="bi bi-plus-circle me-1"></i>Agregar Centro
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width:auto;">
+                <span class="input-group-text" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.45);border-right:none;color:white;"><i class="bi bi-search"></i></span>
+                <input type="search" id="searchCentros" class="form-control header-search" placeholder="Buscar por nombre, código, estado…" style="border-left:none;">
+            </div>
+            <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearCentro">
+                <i class="bi bi-plus-circle me-1"></i>Agregar Centro
+            </button>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover sena-table mb-0">
                 <thead>
                     <tr>
                         <th class="ps-3">Nombre</th>
@@ -264,17 +317,23 @@
 
 <!-- ═══ AMBIENTES DE FORMACIÓN ════════════════════════════════════════════ -->
 <div class="card section-card mb-4" style="border:none;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h6 class="m-0 fw-bold text-white">
             <i class="bi bi-door-open me-2"></i>Ambientes de Formación
         </h6>
-        <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearAmbiente">
-            <i class="bi bi-plus-circle me-1"></i>Agregar Ambiente
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width:auto;">
+                <span class="input-group-text" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.45);border-right:none;color:white;"><i class="bi bi-search"></i></span>
+                <input type="search" id="searchAmbientes" class="form-control header-search" placeholder="Buscar por nombre, centro, código…" style="border-left:none;">
+            </div>
+            <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearAmbiente">
+                <i class="bi bi-plus-circle me-1"></i>Agregar Ambiente
+            </button>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover sena-table mb-0">
                 <thead>
                     <tr>
                         <th class="ps-3">Nombre</th>
@@ -531,17 +590,23 @@
 
 <!-- ═══ FICHAS ════════════════════════════════════════════════════════════ -->
 <div class="card section-card mb-4" style="border:none;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h6 class="m-0 fw-bold text-white">
             <i class="bi bi-journal-bookmark me-2"></i>Fichas de Formación
         </h6>
-        <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearFicha">
-            <i class="bi bi-plus-circle me-1"></i>Agregar Ficha
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width:auto;">
+                <span class="input-group-text" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.45);border-right:none;color:white;"><i class="bi bi-search"></i></span>
+                <input type="search" id="searchFichas" class="form-control header-search" placeholder="Buscar por N° ficha, programa, centro…" style="border-left:none;">
+            </div>
+            <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearFicha">
+                <i class="bi bi-plus-circle me-1"></i>Agregar Ficha
+            </button>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover sena-table mb-0">
                 <thead>
                     <tr>
                         <th class="ps-3">N° Ficha</th>
@@ -691,17 +756,23 @@
 
 <!-- ═══ PROVEEDORES ══════════════════════════════════════════════════════ -->
 <div class="card section-card mb-4" style="border:none;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h6 class="m-0 fw-bold text-white">
             <i class="bi bi-truck me-2"></i>Proveedores
         </h6>
-        <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearProveedor">
-            <i class="bi bi-plus-circle me-1"></i>Agregar Proveedor
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width:auto;">
+                <span class="input-group-text" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.45);border-right:none;color:white;"><i class="bi bi-search"></i></span>
+                <input type="search" id="searchProveedores" class="form-control header-search" placeholder="Buscar por nombre, NIT, ciudad…" style="border-left:none;">
+            </div>
+            <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearProveedor">
+                <i class="bi bi-plus-circle me-1"></i>Agregar Proveedor
+            </button>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover sena-table mb-0">
                 <thead>
                     <tr>
                         <th class="ps-3">Nombre</th>
@@ -1446,6 +1517,46 @@
         });
     });
 
+})();
+
+/* ── BÚSQUEDA EN TABLAS ───────────────────────────────────────────────── */
+(function() {
+    /**
+     * Filtra las filas de un <tbody> comparando el texto de las columnas
+     * indicadas (índices 0-based) contra el término buscado.
+     * Muestra la fila "vacío" cuando no queda ningún resultado.
+     */
+    function setupSearch(inputId, tbodyId, cols, emptyRowId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        input.addEventListener('input', function() {
+            const q = this.value.trim().toLowerCase();
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            let visible = 0;
+            Array.from(tbody.querySelectorAll('tr')).forEach(function(tr) {
+                if (tr.id === emptyRowId) return; // fila-placeholder
+                const text = cols.map(function(i) {
+                    const td = tr.cells[i];
+                    return td ? td.textContent.toLowerCase() : '';
+                }).join(' ');
+                const show = !q || text.includes(q);
+                tr.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            const emptyRow = emptyRowId ? document.getElementById(emptyRowId) : null;
+            if (emptyRow) emptyRow.style.display = visible === 0 ? '' : 'none';
+        });
+    }
+
+    // Centros: Nombre(0), Código(1), Dirección(2), Estado(5)
+    setupSearch('searchCentros',     'tablaCentros',     [0,1,2,5], 'centros-vacio');
+    // Ambientes: Nombre(0), Centro(1), Código(2), Estado(4)
+    setupSearch('searchAmbientes',   'tablaAmbientes',   [0,1,2,4], 'ambientes-vacio');
+    // Fichas: N°Ficha(0), Nombre(1), Programa(2), Centro(3), Estado(4)
+    setupSearch('searchFichas',      'tablaFichas',      [0,1,2,3,4], 'fichas-vacio');
+    // Proveedores: Nombre(0), NIT(1), Ciudad(2), Estado(5)
+    setupSearch('searchProveedores', 'tablaProveedores', [0,1,2,5], 'proveedores-vacio');
 })();
 </script>
 {% endblock %}
