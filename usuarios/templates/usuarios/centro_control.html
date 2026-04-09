@@ -432,13 +432,16 @@
                         <td style="font-size:.88rem;">{{ u.cargo|default:"—" }}</td>
 
                         <!-- Programa de Formación -->
-                        <td style="font-size:.82rem;max-width:200px;">
+                        <td style="font-size:.82rem;max-width:220px;">
                             {% if u.especialidad %}
                                 <span class="d-block text-truncate" title="{{ u.especialidad }}">{{ u.especialidad }}</span>
                             {% endif %}
                             {% if u.centro_formacion %}
-                                <span class="text-muted d-block text-truncate" title="{{ u.centro_formacion }}"
-                                      style="font-size:.76rem;">{{ u.centro_formacion }}</span>
+                                <span class="text-muted d-block text-truncate" title="{{ u.centro_formacion.nombre }}"
+                                      style="font-size:.76rem;"><i class="bi bi-building me-1"></i>{{ u.centro_formacion.nombre }}</span>
+                            {% endif %}
+                            {% if u.ficha %}
+                                <span class="text-muted d-block" style="font-size:.76rem;"><i class="bi bi-journal-bookmark me-1"></i>Ficha {{ u.ficha.numero }}</span>
                             {% endif %}
                             {% if not u.especialidad and not u.centro_formacion %}—{% endif %}
                         </td>
@@ -468,7 +471,8 @@
                                     data-telefono="{{ u.telefono }}"
                                     data-cargo="{{ u.cargo }}"
                                     data-especialidad="{{ u.especialidad }}"
-                                    data-centro="{{ u.centro_formacion }}"
+                                    data-centro-id="{{ u.centro_formacion_id|default:'' }}"
+                                    data-ficha-id="{{ u.ficha_id|default:'' }}"
                                     data-estado="{{ u.estado }}"
                                     data-tipo-usuario-id="{{ u.tipo_usuario_id }}"
                                     title="Editar datos"
@@ -595,8 +599,22 @@
                         <input type="text" id="crear_especialidad" class="form-control" placeholder="Ej: Técnico en Maquinaria Pesada">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Centro de formación</label>
-                        <input type="text" id="crear_centro_formacion" class="form-control" placeholder="Centro SENA">
+                        <label class="form-label fw-semibold">Centro de Formación</label>
+                        <select id="crear_centro_formacion" class="form-select">
+                            <option value="">— Sin centro —</option>
+                            {% for c in centros_lista %}
+                            <option value="{{ c.pk }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="div_crear_ficha" style="display:none;">
+                        <label class="form-label fw-semibold">Ficha <small class="text-muted">(Aprendiz)</small></label>
+                        <select id="crear_ficha" class="form-select">
+                            <option value="">— Sin ficha —</option>
+                            {% for f in fichas_lista %}
+                            <option value="{{ f.pk }}" data-programa="{{ f.programa_formacion }}">{{ f.numero }} — {{ f.nombre }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Tipo de usuario <span class="text-danger">*</span></label>
@@ -738,8 +756,24 @@
 
                     <!-- Centro de formación -->
                     <div class="col-md-6">
-                        <label class="form-label">Centro de formación</label>
-                        <input type="text" id="edit_centro_formacion" class="form-control" placeholder="Centro SENA">
+                        <label class="form-label">Centro de Formación</label>
+                        <select id="edit_centro_formacion" class="form-select">
+                            <option value="">— Sin centro —</option>
+                            {% for c in centros_lista %}
+                            <option value="{{ c.pk }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Ficha (solo Aprendiz) -->
+                    <div class="col-md-6" id="div_edit_ficha" style="display:none;">
+                        <label class="form-label">Ficha <small class="text-muted">(Aprendiz)</small></label>
+                        <select id="edit_ficha" class="form-select">
+                            <option value="">— Sin ficha —</option>
+                            {% for f in fichas_lista %}
+                            <option value="{{ f.pk }}" data-programa="{{ f.programa_formacion }}">{{ f.numero }} — {{ f.nombre }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <!-- Estado -->
@@ -880,8 +914,13 @@
         document.getElementById('edit_telefono').value         = btn.dataset.telefono   || '';
         document.getElementById('edit_cargo').value            = btn.dataset.cargo      || '';
         document.getElementById('edit_especialidad').value     = btn.dataset.especialidad || '';
-        document.getElementById('edit_centro_formacion').value = btn.dataset.centro     || '';
+        document.getElementById('edit_centro_formacion').value = btn.dataset.centroId   || '';
         document.getElementById('edit_estado').value           = btn.dataset.estado     || 'activo';
+
+        // Ficha — solo visible para Aprendiz
+        const esAprendiz = (btn.dataset.cargo || '').trim() === 'Aprendiz';
+        document.getElementById('div_edit_ficha').style.display = esAprendiz ? '' : 'none';
+        document.getElementById('edit_ficha').value = btn.dataset.fichaId || '';
 
         const tipoSel = document.getElementById('edit_tipo_usuario_id');
         if (tipoSel) tipoSel.value = btn.dataset.tipoUsuarioId || '';
@@ -910,7 +949,8 @@
             telefono:          document.getElementById('edit_telefono').value.trim(),
             cargo:             document.getElementById('edit_cargo').value.trim(),
             especialidad:      document.getElementById('edit_especialidad').value.trim(),
-            centro_formacion:  document.getElementById('edit_centro_formacion').value.trim(),
+            centro_formacion:  document.getElementById('edit_centro_formacion').value,
+            ficha:             document.getElementById('edit_ficha').value,
             estado:            document.getElementById('edit_estado').value,
             tipo_usuario_id:   document.getElementById('edit_tipo_usuario_id').value,
         });
@@ -1047,8 +1087,17 @@
      * ───────────────────────────────────────────────────────────────────── */
     document.getElementById('crearUsuarioModal').addEventListener('hidden.bs.modal', function() {
         clearModal(['crear_nombres','crear_apellidos','crear_numero_documento','crear_telefono',
-                    'crear_email','crear_cargo','crear_especialidad','crear_centro_formacion',
+                    'crear_email','crear_cargo','crear_especialidad',
                     'crear_password','crear_confirmar_password'], 'crearAlertContainer');
+        document.getElementById('crear_centro_formacion').value = '';
+        document.getElementById('crear_ficha').value = '';
+        document.getElementById('div_crear_ficha').style.display = 'none';
+    });
+
+    // Mostrar/ocultar ficha según cargo en modal Crear
+    document.getElementById('crear_cargo').addEventListener('input', function() {
+        document.getElementById('div_crear_ficha').style.display =
+            this.value.trim() === 'Aprendiz' ? '' : 'none';
     });
 
     document.getElementById('btnCrearUsuario').addEventListener('click', function() {
@@ -1062,7 +1111,8 @@
             email:             document.getElementById('crear_email').value.trim(),
             cargo:             document.getElementById('crear_cargo').value.trim(),
             especialidad:      document.getElementById('crear_especialidad').value.trim(),
-            centro_formacion:  document.getElementById('crear_centro_formacion').value.trim(),
+            centro_formacion:  document.getElementById('crear_centro_formacion').value,
+            ficha:             document.getElementById('crear_ficha').value,
             tipo_usuario_id:   document.getElementById('crear_tipo_usuario_id').value,
             password:          document.getElementById('crear_password').value,
             confirmar_password: document.getElementById('crear_confirmar_password').value,

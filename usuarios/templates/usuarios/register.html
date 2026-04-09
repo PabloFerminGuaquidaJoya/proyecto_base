@@ -437,6 +437,19 @@
                 });
             }
 
+            // ── Mostrar/ocultar campo Ficha según Cargo ──
+            const cargoSel = document.getElementById('id_cargo');
+            const fichaSel = document.getElementById('id_ficha');
+            function toggleFicha() {
+                if (!fichaSel) return;
+                const row = fichaSel.closest('p') || fichaSel.closest('div');
+                if (row) row.style.display = cargoSel && cargoSel.value === 'Aprendiz' ? '' : 'none';
+            }
+            if (cargoSel) {
+                toggleFicha(); // estado inicial
+                cargoSel.addEventListener('change', toggleFicha);
+            }
+
             // Agregar botón ojo a todos los campos de contraseña del formulario
             const passwordInputs = document.querySelectorAll('input[type="password"]');
             passwordInputs.forEach(function (input) {
@@ -496,7 +509,7 @@
             const ttsToggle = document.getElementById('ttsToggle');
             ttsEnabled = !ttsEnabled;
 
-            if (ttsEnabled) {
+             if (ttsEnabled) {
                 ttsToggle.innerHTML = '<i class="bi bi-volume-mute-fill"></i> Desactivar';
                 document.addEventListener('click', handleTTSClick);
             } else {

@@ -69,7 +69,7 @@
 <!-- ═══ STAT CARDS ═══════════════════════════════════════════════════════ -->
 <div class="row mb-4">
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-md-4 mb-4">
         <div class="card border-left-sena-secondary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-md-4 mb-4">
         <div class="card border-left-sena-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
@@ -97,7 +97,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-md-4 mb-4">
         <div class="card border-left-sena-accent shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
@@ -111,7 +111,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-md-4 mb-4">
         <div class="card border-left-sena-danger shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
@@ -120,6 +120,34 @@
                         <div class="h5 mb-0 fw-bold text-gray-800">{{ activos_ambientes }}</div>
                     </div>
                     <div class="col-auto"><i class="bi bi-door-closed fs-2 text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 mb-4">
+        <div class="card border-left-sena-secondary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-secondary text-uppercase mb-1">Total Fichas</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_fichas }}</div>
+                    </div>
+                    <div class="col-auto"><i class="bi bi-journal-bookmark fs-2 text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 mb-4">
+        <div class="card border-left-sena-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-primary text-uppercase mb-1">Fichas Activas</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ activas_fichas }}</div>
+                    </div>
+                    <div class="col-auto"><i class="bi bi-journal-check fs-2 text-gray-300"></i></div>
                 </div>
             </div>
         </div>
@@ -471,6 +499,165 @@
     </div>
 </div>
 
+<!-- ═══ FICHAS ════════════════════════════════════════════════════════════ -->
+<div class="card section-card mb-4" style="border:none;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 fw-bold text-white">
+            <i class="bi bi-journal-bookmark me-2"></i>Fichas de Formación
+        </h6>
+        <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearFicha">
+            <i class="bi bi-plus-circle me-1"></i>Agregar Ficha
+        </button>
+    </div>
+    <div class="card-body p-0">
+        {% if fichas %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr style="background:linear-gradient(135deg,var(--sena-secondary) 0%,var(--sena-primary) 100%);color:white;">
+                        <th class="ps-3" style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">N° Ficha</th>
+                        <th style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Nombre</th>
+                        <th style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Programa de Formación</th>
+                        <th style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Centro</th>
+                        <th class="text-center" style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Estado</th>
+                        <th class="text-center pe-3" style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:none;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaFichas">
+                    {% for ficha in fichas %}
+                    <tr id="ficha-row-{{ ficha.pk }}">
+                        <td class="ps-3 fw-bold" style="vertical-align:middle;font-size:.95rem;">{{ ficha.numero }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">{{ ficha.nombre }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">{{ ficha.programa_formacion|default:"—" }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">{{ ficha.centro.nombre|default:"—" }}</td>
+                        <td class="text-center" style="vertical-align:middle;">
+                            {% if ficha.activo %}
+                                <span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activa</span>
+                            {% else %}
+                                <span class="badge rounded-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">Inactiva</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-3" style="vertical-align:middle;">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <button class="btn btn-sm btn-outline-sena-secondary editar-ficha-btn"
+                                    data-pk="{{ ficha.pk }}"
+                                    data-numero="{{ ficha.numero }}"
+                                    data-nombre="{{ ficha.nombre }}"
+                                    data-programa="{{ ficha.programa_formacion }}"
+                                    data-centro-id="{{ ficha.centro_id|default:'' }}"
+                                    data-activo="{{ ficha.activo|lower }}"
+                                    title="Editar"><i class="bi bi-pencil-square"></i></button>
+                                <button class="btn btn-sm btn-outline-danger eliminar-ficha-btn"
+                                    data-pk="{{ ficha.pk }}"
+                                    data-numero="{{ ficha.numero }}"
+                                    title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted" id="fichas-vacio">
+            <i class="bi bi-journal-bookmark fs-1 d-block mb-2" style="opacity:.3;"></i>
+            <p class="mb-0">No hay fichas registradas.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ═══ MODAL CREAR FICHA ════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalCrearFicha" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary),var(--sena-primary));color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-journal-plus me-2"></i>Agregar Ficha</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertCrearFicha"></div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">N° Ficha <span class="text-danger">*</span></label>
+                        <input type="number" id="cf_numero" class="form-control" placeholder="Ej: 2850374" min="1">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="cf_nombre" class="form-control" placeholder="Ej: Técnico en Operación de Maquinaria">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Programa de Formación</label>
+                        <input type="text" id="cf_programa" class="form-control" placeholder="Programa al que pertenece esta ficha">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Centro de Formación</label>
+                        <select id="cf_centro_id" class="form-select">
+                            <option value="">— Sin centro asignado —</option>
+                            {% for c in centros %}
+                            <option value="{{ c.pk }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-sena-gradient fw-semibold" id="btnGuardarFicha"><i class="bi bi-floppy me-1"></i>Guardar Ficha</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL EDITAR FICHA ═══════════════════════════════════════════════ -->
+<div class="modal fade" id="modalEditarFicha" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary),var(--sena-primary));color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Ficha</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertEditarFicha"></div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">N° Ficha <span class="text-danger">*</span></label>
+                        <input type="number" id="ef_numero" class="form-control" min="1">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="ef_nombre" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Programa de Formación</label>
+                        <input type="text" id="ef_programa" class="form-control">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Centro de Formación</label>
+                        <select id="ef_centro_id" class="form-select">
+                            <option value="">— Sin centro asignado —</option>
+                            {% for c in centros %}
+                            <option value="{{ c.pk }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select id="ef_activo" class="form-select">
+                            <option value="true">Activa</option>
+                            <option value="false">Inactiva</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-sena-gradient fw-semibold" id="btnActualizarFicha"><i class="bi bi-floppy me-1"></i>Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ═══ JAVASCRIPT ════════════════════════════════════════════════════════ -->
 <script>
 (function () {
@@ -712,6 +899,97 @@
         .then(data => {
             if (data.success) {
                 document.getElementById(`ambiente-row-${btn.dataset.pk}`)?.remove();
+                showToast(data.message, 'success');
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    /* ── FICHAS ── */
+    let editFichaPk = null;
+
+    document.getElementById('btnGuardarFicha').addEventListener('click', function() {
+        const params = new URLSearchParams({
+            numero:             document.getElementById('cf_numero').value.trim(),
+            nombre:             document.getElementById('cf_nombre').value.trim(),
+            programa_formacion: document.getElementById('cf_programa').value.trim(),
+            centro_id:          document.getElementById('cf_centro_id').value,
+        });
+        postAjax('/sistema/fichas/crear/', params, data => {
+            const tbody = document.getElementById('tablaFichas');
+            if (tbody) {
+                const tr = document.createElement('tr');
+                tr.id = `ficha-row-${data.id}`;
+                tr.innerHTML = `
+                    <td class="ps-3 fw-bold" style="vertical-align:middle;font-size:.95rem;">${data.numero}</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">${data.nombre}</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">${data.programa || '—'}</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">${data.centro || '—'}</td>
+                    <td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activa</span></td>
+                    <td class="text-center pe-3" style="vertical-align:middle;">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <button class="btn btn-sm btn-outline-sena-secondary editar-ficha-btn"
+                                data-pk="${data.id}" data-numero="${data.numero}" data-nombre="${data.nombre}"
+                                data-programa="${data.programa}" data-centro-id="" data-activo="true"
+                                title="Editar"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm btn-outline-danger eliminar-ficha-btn"
+                                data-pk="${data.id}" data-numero="${data.numero}"
+                                title="Eliminar"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>`;
+                tbody.prepend(tr);
+                document.getElementById('fichas-vacio')?.remove();
+            }
+            bootstrap.Modal.getInstance(document.getElementById('modalCrearFicha'))?.hide();
+            ['cf_numero','cf_nombre','cf_programa'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('cf_centro_id').value = '';
+            showToast(data.message, 'success');
+        }, 'alertCrearFicha', this, '<i class="bi bi-floppy me-1"></i>Guardar Ficha');
+    });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.editar-ficha-btn');
+        if (!btn) return;
+        editFichaPk = btn.dataset.pk;
+        document.getElementById('ef_numero').value   = btn.dataset.numero   || '';
+        document.getElementById('ef_nombre').value   = btn.dataset.nombre   || '';
+        document.getElementById('ef_programa').value = btn.dataset.programa || '';
+        document.getElementById('ef_centro_id').value = btn.dataset.centroId || '';
+        document.getElementById('ef_activo').value   = btn.dataset.activo   || 'true';
+        document.getElementById('alertEditarFicha').innerHTML = '';
+        new bootstrap.Modal(document.getElementById('modalEditarFicha')).show();
+    });
+
+    document.getElementById('btnActualizarFicha').addEventListener('click', function() {
+        if (!editFichaPk) return;
+        const params = new URLSearchParams({
+            numero:             document.getElementById('ef_numero').value.trim(),
+            nombre:             document.getElementById('ef_nombre').value.trim(),
+            programa_formacion: document.getElementById('ef_programa').value.trim(),
+            centro_id:          document.getElementById('ef_centro_id').value,
+            activo:             document.getElementById('ef_activo').value,
+        });
+        postAjax(`/sistema/fichas/${editFichaPk}/editar/`, params, data => {
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarFicha'))?.hide();
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 800);
+        }, 'alertEditarFicha', this, '<i class="bi bi-floppy me-1"></i>Actualizar');
+    });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.eliminar-ficha-btn');
+        if (!btn) return;
+        if (!confirm(`¿Eliminar la ficha N° ${btn.dataset.numero}?`)) return;
+        fetch(`/sistema/fichas/${btn.dataset.pk}/eliminar/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: '',
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`ficha-row-${btn.dataset.pk}`)?.remove();
                 showToast(data.message, 'success');
             } else {
                 alert(data.message);

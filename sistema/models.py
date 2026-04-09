@@ -262,6 +262,24 @@ class BackupDatabase(models.Model):
             models.Index(fields=['creado_por']),
         ]
 
+    def __str__(self):
+        return f"Backup: {self.nombre} ({self.get_estado_display()})"
+
+    @property
+    def tamaño_mb(self):
+        return round(self.tamaño_bytes / (1024 * 1024), 2)
+
+    @property
+    def puede_restaurar(self):
+        import os
+        tiene_archivo = bool(self.archivo) or (self.ruta_archivo and os.path.exists(self.ruta_archivo))
+        return self.estado == 'completado' and tiene_archivo
+
+    @property
+    def metadata_json(self):
+        import json
+        return json.dumps(self.metadatos, indent=2, ensure_ascii=False) if self.metadatos else '{}'
+
 
 class CentroFormacion(models.Model):
     nombre      = models.CharField(max_length=200, unique=True)
@@ -302,23 +320,26 @@ class AmbienteFormacion(models.Model):
     def __str__(self):
         return f"{self.nombre} — {self.centro.nombre}"
 
+
+class Ficha(models.Model):
+    numero             = models.PositiveIntegerField(unique=True, verbose_name='Número de Ficha')
+    nombre             = models.CharField(max_length=200, verbose_name='Nombre del Programa')
+    programa_formacion = models.CharField(max_length=200, verbose_name='Programa de Formación')
+    centro             = models.ForeignKey(
+                             CentroFormacion,
+                             on_delete=models.SET_NULL,
+                             null=True, blank=True,
+                             related_name='fichas',
+                             verbose_name='Centro de Formación'
+                         )
+    activo             = models.BooleanField(default=True)
+    created_at         = models.DateTimeField(auto_now_add=True)
+    updated_at         = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Ficha"
+        verbose_name_plural = "Fichas"
+        ordering = ['numero']
+
     def __str__(self):
-        return f"Backup: {self.nombre} ({self.get_estado_display()})"
-
-    @property
-    def tamaño_mb(self):
-        """Retorna el tamaño en MB"""
-        return round(self.tamaño_bytes / (1024 * 1024), 2)
-
-    @property
-    def puede_restaurar(self):
-        """Verifica si el backup puede ser restaurado"""
-        import os
-        tiene_archivo = bool(self.archivo) or (self.ruta_archivo and os.path.exists(self.ruta_archivo))
-        return self.estado == 'completado' and tiene_archivo
-
-    @property
-    def metadata_json(self):
-        """Retorna los metadatos en formato JSON legible"""
-        import json
-        return json.dumps(self.metadatos, indent=2, ensure_ascii=False) if self.metadatos else '{}'
+        return f"{self.numero} — {self.nombre}"

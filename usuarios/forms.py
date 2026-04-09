@@ -5,6 +5,7 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.password_validation import validate_password
 from .models import Usuario, TipoUsuario, SesionUsuario
 from .validators import ComplejidadPasswordValidator
+from sistema.models import CentroFormacion, Ficha
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
@@ -76,10 +77,6 @@ class UsuarioForm(forms.ModelForm):
             }),
             'tipo_usuario': forms.Select(attrs={
                 'class': 'form-select'
-            }),
-            'centro_formacion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Centro de formación SENA'
             }),
             'especialidad': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -165,10 +162,11 @@ class UsuarioForm(forms.ModelForm):
         return cleaned_data
 
 class RegistroUsuarioForm(forms.ModelForm):
-    centro_formacion = forms.ChoiceField(
-        choices=[('Centro Minero', 'Centro Minero')],
+    centro_formacion = forms.ModelChoiceField(
+        queryset=CentroFormacion.objects.filter(activo=True),
         widget=forms.Select(attrs={'class': 'form-select'}),
-        label='Centro de formación'
+        label='Centro de Formación',
+        empty_label='Seleccione un centro de formación',
     )
     especialidad = forms.ChoiceField(
         choices=[
@@ -176,7 +174,7 @@ class RegistroUsuarioForm(forms.ModelForm):
             ('Técnico en Operación de Maquinaria Pesada', 'Técnico en Operación de Maquinaria Pesada'),
             ('Curso complementario en Sistemas Hidráulicos en Maquinaria Pesada', 'Curso complementario en Sistemas Hidráulicos en Maquinaria Pesada'),
         ],
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_especialidad'}),
         label='Programa de Formación'
     )
     cargo = forms.ChoiceField(
@@ -185,8 +183,16 @@ class RegistroUsuarioForm(forms.ModelForm):
             ('Aprendiz', 'Aprendiz'),
             ('Instructor', 'Instructor'),
         ],
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_cargo'}),
         label='Cargo'
+    )
+    ficha = forms.ModelChoiceField(
+        queryset=Ficha.objects.filter(activo=True),
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_ficha'}),
+        label='Ficha',
+        required=False,
+        empty_label='Seleccione una ficha',
+        help_text='Solo para Aprendices — número identificador único de la ficha.',
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
@@ -211,7 +217,7 @@ class RegistroUsuarioForm(forms.ModelForm):
         model = Usuario
         fields = [
             'tipo_documento', 'numero_documento', 'nombres', 'apellidos',
-            'email', 'telefono', 'centro_formacion', 'especialidad', 'cargo'
+            'email', 'telefono', 'centro_formacion', 'especialidad', 'cargo', 'ficha'
         ]
         widgets = {
             'tipo_documento': forms.Select(attrs={
@@ -303,11 +309,26 @@ class TipoUsuarioForm(forms.ModelForm):
         }
 
 class PerfilUsuarioForm(forms.ModelForm):
+    centro_formacion = forms.ModelChoiceField(
+        queryset=CentroFormacion.objects.filter(activo=True),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Centro de Formación',
+        required=False,
+        empty_label='Seleccione un centro de formación',
+    )
+    ficha = forms.ModelChoiceField(
+        queryset=Ficha.objects.filter(activo=True),
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_ficha_perfil'}),
+        label='Ficha',
+        required=False,
+        empty_label='Seleccione una ficha',
+    )
+
     class Meta:
         model = Usuario
         fields = [
             'nombres', 'apellidos', 'email', 'telefono', 'foto_perfil',
-            'centro_formacion', 'especialidad', 'cargo',
+            'centro_formacion', 'especialidad', 'cargo', 'ficha',
         ]
         widgets = {
             'nombres': forms.TextInput(attrs={
@@ -329,10 +350,6 @@ class PerfilUsuarioForm(forms.ModelForm):
             'foto_perfil': forms.ClearableFileInput(attrs={
                 'class': 'form-control',
                 'accept': 'image/*'
-            }),
-            'centro_formacion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Centro de formación SENA'
             }),
             'especialidad': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -420,12 +437,11 @@ class BuscarUsuariosForm(forms.Form):
             'class': 'form-select'
         })
     )
-    centro_formacion = forms.CharField(
+    centro_formacion = forms.ModelChoiceField(
+        queryset=CentroFormacion.objects.filter(activo=True),
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Centro de formación'
-        })
+        empty_label='Todos los centros',
+        widget=forms.Select(attrs={'class': 'form-select'})
     )
 
 class ConfiguracionUsuarioForm(forms.Form):

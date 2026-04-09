@@ -216,7 +216,7 @@ def lista_usuarios_view(request):
         if estado:
             usuarios = usuarios.filter(estado=estado)
         if centro_formacion:
-            usuarios = usuarios.filter(centro_formacion__icontains=centro_formacion)
+            usuarios = usuarios.filter(centro_formacion=centro_formacion)
 
     paginator = Paginator(usuarios.order_by('-fecha_registro'), 20)
     page = request.GET.get('page')
@@ -328,7 +328,7 @@ def centro_control_view(request):
     estado_filter   = request.GET.get('estado_filter', '').strip()
     programa_filter = request.GET.get('programa_filter', '').strip()
 
-    usuarios_qs = Usuario.objects.select_related('tipo_usuario').all()
+    usuarios_qs = Usuario.objects.select_related('tipo_usuario', 'centro_formacion', 'ficha').all()
 
     if q:
         usuarios_qs = usuarios_qs.filter(
@@ -341,7 +341,7 @@ def centro_control_view(request):
         usuarios_qs = usuarios_qs.filter(estado=estado_filter)
     if programa_filter:
         usuarios_qs = usuarios_qs.filter(
-            Q(centro_formacion__icontains=programa_filter) |
+            Q(centro_formacion__nombre__icontains=programa_filter) |
             Q(especialidad__icontains=programa_filter)
         )
 
@@ -353,6 +353,9 @@ def centro_control_view(request):
     pendientes_count = Usuario.objects.filter(estado='pendiente').count()
     inactivos        = Usuario.objects.filter(Q(estado='inactivo') | Q(estado='suspendido')).count()
     tipos_usuario    = TipoUsuario.objects.filter(activo=True).order_by('nombre')
+    from sistema.models import CentroFormacion as CF, Ficha as F
+    centros_lista = CF.objects.filter(activo=True).order_by('nombre')
+    fichas_lista  = F.objects.filter(activo=True).order_by('numero')
 
     paginator   = Paginator(usuarios_qs, 15)
     page_obj    = paginator.get_page(request.GET.get('page'))
@@ -367,6 +370,8 @@ def centro_control_view(request):
         'inactivos':        inactivos,
         'page_obj':         page_obj,
         'tipos_usuario':    tipos_usuario,
+        'centros_lista':    centros_lista,
+        'fichas_lista':     fichas_lista,
         'estado_choices':   Usuario.ESTADO_CHOICES,
         'form_search': {
             'q':               q,
@@ -384,10 +389,30 @@ def admin_editar_usuario_ajax(request, pk):
 
     usuario = get_object_or_404(Usuario, pk=pk)
 
-    for campo in ['nombres', 'apellidos', 'telefono', 'cargo', 'especialidad', 'centro_formacion']:
+    for campo in ['nombres', 'apellidos', 'telefono', 'cargo', 'especialidad']:
         valor = request.POST.get(campo, '').strip()
         if valor:
             setattr(usuario, campo, valor)
+
+    # centro_formacion es FK — recibimos el ID
+    centro_id = request.POST.get('centro_formacion', '').strip()
+    if centro_id:
+        from sistema.models import CentroFormacion
+        try:
+            usuario.centro_formacion = CentroFormacion.objects.get(pk=int(centro_id))
+        except (ValueError, CentroFormacion.DoesNotExist):
+            pass
+
+    # ficha es FK — recibimos el ID (solo aplica a Aprendiz)
+    ficha_id = request.POST.get('ficha', '').strip()
+    if ficha_id:
+        from sistema.models import Ficha
+        try:
+            usuario.ficha = Ficha.objects.get(pk=int(ficha_id))
+        except (ValueError, Ficha.DoesNotExist):
+            pass
+    elif ficha_id == '':
+        usuario.ficha = None
 
     email = request.POST.get('email', '').strip()
     if email:
@@ -430,7 +455,8 @@ def admin_crear_usuario_ajax(request):
     telefono         = request.POST.get('telefono', '').strip()
     cargo            = request.POST.get('cargo', '').strip()
     especialidad     = request.POST.get('especialidad', '').strip()
-    centro_formacion = request.POST.get('centro_formacion', '').strip()
+    centro_id        = request.POST.get('centro_formacion', '').strip() or None
+    ficha_id         = request.POST.get('ficha', '').strip() or None
     tipo_usuario_id  = request.POST.get('tipo_usuario_id', '').strip()
     password         = request.POST.get('password', '').strip()
     confirmar        = request.POST.get('confirmar_password', '').strip()
@@ -468,6 +494,20 @@ def admin_crear_usuario_ajax(request):
             password=password,
         )
 
+        from sistema.models import CentroFormacion as CF, Ficha as F
+        centro_obj = None
+        if centro_id:
+            try:
+                centro_obj = CF.objects.get(pk=int(centro_id))
+            except (ValueError, CF.DoesNotExist):
+                pass
+        ficha_obj = None
+        if ficha_id:
+            try:
+                ficha_obj = F.objects.get(pk=int(ficha_id))
+            except (ValueError, F.DoesNotExist):
+                pass
+
         usuario = Usuario.objects.create(
             nombres=nombres,
             apellidos=apellidos,
@@ -477,7 +517,8 @@ def admin_crear_usuario_ajax(request):
             telefono=telefono,
             cargo=cargo,
             especialidad=especialidad,
-            centro_formacion=centro_formacion,
+            centro_formacion=centro_obj,
+            ficha=ficha_obj,
             tipo_usuario=tipo_usuario,
             estado='activo',
             fecha_aprobacion=timezone.now(),

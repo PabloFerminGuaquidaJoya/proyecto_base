@@ -48,9 +48,20 @@ class Usuario(models.Model):
 
     # Información institucional
     tipo_usuario = models.ForeignKey(TipoUsuario, on_delete=models.PROTECT)
-    centro_formacion = models.CharField(max_length=200)
+    centro_formacion = models.ForeignKey(
+        'sistema.CentroFormacion',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name='Centro de Formación'
+    )
     especialidad = models.CharField(max_length=200, blank=True)
     cargo = models.CharField(max_length=100, blank=True)
+    ficha = models.ForeignKey(
+        'sistema.Ficha',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name='Ficha'
+    )
 
     # Estado y fechas
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')

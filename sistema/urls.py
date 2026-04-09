@@ -27,4 +27,8 @@ urlpatterns = [
     path('ambientes/crear/', views.admin_crear_ambiente, name='admin_crear_ambiente'),
     path('ambientes/<int:pk>/editar/', views.admin_editar_ambiente, name='admin_editar_ambiente'),
     path('ambientes/<int:pk>/eliminar/', views.admin_eliminar_ambiente, name='admin_eliminar_ambiente'),
+    # Fichas
+    path('fichas/crear/', views.admin_crear_ficha, name='admin_crear_ficha'),
+    path('fichas/<int:pk>/editar/', views.admin_editar_ficha, name='admin_editar_ficha'),
+    path('fichas/<int:pk>/eliminar/', views.admin_eliminar_ficha, name='admin_eliminar_ficha'),
 ]

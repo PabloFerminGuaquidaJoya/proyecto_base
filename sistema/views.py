@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.conf import settings
 from django.db import connection
-from .models import BackupDatabase, LogActividad, CentroFormacion, AmbienteFormacion
+from .models import BackupDatabase, LogActividad, CentroFormacion, AmbienteFormacion, Ficha
 from django.views.decorators.http import require_POST
 from usuarios.models import Usuario
 import os
@@ -725,15 +725,19 @@ def centro_administrativo_view(request):
 
     centros   = CentroFormacion.objects.prefetch_related('ambientes').all()
     ambientes = AmbienteFormacion.objects.select_related('centro').all()
+    fichas    = Ficha.objects.select_related('centro').all()
 
     return render(request, 'sistema/centro_administrativo.html', {
         'title':    'Centro Administrativo - SENA',
         'centros':  centros,
         'ambientes': ambientes,
+        'fichas':   fichas,
         'total_centros':   centros.count(),
         'total_ambientes': ambientes.count(),
         'activos_centros': centros.filter(activo=True).count(),
         'activos_ambientes': ambientes.filter(activo=True).count(),
+        'total_fichas':   fichas.count(),
+        'activas_fichas': fichas.filter(activo=True).count(),
     })
 
 
@@ -860,3 +864,77 @@ def admin_eliminar_ambiente(request, pk):
     nombre   = ambiente.nombre
     ambiente.delete()
     return JsonResponse({'success': True, 'message': f'Ambiente "{nombre}" eliminado.'})
+
+
+# ── Fichas ─────────────────────────────────────────────────────────────
+
+@login_required
+@require_POST
+def admin_crear_ficha(request):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    numero = request.POST.get('numero', '').strip()
+    nombre = request.POST.get('nombre', '').strip()
+    programa = request.POST.get('programa_formacion', '').strip()
+    if not numero or not nombre:
+        return JsonResponse({'success': False, 'message': 'Número y nombre son obligatorios.'}, status=400)
+    try:
+        numero = int(numero)
+    except ValueError:
+        return JsonResponse({'success': False, 'message': 'El número de ficha debe ser un entero.'}, status=400)
+    if Ficha.objects.filter(numero=numero).exists():
+        return JsonResponse({'success': False, 'message': f'Ya existe una ficha con el número {numero}.'}, status=400)
+    centro_id = request.POST.get('centro_id', '').strip() or None
+    centro = get_object_or_404(CentroFormacion, pk=centro_id) if centro_id else None
+    ficha = Ficha.objects.create(
+        numero=numero,
+        nombre=nombre,
+        programa_formacion=programa,
+        centro=centro,
+    )
+    return JsonResponse({
+        'success': True,
+        'message': f'Ficha {ficha.numero} creada.',
+        'id': ficha.pk,
+        'numero': ficha.numero,
+        'nombre': ficha.nombre,
+        'programa': ficha.programa_formacion,
+        'centro': ficha.centro.nombre if ficha.centro else '—',
+    })
+
+
+@login_required
+@require_POST
+def admin_editar_ficha(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    ficha = get_object_or_404(Ficha, pk=pk)
+    numero = request.POST.get('numero', '').strip()
+    nombre = request.POST.get('nombre', '').strip()
+    if not numero or not nombre:
+        return JsonResponse({'success': False, 'message': 'Número y nombre son obligatorios.'}, status=400)
+    try:
+        numero = int(numero)
+    except ValueError:
+        return JsonResponse({'success': False, 'message': 'El número de ficha debe ser un entero.'}, status=400)
+    if Ficha.objects.exclude(pk=pk).filter(numero=numero).exists():
+        return JsonResponse({'success': False, 'message': f'Ya existe otra ficha con el número {numero}.'}, status=400)
+    centro_id = request.POST.get('centro_id', '').strip() or None
+    ficha.numero = numero
+    ficha.nombre = nombre
+    ficha.programa_formacion = request.POST.get('programa_formacion', ficha.programa_formacion).strip()
+    ficha.centro = get_object_or_404(CentroFormacion, pk=centro_id) if centro_id else None
+    ficha.activo = request.POST.get('activo', 'true').lower() == 'true'
+    ficha.save()
+    return JsonResponse({'success': True, 'message': f'Ficha {ficha.numero} actualizada.'})
+
+
+@login_required
+@require_POST
+def admin_eliminar_ficha(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    ficha = get_object_or_404(Ficha, pk=pk)
+    numero = ficha.numero
+    ficha.delete()
+    return JsonResponse({'success': True, 'message': f'Ficha {numero} eliminada.'})
