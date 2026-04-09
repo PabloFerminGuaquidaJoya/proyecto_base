@@ -82,7 +82,7 @@ class Maquina(models.Model):
     potencia = models.CharField(max_length=100, blank=True)
     voltaje = models.CharField(max_length=50, blank=True)
     dimensiones = models.CharField(max_length=100, blank=True)
-    peso = models.CharField(max_length=50, blank=True)
+    peso = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name='Peso (kg)')
 
     # Ubicación
     ubicacion = models.CharField(max_length=200)

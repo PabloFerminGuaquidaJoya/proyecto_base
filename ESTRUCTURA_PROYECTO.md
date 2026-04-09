@@ -21,7 +21,7 @@ prototipo_0.1/
         │   │   └── asgi.py
         │   │
         │   ├── usuarios/            # Gestión de usuarios
-        │   │   ├── models.py        # Usuario, Rol, Permisos
+        │   │   ├──         # Usuario, Rol, Permisos
         │   │   ├── views.py         # Login, Dashboard, Perfil
         │   │   ├── forms.py
         │   │   ├── urls.py
@@ -29,7 +29,7 @@ prototipo_0.1/
         │   │   └── migrations/
         │   │
         │   ├── maquinaria/          # Gestión de máquinas
-        │   │   ├── models.py        # Maquina, Categoria, Alertas
+        │   │   ├──         # Maquina, Categoria, Alertas
         │   │   ├── views.py         # CRUD, Estadísticas
         │   │   ├── forms.py
         │   │   ├── urls.py
@@ -37,7 +37,7 @@ prototipo_0.1/
         │   │   └── migrations/
         │   │
         │   ├── documentos/          # Sistema de documentos ⭐ NUEVO
-        │   │   ├── models.py        # Documento, TipoDoc, Categoria
+        │   │   ├──         # Documento, TipoDoc, Categoria
         │   │   ├── views.py         # Subir, Buscar, Descargar
         │   │   ├── forms.py         # 13 formularios
         │   │   ├── urls.py          # 40+ URLs

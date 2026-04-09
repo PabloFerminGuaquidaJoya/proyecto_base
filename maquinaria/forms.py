@@ -58,21 +58,20 @@ class MaquinaForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Largo x Ancho x Alto (cm)'
             }),
-            'peso': forms.TextInput(attrs={
+            'peso': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Peso en kg'
+                'step': '0.01',
+                'min': '0',
+                'placeholder': 'Ej: 3500.00'
             }),
-            'ubicacion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ubicación específica'
-            }),
+            'ubicacion': forms.HiddenInput(),
             'centro_formacion': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Centro de formación'
             }),
             'ambiente_formacion': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ambiente o taller específico'
+                'placeholder': 'Ej: Taller 3, Laboratorio de Hidráulica'
             }),
             'proveedor': forms.Select(attrs={
                 'class': 'form-select'
@@ -141,10 +140,15 @@ class MaquinaForm(forms.ModelForm):
             }),
             'observaciones': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Observaciones adicionales...'
+                'rows': 5,
+                'placeholder': 'Observaciones técnicas adicionales (especificaciones, notas de mantenimiento, etc.)...'
             })
         }
+
+    labels = {
+        'ambiente_formacion': 'Ambiente / Taller',
+        'peso': 'Peso (kg)',
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -158,8 +162,23 @@ class MaquinaForm(forms.ModelForm):
         self.fields['fecha_adquisicion'].required = True
         self.fields['valor_adquisicion'].required = True
 
+        # ubicacion se llena automáticamente desde ambiente_formacion
+        self.fields['ubicacion'].required = False
+        self.fields['ambiente_formacion'].required = True
+        self.fields['ambiente_formacion'].label = 'Ambiente / Taller'
+        self.fields['peso'].label = 'Peso (kg)'
+        self.fields['observaciones'].label = 'Observaciones técnicas adicionales'
+
         # Filtrar proveedores activos
         self.fields['proveedor'].queryset = Proveedor.objects.filter(activo=True)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # Sincronizar ubicacion con ambiente_formacion para mantener compatibilidad
+        ambiente = cleaned_data.get('ambiente_formacion', '')
+        if ambiente:
+            cleaned_data['ubicacion'] = ambiente
+        return cleaned_data
 
 class CategoriaMaquinaForm(forms.ModelForm):
     class Meta:
