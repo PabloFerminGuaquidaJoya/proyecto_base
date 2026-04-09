@@ -31,4 +31,8 @@ urlpatterns = [
     path('fichas/crear/', views.admin_crear_ficha, name='admin_crear_ficha'),
     path('fichas/<int:pk>/editar/', views.admin_editar_ficha, name='admin_editar_ficha'),
     path('fichas/<int:pk>/eliminar/', views.admin_eliminar_ficha, name='admin_eliminar_ficha'),
+    # Proveedores
+    path('proveedores/crear/', views.admin_crear_proveedor, name='admin_crear_proveedor'),
+    path('proveedores/<int:pk>/editar/', views.admin_editar_proveedor, name='admin_editar_proveedor'),
+    path('proveedores/<int:pk>/eliminar/', views.admin_eliminar_proveedor, name='admin_eliminar_proveedor'),
 ]

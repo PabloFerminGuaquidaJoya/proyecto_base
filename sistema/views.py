@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.db import connection
 from .models import BackupDatabase, LogActividad, CentroFormacion, AmbienteFormacion, Ficha
+from django.db.models import Count
 from django.views.decorators.http import require_POST
 from usuarios.models import Usuario
 import os
@@ -723,21 +724,26 @@ def centro_administrativo_view(request):
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('usuarios:dashboard')
 
-    centros   = CentroFormacion.objects.prefetch_related('ambientes').all()
-    ambientes = AmbienteFormacion.objects.select_related('centro').all()
-    fichas    = Ficha.objects.select_related('centro').all()
+    from maquinaria.models import Proveedor
+    centros      = CentroFormacion.objects.prefetch_related('ambientes').all()
+    ambientes    = AmbienteFormacion.objects.select_related('centro').all()
+    fichas       = Ficha.objects.select_related('centro').all()
+    proveedores  = Proveedor.objects.annotate(total_maquinas=Count('maquina')).order_by('nombre')
 
     return render(request, 'sistema/centro_administrativo.html', {
         'title':    'Centro Administrativo - SENA',
         'centros':  centros,
         'ambientes': ambientes,
         'fichas':   fichas,
-        'total_centros':   centros.count(),
-        'total_ambientes': ambientes.count(),
-        'activos_centros': centros.filter(activo=True).count(),
-        'activos_ambientes': ambientes.filter(activo=True).count(),
-        'total_fichas':   fichas.count(),
-        'activas_fichas': fichas.filter(activo=True).count(),
+        'proveedores': proveedores,
+        'total_centros':      centros.count(),
+        'total_ambientes':    ambientes.count(),
+        'activos_centros':    centros.filter(activo=True).count(),
+        'activos_ambientes':  ambientes.filter(activo=True).count(),
+        'total_fichas':       fichas.count(),
+        'activas_fichas':     fichas.filter(activo=True).count(),
+        'total_proveedores':  proveedores.count(),
+        'activos_proveedores': proveedores.filter(activo=True).count(),
     })
 
 
@@ -938,3 +944,95 @@ def admin_eliminar_ficha(request, pk):
     numero = ficha.numero
     ficha.delete()
     return JsonResponse({'success': True, 'message': f'Ficha {numero} eliminada.'})
+
+
+# ── Proveedores ────────────────────────────────────────────────────────
+
+@login_required
+@require_POST
+def admin_crear_proveedor(request):
+    from maquinaria.models import Proveedor
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    nombre = request.POST.get('nombre', '').strip()
+    nit    = request.POST.get('nit', '').strip()
+    if not nombre or not nit:
+        return JsonResponse({'success': False, 'message': 'Nombre y NIT son obligatorios.'}, status=400)
+    if Proveedor.objects.filter(nit=nit).exists():
+        return JsonResponse({'success': False, 'message': f'Ya existe un proveedor con NIT {nit}.'}, status=400)
+    try:
+        calificacion = int(request.POST.get('calificacion', 0)) or None
+    except (ValueError, TypeError):
+        calificacion = None
+    proveedor = Proveedor.objects.create(
+        nombre            = nombre,
+        nit               = nit,
+        contacto_nombre   = request.POST.get('contacto_nombre', '').strip(),
+        contacto_telefono = request.POST.get('contacto_telefono', '').strip(),
+        contacto_email    = request.POST.get('contacto_email', '').strip(),
+        direccion         = request.POST.get('direccion', '').strip(),
+        ciudad            = request.POST.get('ciudad', '').strip(),
+        pais              = request.POST.get('pais', 'Colombia').strip() or 'Colombia',
+        sitio_web         = request.POST.get('sitio_web', '').strip(),
+        calificacion      = calificacion,
+        activo            = True,
+    )
+    return JsonResponse({
+        'success': True,
+        'message': f'Proveedor "{proveedor.nombre}" creado.',
+        'id':     proveedor.pk,
+        'nombre': proveedor.nombre,
+        'nit':    proveedor.nit,
+        'ciudad': proveedor.ciudad,
+        'contacto_telefono': proveedor.contacto_telefono,
+        'contacto_email':    proveedor.contacto_email,
+    })
+
+
+@login_required
+@require_POST
+def admin_editar_proveedor(request, pk):
+    from maquinaria.models import Proveedor
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    proveedor = get_object_or_404(Proveedor, pk=pk)
+    nombre = request.POST.get('nombre', '').strip()
+    nit    = request.POST.get('nit', '').strip()
+    if not nombre or not nit:
+        return JsonResponse({'success': False, 'message': 'Nombre y NIT son obligatorios.'}, status=400)
+    if Proveedor.objects.exclude(pk=pk).filter(nit=nit).exists():
+        return JsonResponse({'success': False, 'message': f'Ya existe otro proveedor con NIT {nit}.'}, status=400)
+    try:
+        calificacion = int(request.POST.get('calificacion', 0)) or None
+    except (ValueError, TypeError):
+        calificacion = None
+    proveedor.nombre            = nombre
+    proveedor.nit               = nit
+    proveedor.contacto_nombre   = request.POST.get('contacto_nombre', proveedor.contacto_nombre).strip()
+    proveedor.contacto_telefono = request.POST.get('contacto_telefono', proveedor.contacto_telefono).strip()
+    proveedor.contacto_email    = request.POST.get('contacto_email', proveedor.contacto_email).strip()
+    proveedor.direccion         = request.POST.get('direccion', proveedor.direccion).strip()
+    proveedor.ciudad            = request.POST.get('ciudad', proveedor.ciudad).strip()
+    proveedor.pais              = request.POST.get('pais', proveedor.pais).strip() or 'Colombia'
+    proveedor.sitio_web         = request.POST.get('sitio_web', proveedor.sitio_web).strip()
+    proveedor.calificacion      = calificacion
+    proveedor.activo            = request.POST.get('activo', 'true').lower() == 'true'
+    proveedor.save()
+    return JsonResponse({'success': True, 'message': f'Proveedor "{proveedor.nombre}" actualizado.'})
+
+
+@login_required
+@require_POST
+def admin_eliminar_proveedor(request, pk):
+    from maquinaria.models import Proveedor
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos.'}, status=403)
+    proveedor = get_object_or_404(Proveedor, pk=pk)
+    if proveedor.maquina_set.exists():
+        return JsonResponse({
+            'success': False,
+            'message': f'No se puede eliminar: hay {proveedor.maquina_set.count()} máquina(s) asignadas a este proveedor.'
+        }, status=400)
+    nombre = proveedor.nombre
+    proveedor.delete()
+    return JsonResponse({'success': True, 'message': f'Proveedor "{nombre}" eliminado.'})

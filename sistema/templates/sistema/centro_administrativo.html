@@ -153,6 +153,34 @@
         </div>
     </div>
 
+    <div class="col-xl-2 col-md-4 mb-4">
+        <div class="card border-left-sena-accent shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-accent text-uppercase mb-1">Total Proveedores</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_proveedores }}</div>
+                    </div>
+                    <div class="col-auto"><i class="bi bi-truck fs-2 text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 mb-4">
+        <div class="card border-left-sena-secondary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-sena-secondary text-uppercase mb-1">Proveedores Activos</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ activos_proveedores }}</div>
+                    </div>
+                    <div class="col-auto"><i class="bi bi-truck-front-fill fs-2 text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <!-- ═══ CENTROS DE FORMACIÓN ═════════════════════════════════════════════ -->
@@ -658,6 +686,233 @@
     </div>
 </div>
 
+<!-- ═══ PROVEEDORES ══════════════════════════════════════════════════════ -->
+<div class="card section-card mb-4" style="border:none;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 fw-bold text-white">
+            <i class="bi bi-truck me-2"></i>Proveedores
+        </h6>
+        <button class="btn btn-light btn-sm fw-semibold text-sena-secondary" data-bs-toggle="modal" data-bs-target="#modalCrearProveedor">
+            <i class="bi bi-plus-circle me-1"></i>Agregar Proveedor
+        </button>
+    </div>
+    <div class="card-body p-0">
+        {% if proveedores %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Nombre</th>
+                        <th>NIT</th>
+                        <th>Ciudad</th>
+                        <th>Contacto</th>
+                        <th class="text-center">Máquinas</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center pe-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProveedores">
+                    {% for prov in proveedores %}
+                    <tr id="proveedor-row-{{ prov.pk }}">
+                        <td class="ps-3 fw-semibold" style="vertical-align:middle;">{{ prov.nombre }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">{{ prov.nit }}</td>
+                        <td style="vertical-align:middle;font-size:.88rem;">{{ prov.ciudad|default:"—" }}</td>
+                        <td style="vertical-align:middle;font-size:.82rem;">
+                            {% if prov.contacto_nombre %}<div class="fw-semibold">{{ prov.contacto_nombre }}</div>{% endif %}
+                            {% if prov.contacto_telefono %}<div><i class="bi bi-telephone me-1"></i>{{ prov.contacto_telefono }}</div>{% endif %}
+                            {% if prov.contacto_email %}<div class="text-muted"><i class="bi bi-envelope me-1"></i>{{ prov.contacto_email }}</div>{% endif %}
+                            {% if not prov.contacto_nombre and not prov.contacto_telefono and not prov.contacto_email %}—{% endif %}
+                        </td>
+                        <td class="text-center" style="vertical-align:middle;">
+                            <span class="badge bg-secondary">{{ prov.total_maquinas }}</span>
+                        </td>
+                        <td class="text-center" style="vertical-align:middle;">
+                            {% if prov.activo %}
+                                <span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span>
+                            {% else %}
+                                <span class="badge rounded-pill" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-3" style="vertical-align:middle;">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <button class="btn btn-sm btn-outline-sena-secondary editar-proveedor-btn"
+                                    data-pk="{{ prov.pk }}"
+                                    data-nombre="{{ prov.nombre }}"
+                                    data-nit="{{ prov.nit }}"
+                                    data-contacto-nombre="{{ prov.contacto_nombre }}"
+                                    data-contacto-telefono="{{ prov.contacto_telefono }}"
+                                    data-contacto-email="{{ prov.contacto_email }}"
+                                    data-direccion="{{ prov.direccion }}"
+                                    data-ciudad="{{ prov.ciudad }}"
+                                    data-pais="{{ prov.pais }}"
+                                    data-sitio-web="{{ prov.sitio_web }}"
+                                    data-calificacion="{{ prov.calificacion|default:'' }}"
+                                    data-activo="{{ prov.activo|lower }}"
+                                    title="Editar"><i class="bi bi-pencil-square"></i></button>
+                                <button class="btn btn-sm btn-outline-danger eliminar-proveedor-btn"
+                                    data-pk="{{ prov.pk }}"
+                                    data-nombre="{{ prov.nombre }}"
+                                    data-maquinas="{{ prov.total_maquinas }}"
+                                    title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted" id="proveedores-vacio">
+            <i class="bi bi-truck fs-1 d-block mb-2" style="opacity:.3;"></i>
+            <p class="mb-0">No hay proveedores registrados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ═══ MODAL CREAR PROVEEDOR ════════════════════════════════════════════ -->
+<div class="modal fade" id="modalCrearProveedor" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary),var(--sena-primary));color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-truck me-2"></i>Agregar Proveedor</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertCrearProveedor"></div>
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="cp_nombre" class="form-control" placeholder="Razón social del proveedor">
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold">NIT <span class="text-danger">*</span></label>
+                        <input type="text" id="cp_nit" class="form-control" placeholder="Ej: 900.123.456-7">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre de Contacto</label>
+                        <input type="text" id="cp_contacto_nombre" class="form-control" placeholder="Persona de contacto">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Teléfono de Contacto</label>
+                        <input type="text" id="cp_contacto_telefono" class="form-control" placeholder="+57 300 000 0000">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email de Contacto</label>
+                        <input type="email" id="cp_contacto_email" class="form-control" placeholder="contacto@empresa.com">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Ciudad</label>
+                        <input type="text" id="cp_ciudad" class="form-control" placeholder="Ciudad">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">País</label>
+                        <input type="text" id="cp_pais" class="form-control" value="Colombia">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Sitio Web</label>
+                        <input type="url" id="cp_sitio_web" class="form-control" placeholder="https://www.empresa.com">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" id="cp_direccion" class="form-control" placeholder="Dirección completa">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Calificación</label>
+                        <select id="cp_calificacion" class="form-select">
+                            <option value="">— Sin calificar —</option>
+                            <option value="1">★ (1)</option>
+                            <option value="2">★★ (2)</option>
+                            <option value="3">★★★ (3)</option>
+                            <option value="4">★★★★ (4)</option>
+                            <option value="5">★★★★★ (5)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-sena-gradient fw-semibold" id="btnGuardarProveedor"><i class="bi bi-floppy me-1"></i>Guardar Proveedor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL EDITAR PROVEEDOR ═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalEditarProveedor" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary),var(--sena-primary));color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Proveedor</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertEditarProveedor"></div>
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="ep_nombre" class="form-control">
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold">NIT <span class="text-danger">*</span></label>
+                        <input type="text" id="ep_nit" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre de Contacto</label>
+                        <input type="text" id="ep_contacto_nombre" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Teléfono de Contacto</label>
+                        <input type="text" id="ep_contacto_telefono" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email de Contacto</label>
+                        <input type="email" id="ep_contacto_email" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Ciudad</label>
+                        <input type="text" id="ep_ciudad" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">País</label>
+                        <input type="text" id="ep_pais" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Sitio Web</label>
+                        <input type="url" id="ep_sitio_web" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" id="ep_direccion" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Calificación</label>
+                        <select id="ep_calificacion" class="form-select">
+                            <option value="">— Sin calificar —</option>
+                            <option value="1">★ (1)</option>
+                            <option value="2">★★ (2)</option>
+                            <option value="3">★★★ (3)</option>
+                            <option value="4">★★★★ (4)</option>
+                            <option value="5">★★★★★ (5)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select id="ep_activo" class="form-select">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-sena-gradient fw-semibold" id="btnActualizarProveedor"><i class="bi bi-floppy me-1"></i>Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ═══ JAVASCRIPT ════════════════════════════════════════════════════════ -->
 <script>
 (function () {
@@ -990,6 +1245,130 @@
         .then(data => {
             if (data.success) {
                 document.getElementById(`ficha-row-${btn.dataset.pk}`)?.remove();
+                showToast(data.message, 'success');
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    /* ── PROVEEDORES ── */
+    let editProveedorPk = null;
+
+    document.getElementById('btnGuardarProveedor').addEventListener('click', function() {
+        const params = new URLSearchParams({
+            nombre:            document.getElementById('cp_nombre').value.trim(),
+            nit:               document.getElementById('cp_nit').value.trim(),
+            contacto_nombre:   document.getElementById('cp_contacto_nombre').value.trim(),
+            contacto_telefono: document.getElementById('cp_contacto_telefono').value.trim(),
+            contacto_email:    document.getElementById('cp_contacto_email').value.trim(),
+            ciudad:            document.getElementById('cp_ciudad').value.trim(),
+            pais:              document.getElementById('cp_pais').value.trim(),
+            sitio_web:         document.getElementById('cp_sitio_web').value.trim(),
+            direccion:         document.getElementById('cp_direccion').value.trim(),
+            calificacion:      document.getElementById('cp_calificacion').value,
+        });
+        postAjax('/sistema/proveedores/crear/', params, data => {
+            const tbody = document.getElementById('tablaProveedores');
+            if (tbody) {
+                const tr = document.createElement('tr');
+                tr.id = `proveedor-row-${data.id}`;
+                const contactoHtml = [
+                    data.contacto_telefono ? `<div><i class="bi bi-telephone me-1"></i>${data.contacto_telefono}</div>` : '',
+                    data.contacto_email    ? `<div class="text-muted"><i class="bi bi-envelope me-1"></i>${data.contacto_email}</div>` : '',
+                ].join('') || '—';
+                tr.innerHTML = `
+                    <td class="ps-3 fw-semibold" style="vertical-align:middle;">${data.nombre}</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">${data.nit}</td>
+                    <td style="vertical-align:middle;font-size:.88rem;">${data.ciudad || '—'}</td>
+                    <td style="vertical-align:middle;font-size:.82rem;">${contactoHtml}</td>
+                    <td class="text-center" style="vertical-align:middle;"><span class="badge bg-secondary">0</span></td>
+                    <td class="text-center" style="vertical-align:middle;"><span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;">Activo</span></td>
+                    <td class="text-center pe-3" style="vertical-align:middle;">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <button class="btn btn-sm btn-outline-sena-secondary editar-proveedor-btn"
+                                data-pk="${data.id}" data-nombre="${data.nombre}" data-nit="${data.nit}"
+                                data-contacto-nombre="" data-contacto-telefono="${data.contacto_telefono}"
+                                data-contacto-email="${data.contacto_email}" data-direccion=""
+                                data-ciudad="${data.ciudad}" data-pais="Colombia" data-sitio-web=""
+                                data-calificacion="" data-activo="true"
+                                title="Editar"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm btn-outline-danger eliminar-proveedor-btn"
+                                data-pk="${data.id}" data-nombre="${data.nombre}" data-maquinas="0"
+                                title="Eliminar"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>`;
+                tbody.prepend(tr);
+                document.getElementById('proveedores-vacio')?.remove();
+            }
+            bootstrap.Modal.getInstance(document.getElementById('modalCrearProveedor'))?.hide();
+            ['cp_nombre','cp_nit','cp_contacto_nombre','cp_contacto_telefono','cp_contacto_email',
+             'cp_ciudad','cp_sitio_web','cp_direccion'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('cp_pais').value = 'Colombia';
+            document.getElementById('cp_calificacion').value = '';
+            showToast(data.message, 'success');
+        }, 'alertCrearProveedor', this, '<i class="bi bi-floppy me-1"></i>Guardar Proveedor');
+    });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.editar-proveedor-btn');
+        if (!btn) return;
+        editProveedorPk = btn.dataset.pk;
+        document.getElementById('ep_nombre').value            = btn.dataset.nombre           || '';
+        document.getElementById('ep_nit').value               = btn.dataset.nit              || '';
+        document.getElementById('ep_contacto_nombre').value   = btn.dataset.contactoNombre   || '';
+        document.getElementById('ep_contacto_telefono').value = btn.dataset.contactoTelefono || '';
+        document.getElementById('ep_contacto_email').value    = btn.dataset.contactoEmail    || '';
+        document.getElementById('ep_direccion').value         = btn.dataset.direccion        || '';
+        document.getElementById('ep_ciudad').value            = btn.dataset.ciudad           || '';
+        document.getElementById('ep_pais').value              = btn.dataset.pais             || 'Colombia';
+        document.getElementById('ep_sitio_web').value         = btn.dataset.sitioWeb         || '';
+        document.getElementById('ep_calificacion').value      = btn.dataset.calificacion     || '';
+        document.getElementById('ep_activo').value            = btn.dataset.activo           || 'true';
+        document.getElementById('alertEditarProveedor').innerHTML = '';
+        new bootstrap.Modal(document.getElementById('modalEditarProveedor')).show();
+    });
+
+    document.getElementById('btnActualizarProveedor').addEventListener('click', function() {
+        if (!editProveedorPk) return;
+        const params = new URLSearchParams({
+            nombre:            document.getElementById('ep_nombre').value.trim(),
+            nit:               document.getElementById('ep_nit').value.trim(),
+            contacto_nombre:   document.getElementById('ep_contacto_nombre').value.trim(),
+            contacto_telefono: document.getElementById('ep_contacto_telefono').value.trim(),
+            contacto_email:    document.getElementById('ep_contacto_email').value.trim(),
+            direccion:         document.getElementById('ep_direccion').value.trim(),
+            ciudad:            document.getElementById('ep_ciudad').value.trim(),
+            pais:              document.getElementById('ep_pais').value.trim(),
+            sitio_web:         document.getElementById('ep_sitio_web').value.trim(),
+            calificacion:      document.getElementById('ep_calificacion').value,
+            activo:            document.getElementById('ep_activo').value,
+        });
+        postAjax(`/sistema/proveedores/${editProveedorPk}/editar/`, params, data => {
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarProveedor'))?.hide();
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 800);
+        }, 'alertEditarProveedor', this, '<i class="bi bi-floppy me-1"></i>Actualizar');
+    });
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.eliminar-proveedor-btn');
+        if (!btn) return;
+        const maquinas = parseInt(btn.dataset.maquinas || '0');
+        if (maquinas > 0) {
+            alert(`No se puede eliminar: "${btn.dataset.nombre}" tiene ${maquinas} máquina(s) asignada(s).`);
+            return;
+        }
+        if (!confirm(`¿Eliminar el proveedor "${btn.dataset.nombre}"?`)) return;
+        fetch(`/sistema/proveedores/${btn.dataset.pk}/eliminar/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: '',
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`proveedor-row-${btn.dataset.pk}`)?.remove();
                 showToast(data.message, 'success');
             } else {
                 alert(data.message);
