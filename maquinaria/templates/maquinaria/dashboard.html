@@ -243,13 +243,13 @@
                             <td>{{ maquina.fecha_adquisicion|date:"d/m/Y"|default:"-" }}</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+                                    <a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-sena-secondary" title="Ver Detalle">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{% url 'maquinaria:editar_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                    <a href="{% url 'maquinaria:editar_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-sena-primary" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'maquinaria:generar_qr' pk=maquina.pk %}" class="btn btn-sm btn-outline-info" title="Código QR">
+                                    <a href="{% url 'maquinaria:generar_qr' pk=maquina.pk %}" class="btn btn-sm btn-outline-sena-secondary" title="Código QR">
                                         <i class="bi bi-qr-code"></i>
                                     </a>
                                     <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="confirmarEliminacion('{{ maquina.pk }}', '{{ maquina.codigo_inventario }}')">

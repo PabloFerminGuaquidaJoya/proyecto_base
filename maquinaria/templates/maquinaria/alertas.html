@@ -139,10 +139,10 @@
                                         <span class="text-muted">{{ alerta.fecha_creacion|date:"d/m/Y H:i" }}</span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="resolveAlert({{ alerta.id }})">
+                                        <button class="btn btn-sm btn-outline-sena-primary" onclick="resolveAlert({{ alerta.id }})">
                                             <i class="bi bi-tools"></i>
                                         </button>
-                                        <a href="{% url 'maquinaria:detalle_alerta' alerta.pk %}" class="btn btn-sm btn-outline-secondary">
+                                        <a href="{% url 'maquinaria:detalle_alerta' alerta.pk %}" class="btn btn-sm btn-outline-sena-secondary">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                     </td>

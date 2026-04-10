@@ -299,12 +299,12 @@
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="{% url 'reportes:detalle_reporte' reporte.id %}"
-                                               class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                               class="btn btn-sm btn-outline-sena-secondary" title="Ver detalle">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             {% if reporte.estado == 'completado' %}
                                                 <a href="{% url 'reportes:descargar_reporte' reporte.id %}"
-                                                   class="btn btn-sm btn-outline-success" title="Descargar">
+                                                   class="btn btn-sm btn-outline-sena-primary" title="Descargar">
                                                     <i class="fas fa-download"></i>
                                                 </a>
                                             {% endif %}

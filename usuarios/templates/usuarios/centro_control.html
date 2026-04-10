@@ -415,7 +415,7 @@
                         <td class="text-center pe-3">
                             <div class="d-flex gap-1 justify-content-center">
                                 <button
-                                    class="btn btn-sm btn-outline-primary editar-btn"
+                                    class="btn btn-sm btn-outline-sena-primary editar-btn"
                                     data-pk="{{ u.pk }}"
                                     data-nombres="{{ u.nombres }}"
                                     data-apellidos="{{ u.apellidos }}"
@@ -430,7 +430,7 @@
                                     title="Editar datos"
                                 ><i class="bi bi-pencil-square"></i></button>
                                 <button
-                                    class="btn btn-sm btn-outline-warning cambiar-password-btn"
+                                    class="btn btn-sm btn-outline-sena-accent cambiar-password-btn"
                                     data-pk="{{ u.pk }}"
                                     data-nombre="{{ u.nombre_completo }}"
                                     title="Cambiar contraseña"
@@ -1104,13 +1104,13 @@
                         <td class="text-center" id="estado-cell-${u.pk}">${estadoBadge(u.estado)}</td>
                         <td class="text-center pe-3">
                             <div class="d-flex gap-1 justify-content-center">
-                                <button class="btn btn-sm btn-outline-primary editar-btn"
+                                <button class="btn btn-sm btn-outline-sena-primary editar-btn"
                                     data-pk="${u.pk}" data-nombres="${u.nombres}" data-apellidos="${u.apellidos}"
                                     data-email="${u.email}" data-telefono="${u.telefono}" data-cargo="${u.cargo}"
                                     data-especialidad="${u.especialidad}" data-centro="${u.centro_formacion}"
                                     data-estado="${u.estado}" data-tipo-usuario-id="${u.tipo_usuario_id}"
                                     title="Editar datos"><i class="bi bi-pencil-square"></i></button>
-                                <button class="btn btn-sm btn-outline-warning cambiar-password-btn"
+                                <button class="btn btn-sm btn-outline-sena-accent cambiar-password-btn"
                                     data-pk="${u.pk}" data-nombre="${u.nombre_completo}"
                                     title="Cambiar contraseña"><i class="bi bi-key"></i></button>
                             </div>

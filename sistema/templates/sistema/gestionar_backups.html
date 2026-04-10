@@ -115,18 +115,18 @@
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
                                             <a href="{% url 'sistema:detalle_backup' backup.id %}"
-                                               class="btn btn-sm btn-outline-info"
+                                               class="btn btn-sm btn-outline-sena-secondary"
                                                title="Ver detalles">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                             {% if backup.puede_restaurar %}
                                                 <a href="{% url 'sistema:descargar_backup' backup.id %}"
-                                                   class="btn btn-sm btn-outline-primary"
+                                                   class="btn btn-sm btn-outline-sena-primary"
                                                    title="Descargar">
                                                     <i class="bi bi-download"></i>
                                                 </a>
                                                 <a href="{% url 'sistema:restaurar_backup' backup.id %}"
-                                                   class="btn btn-sm btn-outline-warning"
+                                                   class="btn btn-sm btn-outline-sena-accent"
                                                    title="Restaurar">
                                                     <i class="bi bi-arrow-repeat"></i>
                                                 </a>
