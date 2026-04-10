@@ -132,13 +132,6 @@
     #editModal .form-label { font-size: .82rem; font-weight: 600; color: #374151; }
 </style>
 
-<!-- ═══════════════ ACCIONES HEADER ══════════════════════════════════════ -->
-<div class="d-flex justify-content-end mb-3">
-    <button type="button" class="btn btn-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#crearUsuarioModal">
-        <i class="bi bi-person-plus-fill me-2"></i>Registrar Nuevo Usuario
-    </button>
-</div>
-
 <!-- ═══════════════ STAT CARDS ═══════════════════════════════════════════ -->
 <div class="row g-3 mb-4">
     <!-- Total -->
@@ -338,10 +331,13 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0 fw-bold text-white">
             <i class="bi bi-table me-2"></i>Listado de Usuarios
+            <small class="ms-2 fw-normal opacity-75">
+                {{ page_obj.paginator.count }} resultado{% if page_obj.paginator.count != 1 %}s{% endif %}
+            </small>
         </h6>
-        <small class="text-white">
-            {{ page_obj.paginator.count }} resultado{% if page_obj.paginator.count != 1 %}s{% endif %}
-        </small>
+        <button type="button" class="btn btn-sena-gradient btn-sm" data-bs-toggle="modal" data-bs-target="#crearUsuarioModal">
+            <i class="bi bi-person-plus-fill me-1"></i>Registrar
+        </button>
     </div>
 
     <div class="card-body p-0">
