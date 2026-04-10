@@ -2,6 +2,34 @@ from django import forms
 from .models import Reporte, TipoReporte, MetricasRendimiento
 from maquinaria.models import CategoriaMaquina
 
+class EditarReporteForm(forms.ModelForm):
+    class Meta:
+        model = Reporte
+        fields = ['titulo', 'descripcion', 'formato', 'fecha_inicio', 'fecha_fin']
+        widgets = {
+            'titulo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Título del reporte',
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Descripción del reporte...',
+            }),
+            'formato': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            'fecha_inicio': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+            'fecha_fin': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+        }
+
+
 class GenerarReporteForm(forms.ModelForm):
     class Meta:
         model = Reporte

@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/crear/', views.crear_reporte_api, name='crear_reporte_api'),
     path('lista/', views.lista_reportes_view, name='lista_reportes'),
     path('detalle/<uuid:pk>/', views.detalle_reporte_view, name='detalle_reporte'),
+    path('editar/<uuid:pk>/', views.editar_reporte_view, name='editar_reporte'),
     path('descargar/<uuid:pk>/', views.descargar_reporte, name='descargar_reporte'),
     path('cancelar/<uuid:pk>/', views.cancelar_reporte, name='cancelar_reporte'),
     path('eliminar/<uuid:pk>/', views.eliminar_reporte, name='eliminar_reporte'),

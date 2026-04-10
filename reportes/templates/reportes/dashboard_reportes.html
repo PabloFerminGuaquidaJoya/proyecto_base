@@ -183,6 +183,11 @@
                                        title="Ver detalle">
                                         <i class="bi bi-eye"></i>
                                     </a>
+                                    <a href="{% url 'reportes:editar_reporte' reporte.id %}"
+                                       class="btn btn-outline-warning"
+                                       title="Editar reporte">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
                                     {% if reporte.estado == 'completado' and reporte.archivo_resultado %}
                                         <a href="{% url 'reportes:descargar_reporte' reporte.id %}"
                                            class="btn btn-outline-sena-primary"

@@ -980,6 +980,27 @@ def descargar_reporte(request, pk):
         return redirect('reportes:detalle_reporte', pk=pk)
 
 @login_required
+def editar_reporte_view(request, pk):
+    """Vista para editar los datos básicos de un reporte."""
+    from .forms import EditarReporteForm
+    reporte = get_object_or_404(Reporte, pk=pk)
+
+    if request.method == 'POST':
+        form = EditarReporteForm(request.POST, instance=reporte)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Reporte actualizado correctamente.')
+            return redirect('reportes:detalle_reporte', pk=pk)
+    else:
+        form = EditarReporteForm(instance=reporte)
+
+    return render(request, 'reportes/editar_reporte.html', {
+        'form': form,
+        'reporte': reporte,
+    })
+
+
+@login_required
 @require_http_methods(["POST"])
 def cancelar_reporte(request, pk):
     """Vista para cancelar/eliminar un reporte"""

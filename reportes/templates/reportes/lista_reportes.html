@@ -305,6 +305,10 @@
                                                class="btn btn-sm btn-outline-sena-secondary" title="Ver detalle">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            <a href="{% url 'reportes:editar_reporte' reporte.id %}"
+                                               class="btn btn-sm btn-outline-warning" title="Editar reporte">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
                                             {% if reporte.estado == 'completado' %}
                                                 <a href="{% url 'reportes:descargar_reporte' reporte.id %}"
                                                    class="btn btn-sm btn-outline-sena-primary" title="Descargar">
