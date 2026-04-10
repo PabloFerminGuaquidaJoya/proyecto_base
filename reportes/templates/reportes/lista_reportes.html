@@ -193,11 +193,6 @@
                         <h1 class="mb-2"><i class="fas fa-list-alt me-3"></i>Lista de Reportes</h1>
                         <p class="mb-0 opacity-75">Gestiona y revisa todos los reportes generados</p>
                     </div>
-                    <div>
-                        <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-light btn-custom">
-                            <i class="fas fa-plus me-2"></i>Nuevo Reporte
-                        </a>
-                    </div>
                 </div>
             </div>
 
@@ -244,6 +239,14 @@
 
             <!-- Tabla de Reportes -->
             <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0 fw-bold text-sena-gradient">
+                        <i class="fas fa-list-alt me-2"></i>Reportes
+                    </h6>
+                    <a href="{% url 'reportes:generar_reporte' %}" class="btn btn-sena-gradient btn-sm">
+                        <i class="fas fa-plus-circle me-1"></i>Nuevo Reporte
+                    </a>
+                </div>
                 {% if reportes %}
                     <div class="table-responsive">
                     <table class="table table-hover sena-table mb-0">
