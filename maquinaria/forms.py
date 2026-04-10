@@ -34,9 +34,6 @@ class MaquinaForm(forms.ModelForm):
             'estado': forms.Select(attrs={
                 'class': 'form-select'
             }),
-            'condicion': forms.Select(attrs={
-                'class': 'form-select'
-            }),
             'especificaciones_tecnicas': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
@@ -106,12 +103,6 @@ class MaquinaForm(forms.ModelForm):
                 'class': 'form-control',
                 'step': '0.1',
                 'min': '0'
-            }),
-            'eficiencia': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0',
-                'max': '100',
-                'step': '0.1'
             }),
             'fecha_ultimo_mantenimiento': forms.DateInput(attrs={
                 'class': 'form-control',

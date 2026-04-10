@@ -355,16 +355,15 @@
 
         .accessibility-panel {
             position: fixed;
+            bottom: 55px;
             right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
             z-index: 1001;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            overflow: hidden;
-            transition: all 0.3s ease;
-            border: 2px solid #39A900;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
 
         .accessibility-toggle {
@@ -393,6 +392,13 @@
             padding: 20px;
             min-width: 280px;
             background: white;
+            border-radius: 15px;
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.2);
+            border: 2px solid #39A900;
+            /* abre hacia arriba, alineado a la derecha */
+            position: absolute;
+            bottom: calc(100% + 10px);
+            right: 0;
         }
 
         .accessibility-menu.show {
@@ -498,12 +504,9 @@
             color: #cccccc !important;
         }
 
-        body.dark-theme .accessibility-panel {
-            background-color: #2d2d2d !important;
-        }
-
         body.dark-theme .accessibility-menu {
             background-color: #2d2d2d !important;
+            border-color: #39A900 !important;
         }
 
         body.dark-theme .accessibility-option label {
@@ -530,11 +533,24 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-top: 1px solid #e2e8f0;
-            padding: 10px 20px;
+            padding: 8px 20px;
             text-align: center;
             font-size: 12px;
             color: #718096;
             z-index: 999;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        @media (max-width: 480px) {
+            .footer {
+                padding: 6px 10px;
+                font-size: 10px;
+                flex-direction: column;
+                gap: 0.1rem;
+            }
         }
 
         body.dark-theme .footer {
@@ -1310,6 +1326,16 @@
             }
         });
     </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <span>&copy; {% now "Y" %} SENA &mdash; Servicio Nacional de Aprendizaje.</span>
+        <span>
+            <a href="#" onclick="showTerms()">Términos de Uso</a>
+            &nbsp;|&nbsp;
+            <a href="#" onclick="showSupport()">Soporte Técnico</a>
+        </span>
+    </footer>
 </body>
 </html>
 

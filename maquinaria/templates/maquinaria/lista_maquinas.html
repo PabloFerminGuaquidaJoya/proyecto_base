@@ -99,7 +99,6 @@
                         <th>Nombre</th>
                         <th>Categoría</th>
                         <th>Estado</th>
-                        <th>Condición</th>
                         <th>Ubicación</th>
                         <th>Fecha Adquisición</th>
                         <th>Acciones</th>
@@ -111,39 +110,8 @@
                         <tr>
                             <td><strong>{{ maquina.codigo_inventario }}</strong></td>
                             <td>{{ maquina.nombre }}</td>
-                            <td>
-                                <span class="badge" style="background-color: {{ maquina.categoria.color|default:'#007bff' }}">
-                                    {{ maquina.categoria.nombre }}
-                                </span>
-                            </td>
-                            <td>
-                                {% if maquina.estado == 'operativa' %}
-                                    <span class="badge bg-success">{{ maquina.get_estado_display }}</span>
-                                {% elif maquina.estado == 'mantenimiento' %}
-                                    <span class="badge bg-warning">{{ maquina.get_estado_display }}</span>
-                                {% elif maquina.estado == 'disponible' %}
-                                    <span class="badge bg-info">{{ maquina.get_estado_display }}</span>
-                                {% elif maquina.estado == 'reparacion' %}
-                                    <span class="badge bg-danger">{{ maquina.get_estado_display }}</span>
-                                {% elif maquina.estado == 'fuera_servicio' %}
-                                    <span class="badge bg-dark">{{ maquina.get_estado_display }}</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ maquina.get_estado_display }}</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if maquina.condicion == 'excelente' %}
-                                    <span class="badge bg-success">{{ maquina.get_condicion_display }}</span>
-                                {% elif maquina.condicion == 'buena' %}
-                                    <span class="badge bg-primary">{{ maquina.get_condicion_display }}</span>
-                                {% elif maquina.condicion == 'regular' %}
-                                    <span class="badge bg-warning">{{ maquina.get_condicion_display }}</span>
-                                {% elif maquina.condicion == 'mala' %}
-                                    <span class="badge bg-danger">{{ maquina.get_condicion_display }}</span>
-                                {% else %}
-                                    <span class="badge bg-dark">{{ maquina.get_condicion_display }}</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ maquina.categoria.nombre }}</td>
+                            <td>{{ maquina.get_estado_display }}</td>
                             <td>{{ maquina.ubicacion|default:"-" }}</td>
                             <td>{{ maquina.fecha_adquisicion|date:"d/m/Y"|default:"-" }}</td>
                             <td>
@@ -154,9 +122,7 @@
                                     <a href="{% url 'maquinaria:editar_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-sena-primary" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'maquinaria:generar_qr' pk=maquina.pk %}" class="btn btn-sm btn-outline-sena-secondary" title="Código QR">
-                                        <i class="bi bi-qr-code"></i>
-                                    </a>
+
                                     <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="confirmarEliminacion('{{ maquina.pk }}', '{{ maquina.codigo_inventario }}')">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -166,7 +132,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="8">
+                            <td colspan="7">
                                 <div class="text-center py-5">
                                     {% if busqueda or categoria_filtro or estado_filtro %}
                                         <i class="bi bi-search text-muted" style="font-size:3rem;"></i>

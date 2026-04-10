@@ -36,10 +36,10 @@ class ProveedorAdmin(admin.ModelAdmin):
 
 @admin.register(Maquina)
 class MaquinaAdmin(admin.ModelAdmin):
-    list_display = ('codigo_inventario', 'nombre', 'categoria', 'marca', 'estado', 'condicion', 'fecha_adquisicion')
-    list_filter = ('estado', 'condicion', 'categoria', 'marca', 'fecha_adquisicion')
+    list_display = ('codigo_inventario', 'nombre', 'categoria', 'marca', 'estado', 'fecha_adquisicion')
+    list_filter = ('estado', 'categoria', 'marca', 'fecha_adquisicion')
     search_fields = ('codigo_inventario', 'nombre', 'marca', 'modelo', 'numero_serie')
-    list_editable = ('estado', 'condicion')
+    list_editable = ('estado',)
     date_hierarchy = 'fecha_adquisicion'
     readonly_fields = ('created_at', 'updated_at')
 
@@ -51,10 +51,10 @@ class MaquinaAdmin(admin.ModelAdmin):
             'fields': ('potencia', 'peso', 'capacidad', 'voltaje', 'dimensiones', 'especificaciones_tecnicas')
         }),
         ('Ubicación y Estado', {
-            'fields': ('centro_formacion', 'ubicacion', 'estado', 'condicion')
+            'fields': ('centro_formacion', 'ubicacion', 'estado')
         }),
         ('Información Comercial', {
-            'fields': ('proveedor', 'valor_adquisicion', 'fecha_adquisicion', 'eficiencia')
+            'fields': ('proveedor', 'valor_adquisicion', 'fecha_adquisicion')
         }),
         ('Uso y Mantenimiento', {
             'fields': ('horas_uso_total', 'proximo_mantenimiento')

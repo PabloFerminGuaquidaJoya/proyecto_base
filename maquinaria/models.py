@@ -56,13 +56,6 @@ class Maquina(models.Model):
         ('retirada', 'Retirada'),
     ]
 
-    CONDICION_CHOICES = [
-        ('excelente', 'Excelente'),
-        ('buena', 'Buena'),
-        ('regular', 'Regular'),
-        ('mala', 'Mala'),
-        ('critica', 'Crítica'),
-    ]
 
     # Información básica
     codigo_inventario = models.CharField(max_length=50, unique=True)
@@ -74,7 +67,6 @@ class Maquina(models.Model):
 
     # Estado y condición
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='disponible')
-    condicion = models.CharField(max_length=20, choices=CONDICION_CHOICES, default='excelente')
 
     # Especificaciones técnicas
     especificaciones_tecnicas = models.TextField(blank=True)
@@ -105,11 +97,7 @@ class Maquina(models.Model):
     # Datos de uso
     horas_uso_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     horas_uso_mes = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-    eficiencia = models.DecimalField(
-        max_digits=5, decimal_places=2,
-        validators=[MinValueValidator(0), MaxValueValidator(100)],
-        default=100, help_text="Porcentaje de eficiencia"
-    )
+    
 
     # Mantenimiento
     fecha_ultimo_mantenimiento = models.DateField(null=True, blank=True)

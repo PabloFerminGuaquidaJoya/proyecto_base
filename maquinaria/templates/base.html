@@ -132,36 +132,39 @@
             border-color: #2d7a00;
         }
 
+        /* El panel flota en la esquina inferior derecha, sobre el footer */
         .accessibility-panel {
             position: fixed;
+            bottom: 70px;
             right: 20px;
-            bottom: 20px;
-            z-index: 1001;
+            z-index: 1002;
             background: transparent;
             border: none;
             box-shadow: none;
-            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
 
         .accessibility-toggle {
-            width: 60px;
-            height: 60px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, var(--sena-primary), #2d7a00);
             border: none;
             border-radius: 50%;
             color: white;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(57, 169, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(57, 169, 0, 0.35);
         }
 
         .accessibility-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(57, 169, 0, 0.4);
+            transform: scale(2.2);
+            box-shadow: 0 6px 20px rgba(57, 169, 0, 0.45);
         }
 
         .accessibility-menu {
@@ -170,9 +173,12 @@
             min-width: 280px;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.2);
             border: 2px solid var(--sena-primary);
-            margin-top: 10px;
+            /* abre hacia arriba, alineado a la derecha */
+            position: absolute;
+            bottom: calc(100% + 10px);
+            right: 0;
             overflow: hidden;
         }
 
@@ -502,8 +508,21 @@
         body.dark-theme .sena-footer { opacity: .92; }
 
         @media (max-width: 768px) {
-            .sena-footer-inner { flex-direction: column; text-align: center; }
-            .sena-footer-links { justify-content: center; }
+            .sena-footer {
+                left: 0;
+                padding: 0.75rem 1rem;
+                font-size: 0.78rem;
+            }
+            .sena-footer-inner { flex-direction: column; text-align: center; gap: 0.4rem; }
+            .sena-footer-links { justify-content: center; gap: 0.75rem; }
+        }
+        @media (max-width: 480px) {
+            .sena-footer {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.72rem;
+            }
+            .sena-footer-links { flex-direction: column; gap: 0.2rem; }
+            .sena-footer-brand { justify-content: center; flex-wrap: wrap; }
         }
 
         /* Tablas */
@@ -1155,6 +1174,7 @@
                 padding-bottom: 70px;
             }
             .accessibility-panel {
+                bottom: 20px;
                 right: 5px;
             }
             .accessibility-menu {
@@ -1339,6 +1359,36 @@
 
 {% block content %}{% endblock %}
 
+        <!-- Panel de Accesibilidad (esquina inferior derecha, sobre el footer) -->
+        <div class="accessibility-panel" id="accessibilityPanel">
+            <button class="accessibility-toggle" onclick="toggleAccessibilityMenu()" title="Opciones de accesibilidad">
+                <i class="bi bi-universal-access-circle"></i>
+            </button>
+            <div class="accessibility-menu" id="accessibilityMenu">
+                <div class="accessibility-option">
+                    <label>Tema</label>
+                    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                        <i class="bi bi-moon-fill"></i> Oscuro
+                    </button>
+                </div>
+                <div class="accessibility-option">
+                    <label>Tamaño de fuente</label>
+                    <div class="font-size-controls">
+                        <button onclick="changeFontSize('small')" title="Reducir fuente">A-</button>
+                        <button onclick="changeFontSize('normal')" title="Fuente normal">A</button>
+                        <button onclick="changeFontSize('large')" title="Aumentar fuente">A+</button>
+                        <button onclick="changeFontSize('xlarge')" title="Fuente muy grande">A++</button>
+                    </div>
+                </div>
+                <div class="accessibility-option">
+                    <label>Lectura de texto</label>
+                    <button class="tts-toggle" onclick="toggleTTS()" id="ttsToggle">
+                        <i class="bi bi-volume-up-fill"></i> Activar
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <footer class="sena-footer">
             <div class="sena-footer-inner">
@@ -1362,36 +1412,6 @@
                 </div>
             </div>
         </footer>
-        </div>
-    </div>
-
-    <!-- Panel de Accesibilidad -->
-    <div class="accessibility-panel" id="accessibilityPanel">
-        <button class="accessibility-toggle" onclick="toggleAccessibilityMenu()" title="Opciones de accesibilidad">
-            <i class="bi bi-universal-access-circle"></i>
-        </button>
-        <div class="accessibility-menu" id="accessibilityMenu">
-            <div class="accessibility-option">
-                <label>Tema</label>
-                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
-                    <i class="bi bi-moon-fill"></i> Oscuro
-                </button>
-            </div>
-            <div class="accessibility-option">
-                <label>Tamaño de fuente</label>
-                <div class="font-size-controls">
-                    <button onclick="changeFontSize('small')" title="Reducir fuente">A-</button>
-                    <button onclick="changeFontSize('normal')" title="Fuente normal">A</button>
-                    <button onclick="changeFontSize('large')" title="Aumentar fuente">A+</button>
-                    <button onclick="changeFontSize('xlarge')" title="Fuente muy grande">A++</button>
-                </div>
-            </div>
-            <div class="accessibility-option">
-                <label>Lectura de texto</label>
-                <button class="tts-toggle" onclick="toggleTTS()" id="ttsToggle">
-                    <i class="bi bi-volume-up-fill"></i> Activar
-                </button>
-            </div>
         </div>
     </div>
 

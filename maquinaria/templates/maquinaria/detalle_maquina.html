@@ -193,17 +193,7 @@
             </div>
             <div class="card-body">
                 <div class="row text-center">
-                    <div class="col-6">
-                        <div class="border-end">
-                            <h4 class="
-                                {% if maquina.eficiencia >= 90 %}text-success
-                                {% elif maquina.eficiencia >= 70 %}text-warning
-                                {% else %}text-danger{% endif %}
-                            ">{{ maquina.eficiencia }}%</h4>
-                            <small class="text-muted">Eficiencia</small>
-                        </div>
-                    </div>
-                    <div class="col-6">
+                    <div class="col-12">
                         <h4 class="text-primary">{{ maquina.horas_uso_total|floatformat:0 }}</h4>
                         <small class="text-muted">Horas de Uso</small>
                     </div>
@@ -233,26 +223,6 @@
                         {% endif %}
                         <small class="text-muted">Condición</small>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</h6>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary" onclick="reportIssue()">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Reportar Problema
-                    </button>
-                    <button class="btn btn-outline-success" onclick="scheduleService()">
-                        <i class="bi bi-calendar-event me-2"></i>Agendar Servicio
-                    </button>
-                    <button class="btn btn-outline-info" onclick="generateReport()">
-                        <i class="bi bi-file-text me-2"></i>Generar Reporte
-                    </button>
                 </div>
             </div>
         </div>
@@ -353,16 +323,5 @@
 
 {% block extra_js %}
 <script>
-function reportIssue() {
-    alert('Funcionalidad de reporte de problemas en desarrollo');
-}
-
-function scheduleService() {
-    alert('Funcionalidad de agendamiento en desarrollo');
-}
-
-function generateReport() {
-    alert('Funcionalidad de generación de reportes en desarrollo');
-}
 </script>
 {% endblock %}

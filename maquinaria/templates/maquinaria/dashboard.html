@@ -249,9 +249,7 @@
                                     <a href="{% url 'maquinaria:editar_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-sena-primary" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'maquinaria:generar_qr' pk=maquina.pk %}" class="btn btn-sm btn-outline-sena-secondary" title="Código QR">
-                                        <i class="bi bi-qr-code"></i>
-                                    </a>
+
                                     <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="confirmarEliminacion('{{ maquina.pk }}', '{{ maquina.codigo_inventario }}')">
                                         <i class="bi bi-trash"></i>
                                     </button>
