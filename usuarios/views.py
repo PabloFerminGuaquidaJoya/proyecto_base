@@ -318,6 +318,33 @@ def cambiar_estado_usuario(request, pk):
     return JsonResponse({'error': 'Estado no válido'}, status=400)
 
 @login_required
+@require_http_methods(["POST"])
+def admin_eliminar_usuario_ajax(request, pk):
+    """Eliminación de usuario vía AJAX — solo staff."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'Sin permisos'}, status=403)
+
+    usuario = get_object_or_404(Usuario, pk=pk)
+
+    if usuario.numero_documento == request.user.username:
+        return JsonResponse(
+            {'success': False, 'message': 'No puedes eliminar tu propia cuenta.'},
+            status=400
+        )
+
+    nombre = usuario.nombre_completo
+
+    try:
+        User.objects.filter(username=usuario.numero_documento).delete()
+    except Exception:
+        pass
+
+    usuario.delete()
+
+    return JsonResponse({'success': True, 'message': f'Usuario {nombre} eliminado correctamente.'})
+
+
+@login_required
 def centro_control_view(request):
     """Centro de control de administración de usuarios — solo staff."""
     if not request.user.is_staff:
