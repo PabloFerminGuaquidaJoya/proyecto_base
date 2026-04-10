@@ -51,6 +51,7 @@ tf-keras                # Backend de TensorFlow/Keras requerido por DeepFace par
 # -----------------------------------------------------------------------------
 celery                  # Ejecución de tareas en segundo plano: generación de reportes, indexación de documentos
 redis                   # Broker de mensajes para Celery y almacenamiento en caché de sesiones y consultas
+apscheduler             # Programación de tareas periódicas en segundo plano (backups automáticos cada 2 horas)
 
 
 # -----------------------------------------------------------------------------

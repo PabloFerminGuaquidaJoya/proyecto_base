@@ -309,6 +309,24 @@ def es_administrador(user):
         return False
 
 
+def _puede_gestionar_backups(usuario):
+    """
+    Retorna True si el usuario tiene permiso para crear/gestionar backups.
+    Roles permitidos: instructor o administrador (staff-administración).
+    """
+    if usuario is None:
+        return False
+    cargo = (usuario.cargo or '').lower()
+    tipo = ''
+    try:
+        if usuario.tipo_usuario:
+            tipo = (usuario.tipo_usuario.nombre or '').lower()
+    except Exception:
+        pass
+    palabras_clave = ('instructor', 'administrador', 'admin', 'staff')
+    return any(p in cargo for p in palabras_clave) or any(p in tipo for p in palabras_clave)
+
+
 # ==================== VISTAS DE BACKUP (MySQL) ====================
 
 @login_required
@@ -320,6 +338,7 @@ def gestionar_backups(request):
     db_name = settings.DATABASES['default']['NAME']
     db_size = _obtener_tamano_db()
     total_tablas, total_registros = _contar_tablas_y_registros()
+    usuario_actual = _obtener_usuario_actual(request)
 
     context = {
         'backups': backups,
@@ -327,6 +346,7 @@ def gestionar_backups(request):
         'total_registros': total_registros,
         'total_tablas': total_tablas,
         'db_path': f'MySQL: {db_name}',
+        'puede_crear_backup': _puede_gestionar_backups(usuario_actual),
     }
 
     return render(request, 'sistema/gestionar_backups.html', context)
@@ -335,11 +355,15 @@ def gestionar_backups(request):
 @login_required
 def crear_backup(request):
     """Crear un nuevo backup de la base de datos MySQL usando mysqldump"""
+    usuario_actual = _obtener_usuario_actual(request)
+    if not _puede_gestionar_backups(usuario_actual):
+        messages.error(request, 'No tienes permiso para crear copias de seguridad.')
+        return redirect('sistema:gestionar_backups')
+
     if request.method == 'POST':
         try:
             nombre = request.POST.get('nombre', f'Backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
             descripcion = request.POST.get('descripcion', '')
-            usuario_actual = _obtener_usuario_actual(request)
 
             # Crear el registro del backup
             backup = BackupDatabase.objects.create(
@@ -612,9 +636,12 @@ def detalle_backup(request, backup_id):
 @login_required
 def crear_backup_rapido(request):
     """Crear backup rápido MySQL con un click (AJAX)"""
+    usuario_actual = _obtener_usuario_actual(request)
+    if not _puede_gestionar_backups(usuario_actual):
+        return JsonResponse({'success': False, 'error': 'Sin permiso para crear copias de seguridad.'}, status=403)
+
     if request.method == 'POST':
         try:
-            usuario_actual = _obtener_usuario_actual(request)
 
             # Generar nombre automático con fecha y hora
             nombre = f'Backup_Rapido_{datetime.now().strftime("%Y%m%d_%H%M%S")}'

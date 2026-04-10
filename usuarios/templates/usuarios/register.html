@@ -437,17 +437,21 @@
                 });
             }
 
-            // ── Mostrar/ocultar campo Ficha según Cargo ──
-            const cargoSel = document.getElementById('id_cargo');
+            // ── Mostrar/ocultar campo Ficha según Tipo de usuario ──
+            const tipoUsuarioSel = document.getElementById('id_tipo_usuario');
             const fichaSel = document.getElementById('id_ficha');
             function toggleFicha() {
                 if (!fichaSel) return;
                 const row = fichaSel.closest('p') || fichaSel.closest('div');
-                if (row) row.style.display = cargoSel && cargoSel.value === 'Aprendiz' ? '' : 'none';
+                if (!row) return;
+                const texto = tipoUsuarioSel
+                    ? tipoUsuarioSel.options[tipoUsuarioSel.selectedIndex]?.text || ''
+                    : '';
+                row.style.display = texto.toLowerCase().includes('aprendiz') ? '' : 'none';
             }
-            if (cargoSel) {
+            if (tipoUsuarioSel) {
                 toggleFicha(); // estado inicial
-                cargoSel.addEventListener('change', toggleFicha);
+                tipoUsuarioSel.addEventListener('change', toggleFicha);
             }
 
             // Agregar botón ojo a todos los campos de contraseña del formulario

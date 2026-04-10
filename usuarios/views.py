@@ -648,18 +648,10 @@ def register_view(request):
         if form.is_valid():
             usuario = form.save(commit=False)
 
-            # Asignar tipo de usuario según el cargo seleccionado
-            cargo_seleccionado = form.cleaned_data.get('cargo', 'Instructor')
-            tipo_usuario, created = TipoUsuario.objects.get_or_create(
-                nombre=cargo_seleccionado,
-                defaults={
-                    'descripcion': f'{cargo_seleccionado} SENA',
-                    'permisos': {},
-                    'activo': True
-                }
-            )
-
+            # tipo_usuario viene directo del form; sincronizar cargo con el nombre del tipo
+            tipo_usuario = form.cleaned_data.get('tipo_usuario')
             usuario.tipo_usuario = tipo_usuario
+            usuario.cargo = tipo_usuario.nombre if tipo_usuario else ''
             usuario.estado = 'activo'
             usuario.fecha_aprobacion = timezone.now()
 

@@ -13,9 +13,11 @@
                     <h5 class="mb-0">
                         <i class="bi bi-shield-check me-2"></i>Gestión de Copias de Seguridad
                     </h5>
-                    <a href="{% url 'sistema:crear_backup' %}" class="btn btn-light btn-sm">
+                    {% if puede_crear_backup %}
+                    <a href="{% url 'sistema:crear_backup' %}" class="btn btn-sena-gradient btn-sm">
                         <i class="bi bi-plus-circle me-1"></i>Nueva Copia
                     </a>
+                    {% endif %}
                 </div>
             </div>
             <div class="card-body">

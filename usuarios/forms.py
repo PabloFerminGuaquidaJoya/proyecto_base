@@ -177,14 +177,11 @@ class RegistroUsuarioForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_especialidad'}),
         label='Programa de Formación'
     )
-    cargo = forms.ChoiceField(
-        choices=[
-            ('', 'Seleccione un cargo'),
-            ('Aprendiz', 'Aprendiz'),
-            ('Instructor', 'Instructor'),
-        ],
-        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_cargo'}),
-        label='Cargo'
+    tipo_usuario = forms.ModelChoiceField(
+        queryset=TipoUsuario.objects.filter(nombre__in=['Aprendiz', 'Instructor'], activo=True),
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_tipo_usuario'}),
+        label='Tipo de usuario',
+        empty_label='Seleccione un tipo de usuario',
     )
     ficha = forms.ModelChoiceField(
         queryset=Ficha.objects.filter(activo=True),
@@ -217,7 +214,7 @@ class RegistroUsuarioForm(forms.ModelForm):
         model = Usuario
         fields = [
             'tipo_documento', 'numero_documento', 'nombres', 'apellidos',
-            'email', 'telefono', 'centro_formacion', 'especialidad', 'cargo', 'ficha'
+            'email', 'telefono', 'centro_formacion', 'especialidad', 'tipo_usuario', 'ficha'
         ]
         widgets = {
             'tipo_documento': forms.Select(attrs={
@@ -248,14 +245,10 @@ class RegistroUsuarioForm(forms.ModelForm):
     def clean_numero_documento(self):
         numero_documento = self.cleaned_data.get('numero_documento')
         if numero_documento:
-            # Validar que solo contenga números
             if not numero_documento.isdigit():
                 raise forms.ValidationError('El número de documento debe contener solo números.')
-
-            # Verificar unicidad
             if Usuario.objects.filter(numero_documento=numero_documento).exists():
                 raise forms.ValidationError('Ya existe un usuario con este número de documento.')
-
         return numero_documento
 
     def clean_email(self):
