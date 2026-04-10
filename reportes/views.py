@@ -118,11 +118,17 @@ def generar_reporte_view(request):
             max_d=Max('fecha_creacion')
         )
 
-        fechas_min = [d for d in [maq_dates['min_d'], doc_dates['min_d']] if d]
-        fechas_max = [d for d in [maq_dates['max_d'], doc_dates['max_d']] if d]
+        fechas_min = [
+            d.date() if hasattr(d, 'date') else d
+            for d in [maq_dates['min_d'], doc_dates['min_d']] if d
+        ]
+        fechas_max = [
+            d.date() if hasattr(d, 'date') else d
+            for d in [maq_dates['max_d'], doc_dates['max_d']] if d
+        ]
 
-        fecha_datos_inicio = min(fechas_min).date() if fechas_min else None
-        fecha_datos_fin = max(fechas_max).date() if fechas_max else date.today()
+        fecha_datos_inicio = min(fechas_min) if fechas_min else None
+        fecha_datos_fin    = max(fechas_max) if fechas_max else date.today()
 
         context = {
             'title': 'Generar Reporte',
