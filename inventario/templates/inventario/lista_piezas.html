@@ -2,32 +2,6 @@
 {% block title %}Inventario - Todas las Piezas{% endblock %}
 {% block page_title %}Inventario de Piezas{% endblock %}
 
-{% block extra_css %}
-<style>
-    .sena-table thead th {
-        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
-        color: white;
-        font-weight: 600;
-        border: none;
-        padding: 12px 16px;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .sena-table tbody tr:hover {
-        background-color: rgba(57, 169, 0, 0.05);
-    }
-    .sena-table tbody td {
-        padding: 12px 16px;
-        vertical-align: middle;
-        border-color: rgba(0,0,0,0.06);
-    }
-    .sena-table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
 <!-- Filtros -->
@@ -76,16 +50,16 @@
         {% if piezas %}
         <div class="table-responsive">
             <table class="table table-hover sena-table mb-0">
-                <thead style="background:rgba(0,50,77,0.06);">
+                <thead>
                     <tr>
-                        <th style="color:var(--sena-secondary);">Código</th>
-                        <th style="color:var(--sena-secondary);">Nombre</th>
-                        <th style="color:var(--sena-secondary);">Categoría</th>
-                        <th style="color:var(--sena-secondary);">Marca / Modelo</th>
-                        <th style="color:var(--sena-secondary);">Condición</th>
-                        <th style="color:var(--sena-secondary);">Horas Uso</th>
-                        <th style="color:var(--sena-secondary);">Ubicación</th>
-                        <th style="color:var(--sena-secondary);">Acciones</th>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Marca / Modelo</th>
+                        <th>Condición</th>
+                        <th>Horas Uso</th>
+                        <th>Ubicación</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>

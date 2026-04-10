@@ -1,0 +1,207 @@
+/*
+ * sena_tables.css — Estándar visual global SENA
+ * Incluido desde base.html. No repetir en templates individuales.
+ */
+
+/* ═══════════════════════════════════════════════
+   1. COLORES DE TEXTO
+   ═══════════════════════════════════════════════ */
+.text-sena-primary   { color: var(--sena-primary)   !important; }
+.text-sena-secondary { color: var(--sena-secondary) !important; }
+.text-sena-accent    { color: var(--sena-accent)    !important; }
+.text-sena-danger    { color: var(--sena-danger)    !important; }
+
+.text-sena-gradient {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ═══════════════════════════════════════════════
+   2. FONDOS (badges, chips)
+   ═══════════════════════════════════════════════ */
+.bg-sena-primary   { background-color: var(--sena-primary)   !important; color: #fff !important; }
+.bg-sena-secondary { background-color: var(--sena-secondary) !important; color: #fff !important; }
+.bg-sena-accent    { background-color: var(--sena-accent)    !important; color: #fff !important; }
+.bg-sena-danger    { background-color: var(--sena-danger)    !important; color: #fff !important; }
+
+/* ═══════════════════════════════════════════════
+   3. BORDES IZQUIERDOS (stat-cards)
+   ═══════════════════════════════════════════════ */
+.border-left-sena-primary   { border-left: 0.25rem solid var(--sena-primary)   !important; }
+.border-left-sena-secondary { border-left: 0.25rem solid var(--sena-secondary) !important; }
+.border-left-sena-accent    { border-left: 0.25rem solid var(--sena-accent)    !important; }
+.border-left-sena-danger    { border-left: 0.25rem solid var(--sena-danger)    !important; }
+
+/* ═══════════════════════════════════════════════
+   4. BOTONES
+   ═══════════════════════════════════════════════ */
+
+/* Botón principal — degradado SENA */
+.btn-sena-gradient {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-sena-gradient:hover,
+.btn-sena-gradient:focus {
+    background: linear-gradient(135deg, #001f30 0%, #2d7a00 100%);
+    color: #fff;
+    opacity: 0.92;
+}
+
+/* Botones sólidos secundarios */
+.btn-sena-primary {
+    background-color: var(--sena-primary);
+    border-color: var(--sena-primary);
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-sena-primary:hover { background-color: #2d7a00; border-color: #2d7a00; color: #fff; }
+
+.btn-sena-secondary {
+    background-color: var(--sena-secondary);
+    border-color: var(--sena-secondary);
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-sena-secondary:hover { background-color: #001f30; border-color: #001f30; color: #fff; }
+
+.btn-sena-accent {
+    background-color: var(--sena-accent);
+    border-color: var(--sena-accent);
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-sena-accent:hover { background-color: #cc5500; border-color: #cc5500; color: #fff; }
+
+/* Botones outline */
+.btn-outline-sena-primary {
+    background: transparent;
+    border: 2px solid var(--sena-primary);
+    color: var(--sena-primary);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+.btn-outline-sena-primary:hover {
+    background: var(--sena-primary);
+    color: #fff;
+}
+
+.btn-outline-sena-secondary {
+    background: transparent;
+    border: 2px solid var(--sena-secondary);
+    color: var(--sena-secondary);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+.btn-outline-sena-secondary:hover {
+    background: var(--sena-secondary);
+    color: #fff;
+}
+
+.btn-outline-sena-accent {
+    background: transparent;
+    border: 2px solid var(--sena-accent);
+    color: var(--sena-accent);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+.btn-outline-sena-accent:hover {
+    background: var(--sena-accent);
+    color: #fff;
+}
+
+/* ═══════════════════════════════════════════════
+   5. TABLA ESTÁNDAR SENA
+   ═══════════════════════════════════════════════ */
+.sena-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+/* Encabezado — degradado */
+.sena-table thead th {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* Cuerpo — fondo blanco, texto negro */
+.sena-table tbody td {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    padding: 12px 16px;
+    vertical-align: middle;
+    border-color: rgba(0, 0, 0, 0.06);
+}
+.sena-table tbody tr {
+    background-color: #ffffff;
+}
+.sena-table tbody tr:hover td {
+    background-color: rgba(57, 169, 0, 0.06) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   6. BADGES DE ESTADO
+   ═══════════════════════════════════════════════ */
+.badge-sena-estado {
+    font-size: 0.78rem;
+    padding: 0.4em 0.75em;
+    border-radius: 20px;
+}
+
+/* ═══════════════════════════════════════════════
+   7. PAGINACIÓN SENA
+   ═══════════════════════════════════════════════ */
+.sena-page-link {
+    color: var(--sena-secondary);
+    border-color: var(--sena-secondary);
+}
+.sena-page-link:hover {
+    background: var(--sena-secondary);
+    color: #fff;
+    border-color: var(--sena-secondary);
+}
+.sena-page-link-active {
+    background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%) !important;
+    color: #fff !important;
+    border-color: var(--sena-primary) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   8. EMPTY STATE (estado vacío en tablas)
+   ═══════════════════════════════════════════════ */
+.sena-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+.sena-empty-state i {
+    font-size: 3rem;
+    color: var(--sena-primary);
+    opacity: 0.4;
+    display: block;
+    margin-bottom: 1rem;
+}
+.sena-empty-state h5 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+.sena-empty-state p {
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+}

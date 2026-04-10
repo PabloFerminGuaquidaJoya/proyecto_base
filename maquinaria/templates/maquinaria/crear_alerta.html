@@ -417,50 +417,21 @@
     }
 
     /* ── Colores de texto sidebar ── */
-    .text-sena-secondary { color: var(--sena-secondary) !important; }
-    .text-sena-accent    { color: var(--sena-accent) !important; }
-    .text-sena-primary   { color: var(--sena-primary) !important; }
     .text-sena-secondary.font-weight-bold,
     h6.text-sena-secondary { font-weight: 600; }
 
     /* ── Botones tipo de alerta ── */
-    .btn-outline-sena-secondary {
-        color: var(--sena-secondary); border-color: var(--sena-secondary);
-    }
-    .btn-outline-sena-secondary:hover {
-        background-color: var(--sena-secondary); border-color: var(--sena-secondary); color: #fff;
-    }
     .btn-check:checked + .btn-outline-sena-secondary {
         background-color: var(--sena-secondary); border-color: var(--sena-secondary); color: #fff;
     }
 
-    .btn-outline-sena-accent {
-        color: var(--sena-accent); border-color: var(--sena-accent);
-    }
-    .btn-outline-sena-accent:hover {
-        background-color: var(--sena-accent); border-color: var(--sena-accent); color: #fff;
-    }
     .btn-check:checked + .btn-outline-sena-accent {
         background-color: var(--sena-accent); border-color: var(--sena-accent); color: #fff;
     }
 
-    .btn-outline-sena-primary {
-        color: var(--sena-primary); border-color: var(--sena-primary);
-    }
-    .btn-outline-sena-primary:hover {
-        background-color: var(--sena-primary); border-color: var(--sena-primary); color: #fff;
-    }
     .btn-check:checked + .btn-outline-sena-primary {
         background-color: var(--sena-primary); border-color: var(--sena-primary); color: #fff;
     }
-
-    /* ── Botón submit — gradiente sidebar ── */
-    .btn-sena-gradient {
-        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
-        color: #fff; border: none; transition: opacity 0.2s ease;
-    }
-    .btn-sena-gradient:hover  { opacity: 0.88; color: #fff; }
-    .btn-sena-gradient:disabled { opacity: 0.65; color: #fff; }
 
     /* ── Alert info máquina ── */
     .alert-sena {
@@ -498,29 +469,6 @@
     .template-accent:hover    { border-color: var(--sena-accent) !important; }
     .template-primary:hover   { border-color: var(--sena-primary) !important; }
 
-    /* ── Tabla estandarizada SENA ── */
-    .sena-table thead th {
-        background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
-        color: white;
-        font-weight: 600;
-        border: none;
-        padding: 12px 16px;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .sena-table tbody tr:hover {
-        background-color: rgba(57, 169, 0, 0.05);
-    }
-    .sena-table tbody td {
-        padding: 12px 16px;
-        vertical-align: middle;
-        border-color: rgba(0,0,0,0.06);
-    }
-    .sena-table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
 </style>
 {% endblock %}
 
