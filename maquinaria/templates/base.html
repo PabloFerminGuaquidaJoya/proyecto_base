@@ -1245,13 +1245,15 @@
                     <span>Mi Perfil</span>
                 </a>
             </li>
-            {% if request.user.is_staff %}
+            {% if puede_crear_backup %}
             <li class="nav-item">
                 <a href="{% url 'sistema:gestionar_backups' %}" class="nav-link {% if request.resolver_match.app_name == 'sistema' and 'backup' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="bi bi-clock-history"></i>
                     <span>Copias de Seguridad</span>
                 </a>
             </li>
+            {% endif %}
+            {% if request.user.is_staff %}
             <li class="nav-item">
                 <a href="{% url 'usuarios:centro_control' %}" class="nav-link {% if request.resolver_match.url_name == 'centro_control' %}active{% endif %}">
                     <i class="bi bi-shield-lock"></i>
