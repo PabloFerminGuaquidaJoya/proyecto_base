@@ -94,8 +94,8 @@ def generar_reporte_view(request):
         categorias = CategoriaMaquina.objects.filter(activa=True)
         from usuarios.models import Usuario as UsuarioModel
         centros_raw = set(
-            UsuarioModel.objects.values_list('centro_formacion', flat=True)
-            .exclude(centro_formacion='').exclude(centro_formacion__isnull=True)
+            UsuarioModel.objects.exclude(centro_formacion__isnull=True)
+            .values_list('centro_formacion__nombre', flat=True)
         ) | set(
             Maquina.objects.values_list('centro_formacion', flat=True)
             .exclude(centro_formacion='').exclude(centro_formacion__isnull=True)
