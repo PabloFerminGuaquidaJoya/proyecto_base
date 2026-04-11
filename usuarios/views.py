@@ -387,6 +387,64 @@ def centro_control_view(request):
     paginator   = Paginator(usuarios_qs, 15)
     page_obj    = paginator.get_page(request.GET.get('page'))
 
+    # ── Personal de Mantenimiento ────────────────────────────────────────
+    q_mant      = request.GET.get('q_mant', '').strip()
+    estado_mant = request.GET.get('estado_mant', '').strip()
+    cargo_mant  = request.GET.get('cargo_mant', '').strip()
+
+    from django.db.models import Count, Max, Q as DQ
+
+    personal_mant_qs = (
+        Usuario.objects
+        .filter(cargo='Personal de Mantenimiento')
+        .select_related('tipo_usuario', 'centro_formacion')
+        .annotate(
+            total_asignados=Count(
+                'mantenimientos_asignados',
+                distinct=True
+            ),
+            total_completados=Count(
+                'mantenimientos_asignados',
+                filter=DQ(mantenimientos_asignados__estado='completado'),
+                distinct=True
+            ),
+            total_en_progreso=Count(
+                'mantenimientos_asignados',
+                filter=DQ(mantenimientos_asignados__estado='en_progreso'),
+                distinct=True
+            ),
+            total_programados=Count(
+                'mantenimientos_asignados',
+                filter=DQ(mantenimientos_asignados__estado='programado'),
+                distinct=True
+            ),
+            ultimo_mantenimiento=Max('mantenimientos_asignados__fecha_fin_real'),
+            total_maquinas=Count(
+                'mantenimientos_asignados__maquina',
+                distinct=True
+            ),
+        )
+        .order_by('nombres', 'apellidos')
+    )
+
+    if q_mant:
+        personal_mant_qs = personal_mant_qs.filter(
+            DQ(nombres__icontains=q_mant) |
+            DQ(apellidos__icontains=q_mant) |
+            DQ(numero_documento__icontains=q_mant)
+        )
+    if estado_mant:
+        personal_mant_qs = personal_mant_qs.filter(estado=estado_mant)
+    if cargo_mant:
+        personal_mant_qs = personal_mant_qs.filter(
+            DQ(cargo__icontains=cargo_mant) |
+            DQ(especialidad__icontains=cargo_mant)
+        )
+
+    total_tecnicos = personal_mant_qs.count()
+    paginator_mant = Paginator(personal_mant_qs, 15)
+    page_mant      = paginator_mant.get_page(request.GET.get('page_mant'))
+
     return render(request, 'usuarios/centro_control.html', {
         'title':            'Centro de Control - SENA',
         'usuarios':         page_obj.object_list,
@@ -400,11 +458,20 @@ def centro_control_view(request):
         'centros_lista':    centros_lista,
         'fichas_lista':     fichas_lista,
         'estado_choices':   Usuario.ESTADO_CHOICES,
+        'cargo_choices':    Usuario.CARGO_CHOICES,
+        'tipo_mant_id':     (TipoUsuario.objects.filter(nombre='Personal de Mantenimiento', activo=True).values_list('pk', flat=True).first() or ''),
         'form_search': {
             'q':               q,
             'estado_filter':   estado_filter,
             'programa_filter': programa_filter,
         },
+        # Mantenimiento
+        'personal_mantenimiento': page_mant.object_list,
+        'page_mant':              page_mant,
+        'q_mant':                 q_mant,
+        'estado_mant':            estado_mant,
+        'cargo_mant':             cargo_mant,
+        'total_tecnicos':         total_tecnicos,
     })
 
 @login_required

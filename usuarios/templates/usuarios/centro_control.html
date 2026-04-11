@@ -502,6 +502,396 @@
 </div>
 
 
+<!-- ═══════════════ SEARCH BAR MANTENIMIENTO ════════════════════════════ -->
+<div class="search-section mt-4">
+    <form method="get" action="" id="searchMantForm">
+        {# Preservar filtros de la tabla de usuarios #}
+        {% if form_search.q %}<input type="hidden" name="q" value="{{ form_search.q }}">{% endif %}
+        {% if form_search.estado_filter %}<input type="hidden" name="estado_filter" value="{{ form_search.estado_filter }}">{% endif %}
+        {% if form_search.programa_filter %}<input type="hidden" name="programa_filter" value="{{ form_search.programa_filter }}">{% endif %}
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold mb-1" style="font-size:.82rem;">
+                    <i class="bi bi-search me-1"></i>Buscar técnico (documento / nombre)
+                </label>
+                <input
+                    type="text"
+                    name="q_mant"
+                    class="form-control"
+                    placeholder="Ej: 1234567, Juan Pérez…"
+                    value="{{ q_mant }}"
+                >
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold mb-1" style="font-size:.82rem;">
+                    <i class="bi bi-funnel me-1"></i>Estado
+                </label>
+                <select name="estado_mant" class="form-select">
+                    <option value="">Todos los estados</option>
+                    {% for val, label in estado_choices %}
+                        <option value="{{ val }}"
+                            {% if estado_mant == val %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold mb-1" style="font-size:.82rem;">
+                    <i class="bi bi-tools me-1"></i>Cargo / Especialidad
+                </label>
+                <input
+                    type="text"
+                    name="cargo_mant"
+                    class="form-control"
+                    placeholder="Ej: Técnico eléctrico…"
+                    value="{{ cargo_mant }}"
+                >
+            </div>
+
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-sena-gradient w-100 fw-semibold" title="Buscar">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+
+        {% if q_mant or estado_mant or cargo_mant %}
+        <div class="mt-2">
+            <a href="{% url 'usuarios:centro_control' %}" class="btn btn-sm btn-outline-sena-secondary fw-semibold">
+                <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+            </a>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- ═══════════════ TABLA PERSONAL DE MANTENIMIENTO ══════════════════════ -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-white">
+            <i class="bi bi-wrench-adjustable me-2"></i>Personal de Mantenimiento
+            <small class="ms-2 fw-normal opacity-75">
+                {{ total_tecnicos }} técnico{% if total_tecnicos != 1 %}s{% endif %} registrado{% if total_tecnicos != 1 %}s{% endif %}
+            </small>
+        </h6>
+        <button type="button" class="btn btn-sena-gradient btn-sm"
+                data-bs-toggle="modal" data-bs-target="#crearPersonalMantModal">
+            <i class="bi bi-person-plus-fill me-1"></i>Agregar
+        </button>
+    </div>
+
+    <div class="card-body p-0">
+        {% if personal_mantenimiento %}
+        <div class="table-responsive">
+            <table class="table table-hover sena-table usuarios-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Técnico</th>
+                        <th>Documento</th>
+                        <th>Cargo</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center" title="Total asignados">
+                            <i class="bi bi-clipboard-check me-1"></i>Asignados
+                        </th>
+                        <th class="text-center" title="Completados">
+                            <i class="bi bi-check-circle me-1"></i>Completados
+                        </th>
+                        <th class="text-center" title="En progreso">
+                            <i class="bi bi-hourglass-split me-1"></i>En progreso
+                        </th>
+                        <th class="text-center" title="Programados pendientes">
+                            <i class="bi bi-calendar-event me-1"></i>Programados
+                        </th>
+                        <th class="text-center" title="Máquinas distintas">
+                            <i class="bi bi-gear me-1"></i>Máquinas
+                        </th>
+                        <th>Último trabajo</th>
+                        <th class="text-center pe-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in personal_mantenimiento %}
+                    <tr id="row-{{ t.pk }}">
+
+                        <!-- Técnico -->
+                        <td class="ps-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-initials"
+                                     style="width:32px;height:32px;font-size:.75rem;">
+                                    {{ t.iniciales }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold" style="font-size:.88rem;">{{ t.nombre_completo }}</div>
+                                    <div class="text-muted" style="font-size:.75rem;">{{ t.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Documento -->
+                        <td>
+                            <span class="text-muted" style="font-size:.78rem;">{{ t.get_tipo_documento_display }}</span><br>
+                            <span class="fw-semibold" style="font-size:.88rem;">{{ t.numero_documento }}</span>
+                        </td>
+
+                        <!-- Cargo -->
+                        <td style="font-size:.88rem;">{{ t.cargo|default:"—" }}</td>
+
+                        <!-- Estado -->
+                        <td class="text-center" id="estado-cell-{{ t.pk }}">
+                            {% if t.estado == 'activo' %}
+                                <span class="estado-badge badge-activo">Activo</span>
+                            {% elif t.estado == 'pendiente' %}
+                                <span class="estado-badge badge-pendiente">Pendiente</span>
+                            {% elif t.estado == 'suspendido' %}
+                                <span class="estado-badge badge-suspendido">Suspendido</span>
+                            {% else %}
+                                <span class="estado-badge badge-inactivo">Inactivo</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Total asignados -->
+                        <td class="text-center">
+                            <span class="badge" style="background:#dbeafe;color:#1e40af;font-size:.8rem;font-weight:700;">
+                                {{ t.total_asignados }}
+                            </span>
+                        </td>
+
+                        <!-- Completados -->
+                        <td class="text-center">
+                            <span class="badge" style="background:#d1fae5;color:#065f46;font-size:.8rem;font-weight:700;">
+                                {{ t.total_completados }}
+                            </span>
+                        </td>
+
+                        <!-- En progreso -->
+                        <td class="text-center">
+                            <span class="badge" style="background:#fef3c7;color:#92400e;font-size:.8rem;font-weight:700;">
+                                {{ t.total_en_progreso }}
+                            </span>
+                        </td>
+
+                        <!-- Programados pendientes -->
+                        <td class="text-center">
+                            <span class="badge" style="background:#ede9fe;color:#5b21b6;font-size:.8rem;font-weight:700;">
+                                {{ t.total_programados }}
+                            </span>
+                        </td>
+
+                        <!-- Máquinas distintas -->
+                        <td class="text-center">
+                            <span class="badge" style="background:#f0fdf4;color:#166534;font-size:.8rem;font-weight:700;">
+                                {{ t.total_maquinas }}
+                            </span>
+                        </td>
+
+                        <!-- Último trabajo -->
+                        <td style="font-size:.82rem;">
+                            {% if t.ultimo_mantenimiento %}
+                                <i class="bi bi-clock-history me-1 text-muted"></i>
+                                {{ t.ultimo_mantenimiento|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Acciones (igual que tabla principal) -->
+                        <td class="text-center pe-3">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <button
+                                    class="btn btn-sm btn-outline-sena-primary editar-btn"
+                                    data-pk="{{ t.pk }}"
+                                    data-nombres="{{ t.nombres }}"
+                                    data-apellidos="{{ t.apellidos }}"
+                                    data-email="{{ t.email }}"
+                                    data-telefono="{{ t.telefono }}"
+                                    data-cargo="{{ t.cargo }}"
+                                    data-especialidad="{{ t.especialidad }}"
+                                    data-centro-id="{{ t.centro_formacion_id|default:'' }}"
+                                    data-ficha-id="{{ t.ficha_id|default:'' }}"
+                                    data-estado="{{ t.estado }}"
+                                    data-tipo-usuario-id="{{ t.tipo_usuario_id }}"
+                                    title="Editar datos"
+                                ><i class="bi bi-pencil-square"></i></button>
+                                <button
+                                    class="btn btn-sm btn-outline-sena-accent cambiar-password-btn"
+                                    data-pk="{{ t.pk }}"
+                                    data-nombre="{{ t.nombre_completo }}"
+                                    title="Cambiar contraseña"
+                                ><i class="bi bi-key"></i></button>
+                                <button
+                                    class="btn btn-sm btn-outline-danger eliminar-usuario-btn"
+                                    data-pk="{{ t.pk }}"
+                                    data-nombre="{{ t.nombre_completo }}"
+                                    title="Eliminar usuario"
+                                ><i class="bi bi-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación tabla mantenimiento -->
+        {% if page_mant.has_other_pages %}
+        <div class="d-flex justify-content-between align-items-center px-3 py-3"
+             style="border-top:1px solid #f1f3f5;">
+            <small class="text-muted">
+                Página {{ page_mant.number }} de {{ page_mant.paginator.num_pages }}
+                ({{ page_mant.paginator.count }} técnicos)
+            </small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_mant.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?{% if form_search.q %}q={{ form_search.q }}&{% endif %}{% if form_search.estado_filter %}estado_filter={{ form_search.estado_filter }}&{% endif %}{% if form_search.programa_filter %}programa_filter={{ form_search.programa_filter }}&{% endif %}{% if q_mant %}q_mant={{ q_mant }}&{% endif %}{% if estado_mant %}estado_mant={{ estado_mant }}&{% endif %}{% if cargo_mant %}cargo_mant={{ cargo_mant }}&{% endif %}page_mant={{ page_mant.previous_page_number }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for num in page_mant.paginator.page_range %}
+                        {% if page_mant.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_mant.number|add:'-3' and num < page_mant.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?{% if form_search.q %}q={{ form_search.q }}&{% endif %}{% if form_search.estado_filter %}estado_filter={{ form_search.estado_filter }}&{% endif %}{% if form_search.programa_filter %}programa_filter={{ form_search.programa_filter }}&{% endif %}{% if q_mant %}q_mant={{ q_mant }}&{% endif %}{% if estado_mant %}estado_mant={{ estado_mant }}&{% endif %}{% if cargo_mant %}cargo_mant={{ cargo_mant }}&{% endif %}page_mant={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_mant.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?{% if form_search.q %}q={{ form_search.q }}&{% endif %}{% if form_search.estado_filter %}estado_filter={{ form_search.estado_filter }}&{% endif %}{% if form_search.programa_filter %}programa_filter={{ form_search.programa_filter }}&{% endif %}{% if q_mant %}q_mant={{ q_mant }}&{% endif %}{% if estado_mant %}estado_mant={{ estado_mant }}&{% endif %}{% if cargo_mant %}cargo_mant={{ cargo_mant }}&{% endif %}page_mant={{ page_mant.next_page_number }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-wrench fs-1 d-block mb-2" style="opacity:.3;"></i>
+            {% if q_mant or estado_mant or cargo_mant %}
+                <p class="mb-0">No se encontraron técnicos con los filtros aplicados.</p>
+                <a href="{% url 'usuarios:centro_control' %}" class="btn btn-sm btn-outline-secondary mt-3">
+                    <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+                </a>
+            {% else %}
+                <p class="mb-0">Aún no hay usuarios asignados como técnicos de mantenimiento.</p>
+                <small class="text-muted">Los usuarios aparecen aquí cuando se les asigna un mantenimiento en el módulo de Maquinaria.</small>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ═══════════════ MODAL REGISTRAR PERSONAL DE MANTENIMIENTO ════════════ -->
+<div class="modal fade" id="crearPersonalMantModal" tabindex="-1" aria-labelledby="crearPersonalMantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="border:none;border-radius:14px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--sena-secondary) 0%,var(--sena-primary) 100%);color:white;border-radius:12px 12px 0 0;">
+                <h5 class="modal-title fw-bold" id="crearPersonalMantModalLabel">
+                    <i class="bi bi-wrench-adjustable-circle-fill me-2"></i>Registrar Nuevo Personal De Mantenimiento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="crearMantAlertContainer"></div>
+                <div class="row g-3">
+                    <!-- Nombres -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombres <span class="text-danger">*</span></label>
+                        <input type="text" id="mant_nombres" class="form-control" placeholder="Nombres completos">
+                    </div>
+                    <!-- Apellidos -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Apellidos <span class="text-danger">*</span></label>
+                        <input type="text" id="mant_apellidos" class="form-control" placeholder="Apellidos completos">
+                    </div>
+                    <!-- Tipo de documento -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Tipo de documento</label>
+                        <select id="mant_tipo_documento" class="form-select">
+                            <option value="CC" selected>Cédula de Ciudadanía</option>
+                            <option value="TI">Tarjeta de Identidad</option>
+                            <option value="CE">Cédula de Extranjería</option>
+                            <option value="PAS">Pasaporte</option>
+                        </select>
+                    </div>
+                    <!-- Número de documento -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Número de documento <span class="text-danger">*</span></label>
+                        <input type="text" id="mant_numero_documento" class="form-control" placeholder="Ej: 1052401097">
+                    </div>
+                    <!-- Teléfono -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" id="mant_telefono" class="form-control" placeholder="+57 300 000 0000">
+                    </div>
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                        <input type="email" id="mant_email" class="form-control" placeholder="correo@ejemplo.com">
+                    </div>
+                    <!-- Cargo (preseleccionado en Personal de Mantenimiento) -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Cargo</label>
+                        <select id="mant_cargo" class="form-select">
+                            {% for val, label in cargo_choices %}
+                            <option value="{{ val }}" {% if val == 'Personal de Mantenimiento' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!-- Centro de Formación -->
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Centro de Formación</label>
+                        <select id="mant_centro_formacion" class="form-select">
+                            <option value="">— Sin centro —</option>
+                            {% for c in centros_lista %}
+                            <option value="{{ c.pk }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12"><hr class="my-1"></div>
+                    <!-- Contraseña -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
+                        <div style="position:relative;">
+                            <input type="password" id="mant_password" class="form-control" placeholder="Mínimo 8 caracteres" style="padding-right:3rem;">
+                            <button type="button" onclick="toggleVer('mant_password',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#666;"><i class="bi bi-eye"></i></button>
+                        </div>
+                    </div>
+                    <!-- Confirmar contraseña -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Confirmar contraseña <span class="text-danger">*</span></label>
+                        <div style="position:relative;">
+                            <input type="password" id="mant_confirmar_password" class="form-control" placeholder="Repite la contraseña" style="padding-right:3rem;">
+                            <button type="button" onclick="toggleVer('mant_confirmar_password',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#666;"><i class="bi bi-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Se enviará un correo de bienvenida al email registrado.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-semibold" id="btnCrearPersonalMant">
+                    <i class="bi bi-wrench-adjustable me-1"></i>Registrar Personal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ═══════════════ MODAL REGISTRAR NUEVO USUARIO ════════════════════════ -->
 <div class="modal fade" id="crearUsuarioModal" tabindex="-1" aria-labelledby="crearUsuarioModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -546,7 +936,11 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Cargo</label>
-                        <input type="text" id="crear_cargo" class="form-control" placeholder="Ej: Instructor, Aprendiz">
+                        <select id="crear_cargo" class="form-select">
+                            {% for val, label in cargo_choices %}
+                            <option value="{{ val }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Programa de Formación</label>
@@ -716,7 +1110,11 @@
                     <!-- Cargo -->
                     <div class="col-md-6">
                         <label class="form-label">Cargo</label>
-                        <input type="text" id="edit_cargo" class="form-control" placeholder="Cargo o rol">
+                        <select id="edit_cargo" class="form-select">
+                            {% for val, label in cargo_choices %}
+                            <option value="{{ val }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <!-- Tipo de usuario -->
@@ -1064,6 +1462,67 @@
     }
 
     /* ─────────────────────────────────────────────────────────────────────
+     *  CREAR PERSONAL DE MANTENIMIENTO
+     * ───────────────────────────────────────────────────────────────────── */
+    document.getElementById('crearPersonalMantModal').addEventListener('hidden.bs.modal', function() {
+        clearModal(['mant_nombres','mant_apellidos','mant_numero_documento','mant_telefono',
+                    'mant_email','mant_password','mant_confirmar_password'], 'crearMantAlertContainer');
+        document.getElementById('mant_tipo_documento').value = 'CC';
+        document.getElementById('mant_cargo').value = 'Personal de Mantenimiento';
+        document.getElementById('mant_centro_formacion').value = '';
+    });
+
+    document.getElementById('btnCrearPersonalMant').addEventListener('click', function() {
+        const btn = this;
+        const alertBox = document.getElementById('crearMantAlertContainer');
+        alertBox.innerHTML = '';
+
+        const params = new URLSearchParams({
+            nombres:             document.getElementById('mant_nombres').value.trim(),
+            apellidos:           document.getElementById('mant_apellidos').value.trim(),
+            tipo_documento:      document.getElementById('mant_tipo_documento').value,
+            numero_documento:    document.getElementById('mant_numero_documento').value.trim(),
+            telefono:            document.getElementById('mant_telefono').value.trim(),
+            email:               document.getElementById('mant_email').value.trim(),
+            cargo:               document.getElementById('mant_cargo').value,
+            especialidad:        '',
+            centro_formacion:    document.getElementById('mant_centro_formacion').value,
+            ficha:               '',
+            tipo_usuario_id:     '{{ tipo_mant_id }}',
+            password:            document.getElementById('mant_password').value,
+            confirmar_password:  document.getElementById('mant_confirmar_password').value,
+        });
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Registrando…';
+
+        fetch('/usuarios/admin-crear-ajax/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alertBox.innerHTML = `<div class="alert alert-success py-2">${data.message}</div>`;
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('crearPersonalMantModal')).hide();
+                    location.reload();
+                }, 1200);
+            } else {
+                alertBox.innerHTML = `<div class="alert alert-danger py-2">${data.message}</div>`;
+            }
+        })
+        .catch(() => {
+            alertBox.innerHTML = `<div class="alert alert-danger py-2">Error de conexión.</div>`;
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-wrench-adjustable me-1"></i>Registrar Personal';
+        });
+    });
+
+    /* ─────────────────────────────────────────────────────────────────────
      *  CREAR USUARIO
      * ───────────────────────────────────────────────────────────────────── */
     document.getElementById('crearUsuarioModal').addEventListener('hidden.bs.modal', function() {
@@ -1076,9 +1535,9 @@
     });
 
     // Mostrar/ocultar ficha según cargo en modal Crear
-    document.getElementById('crear_cargo').addEventListener('input', function() {
+    document.getElementById('crear_cargo').addEventListener('change', function() {
         document.getElementById('div_crear_ficha').style.display =
-            this.value.trim() === 'Aprendiz' ? '' : 'none';
+            this.value === 'Aprendiz' ? '' : 'none';
     });
 
     document.getElementById('btnCrearUsuario').addEventListener('click', function() {

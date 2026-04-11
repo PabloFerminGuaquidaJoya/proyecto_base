@@ -33,6 +33,24 @@ class Usuario(models.Model):
         ('pendiente', 'Pendiente Aprobación'),
     ]
 
+    CARGO_CHOICES = [
+        ('', 'Seleccionar cargo…'),
+        ('Invitado', 'Invitado'),
+        ('Aprendiz', 'Aprendiz'),
+        ('Instructor', 'Instructor'),
+        ('Personal de Mantenimiento', 'Personal de Mantenimiento'),
+        ('Administrador', 'Administrador'),
+        ('Staff', 'Staff'),
+    ]
+
+    # Cargos permitidos en el registro público (sin privilegios administrativos)
+    CARGO_CHOICES_PUBLICO = [
+        ('', 'Seleccionar cargo…'),
+        ('Invitado', 'Invitado'),
+        ('Aprendiz', 'Aprendiz'),
+        ('Instructor', 'Instructor'),
+    ]
+
     # Información personal
     tipo_documento = models.CharField(max_length=3, choices=TIPO_DOCUMENTO_CHOICES, default='CC')
     numero_documento = models.CharField(

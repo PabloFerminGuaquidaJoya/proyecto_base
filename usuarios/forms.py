@@ -178,7 +178,7 @@ class RegistroUsuarioForm(forms.ModelForm):
         label='Programa de Formación'
     )
     tipo_usuario = forms.ModelChoiceField(
-        queryset=TipoUsuario.objects.filter(nombre__in=['Aprendiz', 'Instructor'], activo=True),
+        queryset=TipoUsuario.objects.filter(nombre__in=['Invitado', 'Aprendiz', 'Instructor'], activo=True),
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_tipo_usuario'}),
         label='Tipo de usuario',
         empty_label='Seleccione un tipo de usuario',
