@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db.models import Q, Count
@@ -732,6 +733,7 @@ def cambiar_password_view(request):
         'title': 'Cambiar Contraseña - SENA'
     })
 
+@never_cache
 def register_view(request):
     """Vista de registro de usuarios - Solo para Instructores"""
     form = RegistroUsuarioForm()
