@@ -50,7 +50,7 @@ def crear_backup_automatico(tipo='automatico', descripcion=''):
         )
         os.makedirs(backup_dir, exist_ok=True)
 
-        backup_path = os.path.join(backup_dir, f'backup_{backup.id}.sql')
+        backup_path = os.path.abspath(os.path.join(backup_dir, f'backup_{backup.id}.sql'))
         exito, mensaje = _ejecutar_mysqldump(backup_path)
 
         if not exito:

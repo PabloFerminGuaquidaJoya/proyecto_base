@@ -130,6 +130,8 @@ def _obtener_tamano_db():
 def _ejecutar_mysqldump(backup_path):
     """
     Ejecuta mysqldump para crear un backup SQL de la base de datos.
+    Usa MYSQL_PWD como variable de entorno para evitar problemas con
+    contraseñas en la línea de comandos en Windows.
     Retorna (exito: bool, mensaje: str).
     """
     db = _get_db_config()
@@ -141,10 +143,14 @@ def _ejecutar_mysqldump(backup_path):
             'C:\\Program Files\\MySQL\\MySQL Server X.X\\bin esté en el PATH del sistema.'
         )
 
+    # Pasar la contraseña por variable de entorno evita warnings en stderr
+    # y problemas de parsing de caracteres especiales en Windows
+    env = os.environ.copy()
+    env['MYSQL_PWD'] = db['password']
+
     cmd = [
         mysqldump_exe,
         f'--user={db["user"]}',
-        f'--password={db["password"]}',
         f'--host={db["host"]}',
         f'--port={db["port"]}',
         '--single-transaction',
@@ -153,27 +159,44 @@ def _ejecutar_mysqldump(backup_path):
         '--add-drop-table',
         '--set-charset',
         '--default-character-set=utf8mb4',
+        '--no-tablespaces',          # evita error de privilegio PROCESS en MySQL 8+
         db['name'],
     ]
 
     try:
-        with open(backup_path, 'w', encoding='utf-8') as f:
-            result = subprocess.run(
-                cmd,
-                stdout=f,
-                stderr=subprocess.PIPE,
-                timeout=300,
-            )
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,  # capturar en memoria (evita corrupción Windows con text mode)
+            stderr=subprocess.PIPE,
+            timeout=300,
+            env=env,
+        )
+
+        stderr_text = result.stderr.decode('utf-8', errors='replace').strip()
 
         if result.returncode != 0:
-            error_msg = result.stderr.decode('utf-8', errors='replace').strip()
-            # Filtrar warnings de contraseña (no son errores reales)
             lineas_error = [
-                l for l in error_msg.splitlines()
-                if 'error' in l.lower() and 'using a password' not in l.lower()
+                l for l in stderr_text.splitlines()
+                if 'error' in l.lower()
             ]
-            if lineas_error:
-                return False, f'Error en mysqldump: {chr(10).join(lineas_error)}'
+            detalle = '\n'.join(lineas_error) if lineas_error else stderr_text
+            return False, f'mysqldump falló (código {result.returncode}): {detalle}'
+
+        # Verificar que el dump tenga contenido real
+        sql_bytes = result.stdout
+        if not sql_bytes or len(sql_bytes) < 200:
+            return False, (
+                f'mysqldump generó un archivo vacío o incompleto ({len(sql_bytes)} bytes). '
+                f'stderr: {stderr_text}'
+            )
+
+        # Escribir en binario para preservar el encoding exacto del dump
+        backup_path_abs = os.path.abspath(backup_path)
+        with open(backup_path_abs, 'wb') as f:
+            f.write(sql_bytes)
+
+        if not os.path.exists(backup_path_abs) or os.path.getsize(backup_path_abs) < 200:
+            return False, 'El archivo de backup fue escrito pero está vacío.'
 
         return True, 'Backup creado exitosamente'
 
@@ -186,6 +209,8 @@ def _ejecutar_mysqldump(backup_path):
 def _ejecutar_mysql_restore(backup_path):
     """
     Ejecuta mysql para restaurar un backup SQL.
+    Lee el archivo en binario y lo pasa por stdin usando input=
+    para evitar problemas con text mode en Windows.
     Retorna (exito: bool, mensaje: str).
     """
     db = _get_db_config()
@@ -197,10 +222,20 @@ def _ejecutar_mysql_restore(backup_path):
             'C:\\Program Files\\MySQL\\MySQL Server X.X\\bin esté en el PATH del sistema.'
         )
 
+    backup_path_abs = os.path.abspath(backup_path)
+    if not os.path.exists(backup_path_abs):
+        return False, f'Archivo de backup no encontrado: {backup_path_abs}'
+
+    file_size = os.path.getsize(backup_path_abs)
+    if file_size < 200:
+        return False, f'El archivo de backup parece estar corrupto o vacío ({file_size} bytes).'
+
+    env = os.environ.copy()
+    env['MYSQL_PWD'] = db['password']
+
     cmd = [
         mysql_exe,
         f'--user={db["user"]}',
-        f'--password={db["password"]}',
         f'--host={db["host"]}',
         f'--port={db["port"]}',
         '--default-character-set=utf8mb4',
@@ -208,22 +243,32 @@ def _ejecutar_mysql_restore(backup_path):
     ]
 
     try:
-        with open(backup_path, 'r', encoding='utf-8') as f:
-            result = subprocess.run(
-                cmd,
-                stdin=f,
-                stderr=subprocess.PIPE,
-                timeout=600,
-            )
+        # Leer en binario y pasar como input — el método más robusto en Windows
+        with open(backup_path_abs, 'rb') as f:
+            sql_bytes = f.read()
+
+        result = subprocess.run(
+            cmd,
+            input=sql_bytes,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=600,
+            env=env,
+        )
+
+        stderr_text = result.stderr.decode('utf-8', errors='replace').strip()
 
         if result.returncode != 0:
-            error_msg = result.stderr.decode('utf-8', errors='replace').strip()
             lineas_error = [
-                l for l in error_msg.splitlines()
-                if 'error' in l.lower() and 'using a password' not in l.lower()
+                l for l in stderr_text.splitlines()
+                if 'error' in l.lower()
             ]
-            if lineas_error:
-                return False, f'Error en restauración MySQL: {chr(10).join(lineas_error)}'
+            detalle = '\n'.join(lineas_error) if lineas_error else stderr_text
+            return False, f'mysql falló (código {result.returncode}): {detalle}'
+
+        # Cerrar conexiones antiguas de Django para reflejar la BD restaurada
+        from django.db import close_old_connections
+        close_old_connections()
 
         return True, 'Base de datos restaurada exitosamente'
 
@@ -386,7 +431,7 @@ def crear_backup(request):
 
             # Nombre del archivo de backup (.sql para MySQL)
             backup_filename = f'backup_{backup.id}.sql'
-            backup_path = os.path.join(backup_dir, backup_filename)
+            backup_path = os.path.abspath(os.path.join(backup_dir, backup_filename))
 
             # Ejecutar mysqldump
             exito, mensaje = _ejecutar_mysqldump(backup_path)
@@ -404,7 +449,7 @@ def crear_backup(request):
             # Contar tablas y registros
             total_tablas, total_registros = _contar_tablas_y_registros()
 
-            # Actualizar el backup
+            # Actualizar el backup (ruta absoluta para que os.path.exists siempre funcione)
             backup.ruta_archivo = backup_path
             backup.tamaño_bytes = tamaño
             backup.total_tablas = total_tablas
@@ -479,9 +524,12 @@ def restaurar_backup(request, backup_id):
             backup.estado = 'restaurando'
             backup.save()
 
+            # Obtener ruta absoluta del archivo de backup
+            ruta_backup = os.path.abspath(backup.ruta_archivo) if backup.ruta_archivo else ''
+
             # Restaurar el backup
-            if os.path.exists(backup.ruta_archivo):
-                exito, mensaje = _ejecutar_mysql_restore(backup.ruta_archivo)
+            if ruta_backup and os.path.exists(ruta_backup):
+                exito, mensaje = _ejecutar_mysql_restore(ruta_backup)
 
                 if not exito:
                     # Intentar restaurar el backup de seguridad
@@ -498,8 +546,8 @@ def restaurar_backup(request, backup_id):
                     backup.save()
                     return redirect('sistema:gestionar_backups')
 
-                # Actualizar el registro del backup
-                backup.estado = 'restaurado'
+                # Mantener estado 'completado' para que pueda volver a restaurarse
+                backup.estado = 'completado'
                 backup.fecha_restauracion = timezone.now()
                 backup.restaurado_por = usuario_actual
                 backup.notas_restauracion = request.POST.get('notas', '')
@@ -668,7 +716,7 @@ def crear_backup_rapido(request):
 
             # Nombre del archivo de backup (.sql para MySQL)
             backup_filename = f'backup_{backup.id}.sql'
-            backup_path = os.path.join(backup_dir, backup_filename)
+            backup_path = os.path.abspath(os.path.join(backup_dir, backup_filename))
 
             # Ejecutar mysqldump
             exito, mensaje = _ejecutar_mysqldump(backup_path)

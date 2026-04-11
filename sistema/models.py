@@ -273,7 +273,8 @@ class BackupDatabase(models.Model):
     def puede_restaurar(self):
         import os
         tiene_archivo = bool(self.archivo) or (self.ruta_archivo and os.path.exists(self.ruta_archivo))
-        return self.estado == 'completado' and tiene_archivo
+        # Permitir restaurar si el archivo existe, tanto si está 'completado' como ya 'restaurado'
+        return self.estado in ('completado', 'restaurado') and tiene_archivo
 
     @property
     def metadata_json(self):
