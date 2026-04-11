@@ -613,7 +613,8 @@ def admin_crear_usuario_ajax(request):
             centro_formacion=centro_obj,
             ficha=ficha_obj,
             tipo_usuario=tipo_usuario,
-            estado='pendiente',
+            estado='activo',
+            fecha_aprobacion=timezone.now(),
         )
 
         # Enviar correo de bienvenida
@@ -745,7 +746,8 @@ def register_view(request):
             tipo_usuario = form.cleaned_data.get('tipo_usuario')
             usuario.tipo_usuario = tipo_usuario
             usuario.cargo = tipo_usuario.nombre if tipo_usuario else ''
-            usuario.estado = 'pendiente'
+            usuario.estado = 'activo'
+            usuario.fecha_aprobacion = timezone.now()
 
             # Crear usuario de Django para autenticación
             password = form.cleaned_data.get('password')

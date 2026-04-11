@@ -1209,61 +1209,43 @@
         </div>
 
         <ul class="nav-menu">
-            {% if es_pendiente %}
-            <li class="nav-item">
-                <div style="margin:8px 12px;padding:8px 12px;background:rgba(251,191,36,.15);border-left:3px solid #f59e0b;border-radius:6px;">
-                    <small style="color:#f59e0b;font-size:.75rem;font-weight:600;display:block;">
-                        <i class="bi bi-hourglass-split me-1"></i>Cuenta pendiente
-                    </small>
-                    <small style="color:#d1d5db;font-size:.7rem;">Acceso limitado hasta que un administrador apruebe tu cuenta.</small>
-                </div>
-            </li>
-            {% endif %}
             <li class="nav-item">
                 <a href="{% url 'usuarios:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="bi bi-house"></i>
                     <span>Panel Principal</span>
                 </a>
             </li>
-            {% if nav_maquinaria %}
             <li class="nav-item">
                 <a href="{% url 'maquinaria:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'maquinaria' %}active{% endif %}">
                     <i class="bi bi-gear"></i>
                     <span>Maquinaria</span>
                 </a>
             </li>
-            {% endif %}
-            {% if nav_inventario %}
             <li class="nav-item">
                 <a href="{% url 'inventario:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'inventario' %}active{% endif %}">
                     <i class="bi bi-box-seam"></i>
                     <span>Inventario</span>
                 </a>
             </li>
-            {% endif %}
-            {% if nav_reportes %}
             <li class="nav-item">
                 <a href="{% url 'reportes:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'reportes' %}active{% endif %}">
                     <i class="bi bi-graph-up"></i>
                     <span>Reportes</span>
                 </a>
             </li>
-            {% endif %}
-            {% if nav_documentos %}
             <li class="nav-item">
                 <a href="{% url 'documentos:repositorio' %}" class="nav-link {% if request.resolver_match.app_name == 'documentos' %}active{% endif %}">
                     <i class="bi bi-files"></i>
                     <span>Documentos</span>
                 </a>
             </li>
-            {% endif %}
             <li class="nav-item">
                 <a href="{% url 'usuarios:perfil' %}" class="nav-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
                     <i class="bi bi-person-circle"></i>
                     <span>Mi Perfil</span>
                 </a>
             </li>
-            {% if nav_backups %}
+            {% if puede_crear_backup %}
             <li class="nav-item">
                 <a href="{% url 'sistema:gestionar_backups' %}" class="nav-link {% if request.resolver_match.app_name == 'sistema' and 'backup' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="bi bi-clock-history"></i>
@@ -1271,15 +1253,13 @@
                 </a>
             </li>
             {% endif %}
-            {% if nav_gestion_usuarios %}
+            {% if request.user.is_staff %}
             <li class="nav-item">
                 <a href="{% url 'usuarios:centro_control' %}" class="nav-link {% if request.resolver_match.url_name == 'centro_control' %}active{% endif %}">
                     <i class="bi bi-shield-lock"></i>
                     <span>Gestion de Usuarios</span>
                 </a>
             </li>
-            {% endif %}
-            {% if nav_centro_admin %}
             <li class="nav-item">
                 <a href="{% url 'sistema:centro_administrativo' %}" class="nav-link {% if request.resolver_match.url_name == 'centro_administrativo' %}active{% endif %}">
                     <i class="bi bi-building-gear"></i>

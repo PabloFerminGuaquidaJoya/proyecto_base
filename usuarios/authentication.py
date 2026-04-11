@@ -27,13 +27,6 @@ class UsuarioBackend(BaseBackend):
             )
             is_staff = self._calcular_is_staff(usuario)
 
-            # inactivo y suspendido no pueden entrar
-            if usuario.estado in ('inactivo', 'suspendido'):
-                return None
-
-            # is_active = True para activo y pendiente; False solo para inactivo/suspendido
-            es_activo = usuario.estado not in ('inactivo', 'suspendido')
-
             # Try to get or create Django user
             django_user, created = User.objects.get_or_create(
                 username=username,
@@ -41,7 +34,7 @@ class UsuarioBackend(BaseBackend):
                     'first_name': usuario.nombres,
                     'last_name': usuario.apellidos,
                     'email': usuario.email,
-                    'is_active': es_activo,
+                    'is_active': usuario.estado == 'activo',
                     'is_staff': is_staff,
                 }
             )
@@ -55,8 +48,9 @@ class UsuarioBackend(BaseBackend):
                 cambios = {}
                 if django_user.is_staff != is_staff:
                     cambios['is_staff'] = is_staff
-                if django_user.is_active != es_activo:
-                    cambios['is_active'] = es_activo
+                nueva_is_active = usuario.estado == 'activo'
+                if django_user.is_active != nueva_is_active:
+                    cambios['is_active'] = nueva_is_active
                 if cambios:
                     for k, v in cambios.items():
                         setattr(django_user, k, v)
@@ -74,18 +68,13 @@ class UsuarioBackend(BaseBackend):
                 )
                 is_staff = self._calcular_is_staff(usuario)
 
-                if usuario.estado in ('inactivo', 'suspendido'):
-                    return None
-
-                es_activo = usuario.estado not in ('inactivo', 'suspendido')
-
                 django_user, created = User.objects.get_or_create(
                     username=usuario.numero_documento,
                     defaults={
                         'first_name': usuario.nombres,
                         'last_name': usuario.apellidos,
                         'email': usuario.email,
-                        'is_active': es_activo,
+                        'is_active': usuario.estado == 'activo',
                         'is_staff': is_staff,
                     }
                 )
@@ -97,8 +86,9 @@ class UsuarioBackend(BaseBackend):
                     cambios = {}
                     if django_user.is_staff != is_staff:
                         cambios['is_staff'] = is_staff
-                    if django_user.is_active != es_activo:
-                        cambios['is_active'] = es_activo
+                    nueva_is_active = usuario.estado == 'activo'
+                    if django_user.is_active != nueva_is_active:
+                        cambios['is_active'] = nueva_is_active
                     if cambios:
                         for k, v in cambios.items():
                             setattr(django_user, k, v)
