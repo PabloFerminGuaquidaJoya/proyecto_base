@@ -949,23 +949,7 @@
                 firstEmptyField.focus();
             }
             
-            // Caps Lock detection
-            document.addEventListener('keydown', function(e) {
-                const capsLockWarning = document.getElementById('capsLockWarning');
-                if (e.getModifierState && e.getModifierState('CapsLock')) {
-                    if (!capsLockWarning) {
-                        const warning = document.createElement('div');
-                        warning.id = 'capsLockWarning';
-                        warning.className = 'alert alert-warning mt-2';
-                        warning.innerHTML = '<i class="bi bi-caps-lock me-2"></i>Mayúsculas activadas';
-                        document.getElementById('id_password').parentNode.appendChild(warning);
-                    }
-                } else if (capsLockWarning) {
-                    capsLockWarning.remove();
-                }
-            });
-            
-            // Remember me functionality
+// Remember me functionality
             const rememberCheckbox = document.getElementById('rememberMe');
             const usernameInput = document.getElementById('id_username');
             
