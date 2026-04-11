@@ -194,7 +194,7 @@
                         <th>Nombre</th>
                         <th>Categoría</th>
                         <th>Estado</th>
-                        <th>Condición</th>
+                        <th>Mantenimientos</th>
                         <th>Ubicación</th>
                         <th>Fecha Adquisición</th>
                         <th>Acciones</th>
@@ -227,17 +227,9 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if maquina.condicion == 'excelente' %}
-                                    <span class="badge bg-success">{{ maquina.get_condicion_display }}</span>
-                                {% elif maquina.condicion == 'buena' %}
-                                    <span class="badge bg-primary">{{ maquina.get_condicion_display }}</span>
-                                {% elif maquina.condicion == 'regular' %}
-                                    <span class="badge bg-warning">{{ maquina.get_condicion_display }}</span>
-                                {% elif maquina.condicion == 'mala' %}
-                                    <span class="badge bg-danger">{{ maquina.get_condicion_display }}</span>
-                                {% else %}
-                                    <span class="badge bg-dark">{{ maquina.get_condicion_display }}</span>
-                                {% endif %}
+                                <a href="{% url 'maquinaria:mantenimientos_maquina' pk=maquina.pk %}" class="btn btn-sm btn-outline-sena-primary" title="Ver mantenimientos">
+                                    <i class="bi bi-wrench me-1"></i>Ver mantenimientos
+                                </a>
                             </td>
                             <td>{{ maquina.ubicacion|default:"-" }}</td>
                             <td>{{ maquina.fecha_adquisicion|date:"d/m/Y"|default:"-" }}</td>

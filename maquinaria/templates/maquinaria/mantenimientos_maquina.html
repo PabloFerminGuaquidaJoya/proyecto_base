@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+
+{% block title %}Mantenimientos - {{ maquina.codigo_inventario }}{% endblock %}
+{% block page_title %}Mantenimientos de Máquina{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'maquinaria:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}">{{ maquina.codigo_inventario }}</a></li>
+        <li class="breadcrumb-item active">Mantenimientos</li>
+    </ol>
+</nav>
+
+<!-- Info de la máquina -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                {% if maquina.imagen %}
+                    <img src="{{ maquina.imagen.url }}" alt="{{ maquina.nombre }}" class="rounded" style="width:56px;height:56px;object-fit:cover;">
+                {% else %}
+                    <div class="rounded d-flex align-items-center justify-content-center bg-light" style="width:56px;height:56px;">
+                        <i class="bi bi-gear fs-3 text-muted"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <h5 class="mb-0 fw-bold">{{ maquina.nombre }}</h5>
+                    <span class="text-muted small">{{ maquina.codigo_inventario }} &bull; {{ maquina.marca }} {{ maquina.modelo }}</span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'maquinaria:programar_mantenimiento_maquina' pk=maquina.pk %}" class="btn btn-sena-gradient btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i>Programar Mantenimiento
+                </a>
+                <a href="{% url 'maquinaria:detalle_maquina' pk=maquina.pk %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tarjetas de resumen -->
+<div class="row mb-4">
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card text-center h-100 border-0 shadow-sm">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-secondary">{{ resumen.total }}</div>
+                <div class="small text-muted">Total</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card text-center h-100 border-0 shadow-sm">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-success">{{ resumen.completados }}</div>
+                <div class="small text-muted">Completados</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card text-center h-100 border-0 shadow-sm">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-warning">{{ resumen.programados }}</div>
+                <div class="small text-muted">Programados</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card text-center h-100 border-0 shadow-sm">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-primary">{{ resumen.en_progreso }}</div>
+                <div class="small text-muted">En Progreso</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small mb-1">Estado</label>
+                <select name="estado" class="form-select form-select-sm">
+                    <option value="">Todos los estados</option>
+                    {% for value, label in estado_choices %}
+                        <option value="{{ value }}" {% if estado_filtro == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small mb-1">Tipo</label>
+                <select name="tipo" class="form-select form-select-sm">
+                    <option value="">Todos los tipos</option>
+                    {% for value, label in tipo_choices %}
+                        <option value="{{ value }}" {% if tipo_filtro == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-sena-gradient btn-sm">
+                    <i class="bi bi-funnel me-1"></i>Filtrar
+                </button>
+                {% if estado_filtro or tipo_filtro %}
+                <a href="{% url 'maquinaria:mantenimientos_maquina' pk=maquina.pk %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-x-circle me-1"></i>Limpiar
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de mantenimientos -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">
+            <i class="bi bi-wrench me-2"></i>Historial de Mantenimientos
+        </h6>
+        <span class="badge bg-secondary">{{ mantenimientos.paginator.count }} registro{{ mantenimientos.paginator.count|pluralize }}</span>
+    </div>
+    <div class="card-body p-0">
+        {% if mantenimientos %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Título</th>
+                        <th>Tipo</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Fecha Programada</th>
+                        <th>Fecha Realizado</th>
+                        <th>Técnico</th>
+                        <th>Costo Real</th>
+                        <th class="pe-3">Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in mantenimientos %}
+                    <tr data-bs-toggle="collapse" data-bs-target="#detalle-{{ m.pk }}" style="cursor:pointer;">
+                        <td class="ps-3 fw-semibold">{{ m.titulo }}</td>
+                        <td>
+                            {% if m.tipo == 'preventivo' %}
+                                <span class="badge bg-success">{{ m.get_tipo_display }}</span>
+                            {% elif m.tipo == 'correctivo' %}
+                                <span class="badge bg-danger">{{ m.get_tipo_display }}</span>
+                            {% elif m.tipo == 'predictivo' %}
+                                <span class="badge bg-info">{{ m.get_tipo_display }}</span>
+                            {% elif m.tipo == 'urgente' %}
+                                <span class="badge bg-warning text-dark">{{ m.get_tipo_display }}</span>
+                            {% else %}
+                                <span class="badge bg-dark">{{ m.get_tipo_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if m.prioridad == 'baja' %}
+                                <span class="badge bg-secondary">{{ m.get_prioridad_display }}</span>
+                            {% elif m.prioridad == 'media' %}
+                                <span class="badge bg-primary">{{ m.get_prioridad_display }}</span>
+                            {% elif m.prioridad == 'alta' %}
+                                <span class="badge bg-warning text-dark">{{ m.get_prioridad_display }}</span>
+                            {% elif m.prioridad == 'critica' %}
+                                <span class="badge bg-danger">{{ m.get_prioridad_display }}</span>
+                            {% else %}
+                                <span class="badge bg-dark">{{ m.get_prioridad_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if m.estado == 'completado' %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{{ m.get_estado_display }}</span>
+                            {% elif m.estado == 'programado' %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i>{{ m.get_estado_display }}</span>
+                            {% elif m.estado == 'en_progreso' %}
+                                <span class="badge bg-primary"><i class="bi bi-arrow-repeat me-1"></i>{{ m.get_estado_display }}</span>
+                            {% elif m.estado == 'cancelado' %}
+                                <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i>{{ m.get_estado_display }}</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ m.get_estado_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ m.fecha_programada|date:"d/m/Y H:i" }}</td>
+                        <td>{{ m.fecha_fin_real|date:"d/m/Y H:i"|default:"—" }}</td>
+                        <td>
+                            {% if m.tecnico_realizado %}
+                                {{ m.tecnico_realizado.get_full_name|default:m.tecnico_realizado.username }}
+                            {% elif m.tecnico_asignado %}
+                                <span class="text-muted">{{ m.tecnico_asignado.get_full_name|default:m.tecnico_asignado.username }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if m.costo_real %}
+                                ${{ m.costo_real|floatformat:0 }}
+                            {% elif m.costo_estimado %}
+                                <span class="text-muted">~${{ m.costo_estimado|floatformat:0 }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-3">
+                            <i class="bi bi-chevron-down text-muted"></i>
+                        </td>
+                    </tr>
+                    <!-- Fila expandible con detalle -->
+                    <tr class="collapse" id="detalle-{{ m.pk }}">
+                        <td colspan="9" class="bg-light px-4 py-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p class="mb-1"><strong>Descripción:</strong></p>
+                                    <p class="text-muted small">{{ m.descripcion|default:"—" }}</p>
+                                    {% if m.trabajo_realizado %}
+                                    <p class="mb-1"><strong>Trabajo realizado:</strong></p>
+                                    <p class="text-muted small">{{ m.trabajo_realizado }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    {% if m.observaciones %}
+                                    <p class="mb-1"><strong>Observaciones:</strong></p>
+                                    <p class="text-muted small">{{ m.observaciones }}</p>
+                                    {% endif %}
+                                    {% if m.problemas_encontrados %}
+                                    <p class="mb-1"><strong>Problemas encontrados:</strong></p>
+                                    <p class="text-muted small text-danger">{{ m.problemas_encontrados }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1 small"><strong>Duración estimada:</strong> {{ m.duracion_estimada }}</p>
+                                    {% if m.duracion_real %}<p class="mb-1 small"><strong>Duración real:</strong> {{ m.duracion_real }}</p>{% endif %}
+                                    {% if m.costo_repuestos %}<p class="mb-1 small"><strong>Costo repuestos:</strong> ${{ m.costo_repuestos|floatformat:0 }}</p>{% endif %}
+                                    {% if m.costo_mano_obra %}<p class="mb-1 small"><strong>Costo mano de obra:</strong> ${{ m.costo_mano_obra|floatformat:0 }}</p>{% endif %}
+                                    {% if m.proximo_mantenimiento %}<p class="mb-1 small"><strong>Próximo mantenimiento:</strong> {{ m.proximo_mantenimiento|date:"d/m/Y" }}</p>{% endif %}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if mantenimientos.has_other_pages %}
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    {% if mantenimientos.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page=1{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}">Primera</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ mantenimientos.previous_page_number }}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}">Anterior</a></li>
+                    {% endif %}
+                    <li class="page-item active"><span class="page-link">{{ mantenimientos.number }} / {{ mantenimientos.paginator.num_pages }}</span></li>
+                    {% if mantenimientos.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ mantenimientos.next_page_number }}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}">Siguiente</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ mantenimientos.paginator.num_pages }}{% if estado_filtro %}&estado={{ estado_filtro }}{% endif %}{% if tipo_filtro %}&tipo={{ tipo_filtro }}{% endif %}">Última</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-wrench text-muted" style="font-size:3rem;opacity:.4;"></i>
+            <h5 class="mt-3 text-muted">Sin mantenimientos registrados</h5>
+            <p class="text-muted mb-3">
+                {% if estado_filtro or tipo_filtro %}
+                    No hay mantenimientos con los filtros seleccionados.
+                {% else %}
+                    Aún no se ha registrado ningún mantenimiento para esta máquina.
+                {% endif %}
+            </p>
+            <a href="{% url 'maquinaria:programar_mantenimiento_maquina' pk=maquina.pk %}" class="btn btn-sena-gradient btn-sm">
+                <i class="bi bi-plus-circle me-1"></i>Programar Primer Mantenimiento
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

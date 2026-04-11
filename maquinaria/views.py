@@ -1215,3 +1215,48 @@ def lista_uso_maquinaria_view(request):
         'maquinas': Maquina.objects.all().order_by('codigo_inventario'),
         'maquina_filtro': maquina_filtro,
     })
+
+
+@login_required
+def mantenimientos_maquina_view(request, pk):
+    """Lista todos los mantenimientos de una máquina específica."""
+    maquina = get_object_or_404(Maquina, pk=pk)
+
+    mantenimientos = MantenimientoProgramado.objects.filter(
+        maquina=maquina
+    ).select_related('tecnico_asignado', 'tecnico_realizado').order_by('-fecha_programada')
+
+    # Filtro por estado
+    estado_filtro = request.GET.get('estado', '')
+    if estado_filtro:
+        mantenimientos = mantenimientos.filter(estado=estado_filtro)
+
+    # Filtro por tipo
+    tipo_filtro = request.GET.get('tipo', '')
+    if tipo_filtro:
+        mantenimientos = mantenimientos.filter(tipo=tipo_filtro)
+
+    paginator = Paginator(mantenimientos, 15)
+    page = request.GET.get('page')
+    mantenimientos_page = paginator.get_page(page)
+
+    # Totales para resumen
+    total = MantenimientoProgramado.objects.filter(maquina=maquina)
+    resumen = {
+        'total': total.count(),
+        'completados': total.filter(estado='completado').count(),
+        'programados': total.filter(estado='programado').count(),
+        'en_progreso': total.filter(estado='en_progreso').count(),
+        'cancelados': total.filter(estado='cancelado').count(),
+    }
+
+    return render(request, 'maquinaria/mantenimientos_maquina.html', {
+        'title': f'Mantenimientos - {maquina.codigo_inventario}',
+        'maquina': maquina,
+        'mantenimientos': mantenimientos_page,
+        'estado_filtro': estado_filtro,
+        'tipo_filtro': tipo_filtro,
+        'resumen': resumen,
+        'estado_choices': MantenimientoProgramado.ESTADO_CHOICES,
+        'tipo_choices': MantenimientoProgramado.TIPO_MANTENIMIENTO_CHOICES,
+    })
