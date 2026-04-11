@@ -89,6 +89,18 @@ class Usuario(models.Model):
             models.Index(fields=['estado']),
         ]
 
+    @staticmethod
+    def _capitalizar_nombre(valor):
+        """Capitaliza la primera letra de cada palabra del nombre/apellido."""
+        if not valor:
+            return valor
+        return ' '.join(palabra.capitalize() for palabra in valor.strip().split())
+
+    def save(self, *args, **kwargs):
+        self.nombres   = self._capitalizar_nombre(self.nombres)
+        self.apellidos = self._capitalizar_nombre(self.apellidos)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.nombres} {self.apellidos} ({self.numero_documento})"
 

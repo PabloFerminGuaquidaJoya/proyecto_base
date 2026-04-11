@@ -1738,5 +1738,122 @@
         });
     </script>
     {% block extra_js %}{% endblock %}
+
+    <!-- ── Capitalización automática de nombres y apellidos ─────────────── -->
+    <script>
+    (function () {
+        'use strict';
+
+        // IDs y nombres de campo de nombres/apellidos en todo el proyecto
+        const NOMBRE_PATTERN = /\bnombres?\b|\bapellidos?\b|\bfirst.?name\b|\blast.?name\b/i;
+
+        function esCampoNombre(el) {
+            const id   = (el.id   || '').toLowerCase();
+            const name = (el.name || '').toLowerCase();
+            return NOMBRE_PATTERN.test(id) || NOMBRE_PATTERN.test(name);
+        }
+
+        function capitalizarPalabras(str) {
+            return str.replace(/\b\w/g, function (letra) { return letra.toUpperCase(); });
+        }
+
+        function aplicarCapitalizacion(el) {
+            if (!esCampoNombre(el) || el.dataset.capitalInit) return;
+            el.dataset.capitalInit = '1';
+
+            el.addEventListener('input', function () {
+                const pos = el.selectionStart;
+                const nuevo = capitalizarPalabras(el.value);
+                if (nuevo !== el.value) {
+                    el.value = nuevo;
+                    // Restaurar posición del cursor
+                    el.setSelectionRange(pos, pos);
+                }
+            });
+
+            // También al salir del campo (por si pegaron texto)
+            el.addEventListener('blur', function () {
+                el.value = capitalizarPalabras(el.value.trim());
+            });
+        }
+
+        function activarEnDocumento() {
+            document.querySelectorAll('input[type="text"], textarea').forEach(aplicarCapitalizacion);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', activarEnDocumento);
+        } else {
+            activarEnDocumento();
+        }
+
+        // Cubrir campos que aparezcan dinámicamente (modales, AJAX)
+        new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+                m.addedNodes.forEach(function (node) {
+                    if (node.nodeType !== 1) return;
+                    if (node.matches && node.matches('input[type="text"], textarea')) {
+                        aplicarCapitalizacion(node);
+                    }
+                    node.querySelectorAll && node.querySelectorAll('input[type="text"], textarea')
+                        .forEach(aplicarCapitalizacion);
+                });
+            });
+        }).observe(document.body, { childList: true, subtree: true });
+    })();
+    </script>
+
+    <!-- ── Corrector Ortográfico Global (español) ────────────────────────── -->
+    <script>
+    (function () {
+        'use strict';
+
+        // Selectores de campos de texto donde se activa el corrector
+        const SELECTOR = 'input[type="text"], input[type="search"], input[type="email"], textarea';
+        // Campos que NO deben tener corrector (contraseñas, números, ocultos, etc.)
+        const EXCLUDE  = ['password', 'number', 'hidden', 'file', 'color', 'range', 'date', 'time', 'datetime-local', 'month', 'week', 'tel', 'url'];
+
+        function activarCorrectorEnElemento(el) {
+            if (!el || el.dataset.spellcheckInit) return;
+            // Excluir por tipo
+            if (EXCLUDE.includes((el.type || '').toLowerCase())) return;
+            // Excluir campos con nombre que sugieran datos técnicos (JSON, código, contraseña)
+            const name = (el.name || el.id || '').toLowerCase();
+            if (/password|contrase|token|csrf|json|code|color|search_api/.test(name)) return;
+
+            el.setAttribute('spellcheck', 'true');
+            el.setAttribute('lang', 'es');
+            el.dataset.spellcheckInit = '1';
+        }
+
+        function activarEnDocumento() {
+            document.querySelectorAll(SELECTOR).forEach(activarCorrectorEnElemento);
+        }
+
+        // Activar en los elementos ya presentes al cargar la página
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', activarEnDocumento);
+        } else {
+            activarEnDocumento();
+        }
+
+        // Activar en elementos que se agreguen dinámicamente (modales, AJAX, etc.)
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                mutation.addedNodes.forEach(function (node) {
+                    if (node.nodeType !== 1) return; // solo elementos
+                    // El propio nodo
+                    if (node.matches && node.matches(SELECTOR)) {
+                        activarCorrectorEnElemento(node);
+                    }
+                    // Sus descendientes
+                    node.querySelectorAll && node.querySelectorAll(SELECTOR).forEach(activarCorrectorEnElemento);
+                });
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    })();
+    </script>
 </body>
 </html>

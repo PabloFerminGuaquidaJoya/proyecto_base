@@ -1327,6 +1327,88 @@
         });
     </script>
 
+    <!-- ── Capitalización automática de nombres y apellidos ─────────────── -->
+    <script>
+    (function () {
+        'use strict';
+        const NOMBRE_PATTERN = /\bnombres?\b|\bapellidos?\b|\bfirst.?name\b|\blast.?name\b/i;
+        function esCampoNombre(el) {
+            return NOMBRE_PATTERN.test(el.id || '') || NOMBRE_PATTERN.test(el.name || '');
+        }
+        function capitalizarPalabras(str) {
+            return str.replace(/\b\w/g, function (l) { return l.toUpperCase(); });
+        }
+        function aplicarCapitalizacion(el) {
+            if (!esCampoNombre(el) || el.dataset.capitalInit) return;
+            el.dataset.capitalInit = '1';
+            el.addEventListener('input', function () {
+                const pos = el.selectionStart;
+                const nuevo = capitalizarPalabras(el.value);
+                if (nuevo !== el.value) { el.value = nuevo; el.setSelectionRange(pos, pos); }
+            });
+            el.addEventListener('blur', function () { el.value = capitalizarPalabras(el.value.trim()); });
+        }
+        function activarEnDocumento() {
+            document.querySelectorAll('input[type="text"], textarea').forEach(aplicarCapitalizacion);
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', activarEnDocumento);
+        } else {
+            activarEnDocumento();
+        }
+        new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+                m.addedNodes.forEach(function (node) {
+                    if (node.nodeType !== 1) return;
+                    if (node.matches && node.matches('input[type="text"], textarea')) aplicarCapitalizacion(node);
+                    node.querySelectorAll && node.querySelectorAll('input[type="text"], textarea').forEach(aplicarCapitalizacion);
+                });
+            });
+        }).observe(document.body, { childList: true, subtree: true });
+    })();
+    </script>
+
+    <!-- ── Corrector Ortográfico Global (español) ────────────────────────── -->
+    <script>
+    (function () {
+        'use strict';
+        const SELECTOR = 'input[type="text"], input[type="search"], input[type="email"], textarea';
+        const EXCLUDE  = ['password', 'number', 'hidden', 'file', 'color', 'range', 'date', 'time', 'datetime-local', 'month', 'week', 'tel', 'url'];
+
+        function activarCorrectorEnElemento(el) {
+            if (!el || el.dataset.spellcheckInit) return;
+            if (EXCLUDE.includes((el.type || '').toLowerCase())) return;
+            const name = (el.name || el.id || '').toLowerCase();
+            if (/password|contrase|token|csrf|json|code|color/.test(name)) return;
+            el.setAttribute('spellcheck', 'true');
+            el.setAttribute('lang', 'es');
+            el.dataset.spellcheckInit = '1';
+        }
+
+        function activarEnDocumento() {
+            document.querySelectorAll(SELECTOR).forEach(activarCorrectorEnElemento);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', activarEnDocumento);
+        } else {
+            activarEnDocumento();
+        }
+
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                mutation.addedNodes.forEach(function (node) {
+                    if (node.nodeType !== 1) return;
+                    if (node.matches && node.matches(SELECTOR)) activarCorrectorEnElemento(node);
+                    node.querySelectorAll && node.querySelectorAll(SELECTOR).forEach(activarCorrectorEnElemento);
+                });
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    })();
+    </script>
+
     <!-- Footer -->
     <footer class="footer">
         <span>&copy; {% now "Y" %} SENA &mdash; Servicio Nacional de Aprendizaje.</span>
