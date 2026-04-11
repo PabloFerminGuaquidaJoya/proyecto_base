@@ -163,6 +163,18 @@ class MaquinaForm(forms.ModelForm):
         # Filtrar proveedores activos
         self.fields['proveedor'].queryset = Proveedor.objects.filter(activo=True)
 
+        # Si la máquina ya existe y tiene fecha de adquisición, bloquear el campo
+        if self.instance.pk and self.instance.fecha_adquisicion:
+            self.fields['fecha_adquisicion'].widget.attrs['readonly'] = True
+            self.fields['fecha_adquisicion'].widget.attrs['class'] = 'form-control bg-light'
+            self.fields['fecha_adquisicion'].help_text = 'La fecha de adquisición no puede modificarse una vez establecida.'
+
+    def clean_fecha_adquisicion(self):
+        # Si la máquina ya tiene fecha de adquisición, ignorar el valor enviado y conservar el original
+        if self.instance.pk and self.instance.fecha_adquisicion:
+            return self.instance.fecha_adquisicion
+        return self.cleaned_data.get('fecha_adquisicion')
+
     def clean(self):
         cleaned_data = super().clean()
         # Sincronizar ubicacion con ambiente_formacion para mantener compatibilidad

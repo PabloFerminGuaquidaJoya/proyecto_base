@@ -230,9 +230,17 @@
 
                             <div class="mb-3">
                                 <label for="{{ form.fecha_adquisicion.id_for_label }}" class="form-label">
-                                    {{ form.fecha_adquisicion.label }} {% if form.fecha_adquisicion.field.required %}<span class="text-danger">*</span>{% endif %}
+                                    {{ form.fecha_adquisicion.label }}
+                                    {% if maquina.fecha_adquisicion %}
+                                        <i class="bi bi-lock-fill text-secondary ms-1" title="No editable"></i>
+                                    {% elif form.fecha_adquisicion.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
                                 </label>
                                 {{ form.fecha_adquisicion }}
+                                {% if form.fecha_adquisicion.help_text %}
+                                    <div class="form-text text-muted">{{ form.fecha_adquisicion.help_text }}</div>
+                                {% endif %}
                                 {% if form.fecha_adquisicion.errors %}
                                     <div class="text-danger small">{{ form.fecha_adquisicion.errors.0 }}</div>
                                 {% endif %}
@@ -444,19 +452,11 @@ window.addEventListener('beforeunload', function(e) {
 
 // Form submission
 document.getElementById('editMaquinaForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
     const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Guardando...';
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
     submitBtn.disabled = true;
-
-    // Simulate save
-    setTimeout(() => {
-        alert('¡Cambios guardados exitosamente!');
-        hasChanges = false;
-        window.location.href = '{% url "maquinaria:detalle_maquina" pk=1 %}';
-    }, 2000);
+    hasChanges = false;
+    // El formulario se envía normalmente al servidor (POST)
 });
 
 function showHistory() {
