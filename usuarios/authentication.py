@@ -27,6 +27,13 @@ class UsuarioBackend(BaseBackend):
             )
             is_staff = self._calcular_is_staff(usuario)
 
+            # inactivo y suspendido no pueden entrar
+            if usuario.estado in ('inactivo', 'suspendido'):
+                return None
+
+            # is_active = True para activo y pendiente; False solo para inactivo/suspendido
+            es_activo = usuario.estado not in ('inactivo', 'suspendido')
+
             # Try to get or create Django user
             django_user, created = User.objects.get_or_create(
                 username=username,
@@ -34,7 +41,7 @@ class UsuarioBackend(BaseBackend):
                     'first_name': usuario.nombres,
                     'last_name': usuario.apellidos,
                     'email': usuario.email,
-                    'is_active': usuario.estado == 'activo',
+                    'is_active': es_activo,
                     'is_staff': is_staff,
                 }
             )
@@ -44,10 +51,16 @@ class UsuarioBackend(BaseBackend):
                 django_user.set_password(password)
                 django_user.save()
             else:
-                # Actualizar is_staff en cada login por si cambió el rol
+                # Sincronizar is_staff e is_active en cada login
+                cambios = {}
                 if django_user.is_staff != is_staff:
-                    django_user.is_staff = is_staff
-                    django_user.save(update_fields=['is_staff'])
+                    cambios['is_staff'] = is_staff
+                if django_user.is_active != es_activo:
+                    cambios['is_active'] = es_activo
+                if cambios:
+                    for k, v in cambios.items():
+                        setattr(django_user, k, v)
+                    django_user.save(update_fields=list(cambios.keys()))
 
             # Check password
             if django_user.check_password(password) and django_user.is_active:
@@ -61,13 +74,18 @@ class UsuarioBackend(BaseBackend):
                 )
                 is_staff = self._calcular_is_staff(usuario)
 
+                if usuario.estado in ('inactivo', 'suspendido'):
+                    return None
+
+                es_activo = usuario.estado not in ('inactivo', 'suspendido')
+
                 django_user, created = User.objects.get_or_create(
                     username=usuario.numero_documento,
                     defaults={
                         'first_name': usuario.nombres,
                         'last_name': usuario.apellidos,
                         'email': usuario.email,
-                        'is_active': usuario.estado == 'activo',
+                        'is_active': es_activo,
                         'is_staff': is_staff,
                     }
                 )
@@ -76,9 +94,15 @@ class UsuarioBackend(BaseBackend):
                     django_user.set_password(password)
                     django_user.save()
                 else:
+                    cambios = {}
                     if django_user.is_staff != is_staff:
-                        django_user.is_staff = is_staff
-                        django_user.save(update_fields=['is_staff'])
+                        cambios['is_staff'] = is_staff
+                    if django_user.is_active != es_activo:
+                        cambios['is_active'] = es_activo
+                    if cambios:
+                        for k, v in cambios.items():
+                            setattr(django_user, k, v)
+                        django_user.save(update_fields=list(cambios.keys()))
 
                 if django_user.check_password(password) and django_user.is_active:
                     return django_user
