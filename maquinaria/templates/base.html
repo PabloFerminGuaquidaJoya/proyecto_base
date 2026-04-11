@@ -1268,10 +1268,13 @@
             </li>
             {% endif %}
             <li class="nav-item">
-                <a href="{% url 'usuarios:logout' %}" class="nav-link">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Cerrar Sesión</span>
-                </a>
+                <form method="post" action="{% url 'usuarios:logout' %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link w-100 text-start border-0 bg-transparent">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
             </li>
         </ul>
     </nav>

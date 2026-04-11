@@ -76,20 +76,18 @@ def login_view(request):
         'title': 'Iniciar Sesión - SENA'
     })
 
-@login_required
 def logout_view(request):
-    """Vista de cierre de sesión"""
-    try:
-        usuario = Usuario.objects.get(numero_documento=request.user.username)
-        usuario.sesiones.filter(activa=True).update(
-            fecha_fin=timezone.now(),
-            activa=False
-        )
-    except Usuario.DoesNotExist:
-        pass
-
-    logout(request)
-    messages.info(request, 'Has cerrado sesión correctamente')
+    """Vista de cierre de sesión — acepta GET y POST."""
+    if request.user.is_authenticated:
+        try:
+            usuario = Usuario.objects.get(numero_documento=request.user.username)
+            usuario.sesiones.filter(activa=True).update(
+                fecha_fin=timezone.now(),
+                activa=False
+            )
+        except Usuario.DoesNotExist:
+            pass
+        logout(request)
     return redirect('usuarios:login')
 
 @login_required
