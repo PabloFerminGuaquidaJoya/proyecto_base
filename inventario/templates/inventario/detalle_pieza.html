@@ -177,7 +177,7 @@
                 <h6 class="m-0 font-weight-bold text-sena-gradient">Acciones</h6>
             </div>
             <div class="card-body d-grid gap-2">
-                {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                {% if cargo_efectivo|lower != 'aprendiz' %}
                 <a href="{% url 'inventario:editar_pieza' pieza.pk %}" class="btn btn-sena-gradient">
                     <i class="bi bi-pencil me-2"></i>Editar Pieza
                 </a>
@@ -185,7 +185,7 @@
                 <a href="{% url 'inventario:lista_piezas' %}" class="btn btn-outline-sena-secondary">
                     <i class="bi bi-list me-2"></i>Ver Todas
                 </a>
-                {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                {% if cargo_efectivo|lower != 'aprendiz' %}
                 <a href="{% url 'inventario:eliminar_pieza' pieza.pk %}" class="btn btn-outline-danger">
                     <i class="bi bi-trash me-2"></i>Eliminar
                 </a>

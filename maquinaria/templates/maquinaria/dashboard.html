@@ -13,10 +13,10 @@
                     <div class="col me-2">
                         <div class="text-xs fw-bold text-sena-secondary text-uppercase mb-1">
                             Total Máquinas</div>
-                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_maquinas }}</div>
+                        <div class="h5 mb-0 fw-bold">{{ total_maquinas }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-gear fs-2 text-gray-300"></i>
+                        <i class="bi bi-gear fs-2 text-sena-secondary" style="opacity:.35;"></i>
                     </div>
                 </div>
             </div>
@@ -30,10 +30,10 @@
                     <div class="col me-2">
                         <div class="text-xs fw-bold text-sena-primary text-uppercase mb-1">
                             Operativas</div>
-                        <div class="h5 mb-0 fw-bold text-gray-800">{{ maquinas_operativas }}</div>
+                        <div class="h5 mb-0 fw-bold">{{ maquinas_operativas }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-check-circle fs-2 text-gray-300"></i>
+                        <i class="bi bi-check-circle fs-2 text-sena-primary" style="opacity:.35;"></i>
                     </div>
                 </div>
             </div>
@@ -47,10 +47,10 @@
                     <div class="col me-2">
                         <div class="text-xs fw-bold text-sena-accent text-uppercase mb-1">
                             En Mantenimiento</div>
-                        <div class="h5 mb-0 fw-bold text-gray-800">{{ maquinas_mantenimiento }}</div>
+                        <div class="h5 mb-0 fw-bold">{{ maquinas_mantenimiento }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-wrench fs-2 text-gray-300"></i>
+                        <i class="bi bi-wrench fs-2 text-sena-accent" style="opacity:.35;"></i>
                     </div>
                 </div>
             </div>
@@ -64,10 +64,10 @@
                     <div class="col me-2">
                         <div class="text-xs fw-bold text-sena-danger text-uppercase mb-1">
                             Alertas Activas</div>
-                        <div class="h5 mb-0 fw-bold text-gray-800">{{ alertas_activas }}</div>
+                        <div class="h5 mb-0 fw-bold">{{ alertas_activas }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-exclamation-triangle fs-2 text-gray-300"></i>
+                        <i class="bi bi-exclamation-triangle fs-2 text-sena-danger" style="opacity:.35;"></i>
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
     </div>
     <div class="card-body">
         <div class="row">
-            {% if usuario_actual.cargo|lower != 'aprendiz' %}
+            {% if cargo_efectivo|lower != 'aprendiz' %}
             <div class="col-md-3 mb-3">
                 <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-sena-gradient w-100">
                     <i class="bi bi-plus-circle me-2"></i>Nueva Máquina
@@ -99,7 +99,7 @@
                     <i class="bi bi-wrench me-2"></i>Mantenimiento
                 </a>
             </div>
-            {% if usuario_actual.cargo|lower != 'aprendiz' %}
+            {% if cargo_efectivo|lower != 'aprendiz' %}
             <div class="col-md-3 mb-3">
                 <a href="{% url 'maquinaria:registrar_uso_maquinaria' %}" class="btn btn-sena-gradient w-100">
                     <i class="bi bi-speedometer2 me-2"></i>Registrar Uso
@@ -153,7 +153,7 @@
                     <i class="bi bi-search me-2"></i>Filtrar
                 </button>
             </div>
-            {% if usuario_actual.cargo|lower != 'aprendiz' %}
+            {% if cargo_efectivo|lower != 'aprendiz' %}
             <div class="col-md-3">
                 <a href="{% url 'maquinaria:exportar_maquinas' %}" class="btn btn-outline-success">
                     <i class="bi bi-download me-2"></i>Exportar
@@ -264,7 +264,7 @@
                                         <i class="bi bi-gear" style="font-size:3rem; color:var(--sena-primary); opacity:.4;"></i>
                                         <h5 class="mt-3">No hay máquinas registradas</h5>
                                         <p class="text-muted mb-3">Comienza agregando la primera máquina al inventario.</p>
-                                        {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                                        {% if cargo_efectivo|lower != 'aprendiz' %}
                                         <a href="{% url 'maquinaria:crear_maquina' %}" class="btn btn-primary">
                                             <i class="bi bi-plus-circle me-2"></i>Crear Primera Máquina
                                         </a>

@@ -953,7 +953,7 @@
 </div>
 
 <!-- Upload Zone -->
-{% if usuario_actual.cargo|lower != 'aprendiz' %}
+{% if cargo_efectivo|lower != 'aprendiz' %}
 <div class="upload-zone" onclick="document.getElementById('fileInput').click()" id="uploadZone">
     <div class="upload-icon">
         <i class="bi bi-cloud-upload"></i>
@@ -1155,7 +1155,7 @@
                     </div>
                     <h5>No se encontraron documentos</h5>
                     <p>Intenta ajustar los filtros o sube el primer documento</p>
-                    {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                    {% if cargo_efectivo|lower != 'aprendiz' %}
                     <a href="{% url 'documentos:subir_documento' %}" class="btn btn-sena-gradient">
                         <i class="bi bi-plus-lg me-2"></i>Subir Documento
                     </a>
@@ -1166,7 +1166,7 @@
         </div>
         
         <!-- Load More Button -->
-        {% if usuario_actual.cargo|lower != 'aprendiz' %}
+        {% if cargo_efectivo|lower != 'aprendiz' %}
         <div class="text-center mt-4">
             <button class="btn btn-outline-sena-primary" id="loadMoreBtn" onclick="loadMoreDocuments()">
                 <i class="bi bi-arrow-down-circle me-2"></i>Cargar Más Documentos

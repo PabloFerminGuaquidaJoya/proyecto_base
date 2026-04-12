@@ -38,6 +38,21 @@
    4. BOTONES
    ═══════════════════════════════════════════════ */
 
+/* Base común para todos los botones SENA */
+.btn-sena-gradient,
+.btn-sena-primary,
+.btn-sena-secondary,
+.btn-sena-accent,
+.btn-outline-sena-primary,
+.btn-outline-sena-secondary,
+.btn-outline-sena-accent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    text-align: center;
+}
+
 /* Botón principal — degradado SENA */
 .btn-sena-gradient {
     background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);

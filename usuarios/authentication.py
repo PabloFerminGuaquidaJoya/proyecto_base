@@ -27,6 +27,9 @@ class UsuarioBackend(BaseBackend):
             )
             is_staff = self._calcular_is_staff(usuario)
 
+            # Estados que permiten acceso al sistema
+            ESTADOS_CON_ACCESO = ('activo', 'pendiente')
+
             # Try to get or create Django user
             django_user, created = User.objects.get_or_create(
                 username=username,
@@ -34,7 +37,7 @@ class UsuarioBackend(BaseBackend):
                     'first_name': usuario.nombres,
                     'last_name': usuario.apellidos,
                     'email': usuario.email,
-                    'is_active': usuario.estado == 'activo',
+                    'is_active': usuario.estado in ESTADOS_CON_ACCESO,
                     'is_staff': is_staff,
                 }
             )
@@ -48,7 +51,7 @@ class UsuarioBackend(BaseBackend):
                 cambios = {}
                 if django_user.is_staff != is_staff:
                     cambios['is_staff'] = is_staff
-                nueva_is_active = usuario.estado == 'activo'
+                nueva_is_active = usuario.estado in ESTADOS_CON_ACCESO
                 if django_user.is_active != nueva_is_active:
                     cambios['is_active'] = nueva_is_active
                 if cambios:
@@ -68,13 +71,15 @@ class UsuarioBackend(BaseBackend):
                 )
                 is_staff = self._calcular_is_staff(usuario)
 
+                ESTADOS_CON_ACCESO = ('activo', 'pendiente')
+
                 django_user, created = User.objects.get_or_create(
                     username=usuario.numero_documento,
                     defaults={
                         'first_name': usuario.nombres,
                         'last_name': usuario.apellidos,
                         'email': usuario.email,
-                        'is_active': usuario.estado == 'activo',
+                        'is_active': usuario.estado in ESTADOS_CON_ACCESO,
                         'is_staff': is_staff,
                     }
                 )
@@ -86,7 +91,7 @@ class UsuarioBackend(BaseBackend):
                     cambios = {}
                     if django_user.is_staff != is_staff:
                         cambios['is_staff'] = is_staff
-                    nueva_is_active = usuario.estado == 'activo'
+                    nueva_is_active = usuario.estado in ESTADOS_CON_ACCESO
                     if django_user.is_active != nueva_is_active:
                         cambios['is_active'] = nueva_is_active
                     if cambios:

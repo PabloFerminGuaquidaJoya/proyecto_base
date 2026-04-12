@@ -40,7 +40,7 @@
         <h6 class="m-0 font-weight-bold text-sena-gradient">
             <i class="bi bi-box-seam me-2"></i>Piezas ({{ piezas|length }})
         </h6>
-        {% if usuario_actual.cargo|lower != 'aprendiz' %}
+        {% if cargo_efectivo|lower != 'aprendiz' %}
         <a href="{% url 'inventario:nueva_pieza' %}" class="btn btn-sena-gradient btn-sm">
             <i class="bi bi-plus-circle me-1"></i>Nueva Pieza
         </a>
@@ -93,7 +93,7 @@
                                    class="btn btn-sm btn-outline-sena-secondary" title="Ver detalle">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                                {% if cargo_efectivo|lower != 'aprendiz' %}
                                 <a href="{% url 'inventario:editar_pieza' pieza.pk %}"
                                    class="btn btn-sm btn-outline-sena-primary" title="Editar">
                                     <i class="bi bi-pencil"></i>
@@ -123,7 +123,7 @@
                 <i class="bi bi-box-seam" style="font-size:3rem; color:var(--sena-primary); opacity:.4;"></i>
                 <h5 class="mt-3">No hay piezas registradas</h5>
                 <p class="text-muted mb-3">Comienza registrando la primera pieza del inventario.</p>
-                {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                {% if cargo_efectivo|lower != 'aprendiz' %}
                 <a href="{% url 'inventario:nueva_pieza' %}" class="btn btn-sena-gradient">
                     <i class="bi bi-plus-circle me-2"></i>Registrar Primera Pieza
                 </a>

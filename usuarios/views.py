@@ -613,8 +613,8 @@ def admin_crear_usuario_ajax(request):
             centro_formacion=centro_obj,
             ficha=ficha_obj,
             tipo_usuario=tipo_usuario,
-            estado='activo',
-            fecha_aprobacion=timezone.now(),
+            estado='pendiente',
+            fecha_aprobacion=None,
         )
 
         # Enviar correo de bienvenida
@@ -746,15 +746,17 @@ def register_view(request):
             tipo_usuario = form.cleaned_data.get('tipo_usuario')
             usuario.tipo_usuario = tipo_usuario
             usuario.cargo = tipo_usuario.nombre if tipo_usuario else ''
-            usuario.estado = 'activo'
-            usuario.fecha_aprobacion = timezone.now()
+            # Todo usuario nuevo queda pendiente de aprobación
+            usuario.estado = 'pendiente'
+            usuario.fecha_aprobacion = None
 
-            # Crear usuario de Django para autenticación
+            # Crear usuario de Django para autenticación (is_active=True para permitir login)
             password = form.cleaned_data.get('password')
             django_user = User.objects.create_user(
                 username=usuario.numero_documento,
                 email=usuario.email,
-                password=password
+                password=password,
+                is_active=True,  # El backend filtra por estado, no por is_active
             )
 
             usuario.save()
@@ -783,7 +785,8 @@ def register_view(request):
                 pass  # El registro no falla si el correo no se envía
 
             messages.success(request,
-                'Registro exitoso. Hemos enviado un correo de confirmación a tu dirección de email.')
+                'Registro exitoso. Tu cuenta está pendiente de aprobación por un administrador. '
+                'Mientras tanto puedes ingresar con permisos de Aprendiz.')
             return redirect('usuarios:login')
 
     return render(request, 'usuarios/register.html', {

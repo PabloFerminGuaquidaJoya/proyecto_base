@@ -1300,12 +1300,20 @@
                 {% endif %}
 
                 <!-- Rol del usuario -->
-                {% if usuario_actual and usuario_actual.cargo %}
+                {% if usuario_actual and cargo_efectivo %}
                 <span class="badge d-none d-md-inline-flex align-items-center gap-1"
                       style="background-color: var(--sena-secondary); font-size: 0.78rem; padding: 6px 10px; border-radius: 20px;">
                     <i class="bi bi-person-badge"></i>
-                    {{ usuario_actual.cargo }}
+                    {{ cargo_efectivo }}
                 </span>
+                {% if usuario_actual.estado == 'pendiente' %}
+                <span class="badge d-none d-md-inline-flex align-items-center gap-1"
+                      style="background-color: #e67e22; font-size: 0.78rem; padding: 6px 10px; border-radius: 20px;"
+                      title="Tu cuenta está pendiente de aprobación por un administrador">
+                    <i class="bi bi-hourglass-split"></i>
+                    Pendiente
+                </span>
+                {% endif %}
                 {% endif %}
 
                 <!-- Menú de Manuales -->
@@ -1360,6 +1368,16 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
+            {% endif %}
+
+            {% if usuario_actual and usuario_actual.estado == 'pendiente' %}
+            <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert" style="border-left: 4px solid #e67e22;">
+                <i class="bi bi-hourglass-split fs-5"></i>
+                <div>
+                    <strong>Cuenta pendiente de aprobación.</strong>
+                    Tu cuenta está siendo revisada por un administrador. Hasta que sea aprobada, tienes acceso con permisos de <strong>Aprendiz</strong>.
+                </div>
+            </div>
             {% endif %}
 
 {% block content %}{% endblock %}

@@ -13,7 +13,7 @@
                     <h2 class="mb-1">Dashboard de Mantenimiento</h2>
                     <p class="text-muted">Gestión integral de mantenimiento de maquinaria</p>
                 </div>
-                {% if usuario_actual.cargo|lower != 'aprendiz' %}
+                {% if cargo_efectivo|lower != 'aprendiz' %}
                 <div>
                     <a href="{% url 'maquinaria:programar_mantenimiento' %}" class="btn btn-sena-gradient">
                         <i class="bi bi-calendar-plus me-2"></i>Programar Mantenimiento

@@ -115,6 +115,12 @@ class UsuarioForm(forms.ModelForm):
         self.fields['numero_documento'].required = True
         self.fields['tipo_usuario'].required = True
 
+        if not self.instance.pk:
+            # Creación: forzar pendiente y no permitir cambiarlo
+            self.fields['estado'].initial = 'pendiente'
+            self.fields['estado'].widget.attrs['disabled'] = True
+            self.fields['estado'].help_text = 'Los nuevos usuarios inician como "Pendiente Aprobación".'
+
     def clean_numero_documento(self):
         numero_documento = self.cleaned_data.get('numero_documento')
         if numero_documento:
@@ -146,6 +152,12 @@ class UsuarioForm(forms.ModelForm):
                     raise forms.ValidationError('Ya existe un usuario con este email.')
 
         return email
+
+    def clean_estado(self):
+        # Si es creación, forzar siempre 'pendiente' sin importar lo que venga del POST
+        if not self.instance.pk:
+            return 'pendiente'
+        return self.cleaned_data.get('estado')
 
     def clean(self):
         cleaned_data = super().clean()
