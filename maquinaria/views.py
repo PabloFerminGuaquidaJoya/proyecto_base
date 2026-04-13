@@ -740,12 +740,6 @@ def mantenimiento_dashboard_view(request):
         estado='programado'
     ).select_related('maquina', 'tecnico_asignado').order_by('fecha_programada')[:10]
 
-    # Alertas de mantenimiento activas
-    alertas_mantenimiento = AlertaMaquina.objects.filter(
-        estado='activa',
-        tipo__in=['mantenimiento', 'reparacion']
-    ).select_related('maquina')[:5]
-
     # KPIs básicos de mantenimiento
     total_mantenimientos_programados = MantenimientoProgramado.objects.filter(
         estado__in=['programado', 'en_progreso']
@@ -757,26 +751,33 @@ def mantenimiento_dashboard_view(request):
     else:
         cumplimiento_porcentaje = 100.0
 
-    # Técnicos disponibles/ocupados
-    from django.db.models import Case, When, Value, CharField
-    tecnicos_estado = Usuario.objects.annotate(
-        estado_actual=Case(
-            When(mantenimientos_asignados__estado='en_progreso', then=Value('ocupado')),
-            default=Value('disponible'),
-            output_field=CharField()
-        )
-    ).values('id', 'nombres', 'apellidos', 'cargo', 'estado_actual')[:10]
+    # Filtros GET para la tabla principal
+    estado_filtro   = request.GET.get('estado', '')
+    tipo_filtro     = request.GET.get('tipo', '')
+    prioridad_filtro = request.GET.get('prioridad', '')
+
+    qs = MantenimientoProgramado.objects.select_related('maquina', 'tecnico_asignado').order_by('fecha_programada')
+    if estado_filtro:
+        qs = qs.filter(estado=estado_filtro)
+    if tipo_filtro:
+        qs = qs.filter(tipo=tipo_filtro)
+    if prioridad_filtro:
+        qs = qs.filter(prioridad=prioridad_filtro)
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, 15)
+    mantenimientos_tabla = paginator.get_page(request.GET.get('page'))
 
     context = {
-        'title': 'Dashboard Mantenimiento',
+        'title': 'Panel de Mantenimiento',
         'mantenimientos_hoy': mantenimientos_hoy,
         'mantenimientos_pendientes': mantenimientos_pendientes,
         'mantenimientos_vencidos': mantenimientos_vencidos,
-        'actividades_mantenimiento': actividades_mantenimiento,
-        'mantenimientos_proximos': mantenimientos_proximos,
-        'alertas_mantenimiento': alertas_mantenimiento,
         'cumplimiento_porcentaje': cumplimiento_porcentaje,
-        'tecnicos_estado': tecnicos_estado,
+        'mantenimientos_tabla': mantenimientos_tabla,
+        'estado_filtro': estado_filtro,
+        'tipo_filtro': tipo_filtro,
+        'prioridad_filtro': prioridad_filtro,
     }
 
     return render(request, 'maquinaria/mantenimiento_dashboard.html', context)
