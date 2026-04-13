@@ -89,11 +89,15 @@
                 <label class="form-label small mb-1">Tipo</label>
                 <select name="tipo" class="form-select form-select-sm">
                     <option value="">Todos los tipos</option>
-                    <option value="mantenimiento" {% if tipo_filtro == 'mantenimiento' %}selected{% endif %}>Mantenimiento</option>
-                    <option value="reparacion"    {% if tipo_filtro == 'reparacion' %}selected{% endif %}>Reparación</option>
-                    <option value="eficiencia"    {% if tipo_filtro == 'eficiencia' %}selected{% endif %}>Eficiencia</option>
-                    <option value="garantia"      {% if tipo_filtro == 'garantia' %}selected{% endif %}>Garantía</option>
-                    <option value="inspeccion"    {% if tipo_filtro == 'inspeccion' %}selected{% endif %}>Inspección</option>
+                    <option value="reparacion"    {% if tipo_filtro == 'reparacion' %}selected{% endif %}>
+                        <i class="bi bi-exclamation-triangle"></i> Falla Mecánica
+                    </option>
+                    <option value="mantenimiento" {% if tipo_filtro == 'mantenimiento' %}selected{% endif %}>
+                        Mantenimiento
+                    </option>
+                    <option value="eficiencia"    {% if tipo_filtro == 'eficiencia' %}selected{% endif %}>
+                        Operacional
+                    </option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -167,15 +171,11 @@
                             </td>
                             <td>
                                 {% if alerta.tipo == 'mantenimiento' %}
-                                    <i class="bi bi-calendar-event text-info me-1"></i>Mantenimiento
+                                    <i class="bi bi-wrench text-sena-accent me-1"></i>Mantenimiento
                                 {% elif alerta.tipo == 'reparacion' %}
-                                    <i class="bi bi-wrench text-danger me-1"></i>Reparación
+                                    <i class="bi bi-exclamation-triangle text-sena-secondary me-1"></i>Falla Mecánica
                                 {% elif alerta.tipo == 'eficiencia' %}
-                                    <i class="bi bi-speedometer text-warning me-1"></i>Eficiencia
-                                {% elif alerta.tipo == 'garantia' %}
-                                    <i class="bi bi-shield-check text-success me-1"></i>Garantía
-                                {% elif alerta.tipo == 'inspeccion' %}
-                                    <i class="bi bi-search text-primary me-1"></i>Inspección
+                                    <i class="bi bi-gear text-sena-primary me-1"></i>Operacional
                                 {% else %}
                                     <i class="bi bi-exclamation-circle text-secondary me-1"></i>{{ alerta.get_tipo_display }}
                                 {% endif %}
@@ -187,6 +187,11 @@
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
+                                    {% if alerta.tipo == 'mantenimiento' %}
+                                    <a href="{% url 'maquinaria:mantenimientos_maquina' pk=alerta.maquina.pk %}" class="btn btn-sm btn-outline-sena-accent" title="Ver mantenimientos de esta máquina">
+                                        <i class="bi bi-wrench"></i>
+                                    </a>
+                                    {% endif %}
                                     <button class="btn btn-sm btn-outline-sena-primary" onclick="resolveAlert({{ alerta.id }})" title="Resolver">
                                         <i class="bi bi-tools"></i>
                                     </button>
