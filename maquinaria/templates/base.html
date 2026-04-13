@@ -520,6 +520,15 @@
             .sena-footer-brand { justify-content: center; flex-wrap: wrap; }
         }
 
+        /* ── TTS: resaltado del elemento que se está leyendo ── */
+        .tts-reading {
+            outline: 2px solid var(--sena-accent) !important;
+            outline-offset: 3px;
+            border-radius: 4px;
+            background-color: rgba(255, 107, 53, 0.08) !important;
+            transition: outline 0.15s ease, background-color 0.15s ease;
+        }
+
         /* Tablas */
         body.dark-theme .table {
             color: #e0e0e0 !important;
@@ -1459,9 +1468,11 @@
             }
         });
 
-        // Funciones de accesibilidad
+        // ── Accesibilidad ──────────────────────────────────────────────
         let ttsEnabled = false;
         let currentUtterance = null;
+        let ttsHoverTimer = null;
+        let currentTTSElement = null;
 
         function toggleAccessibilityMenu() {
             const menu = document.getElementById('accessibilityMenu');
@@ -1471,9 +1482,7 @@
         function toggleTheme() {
             const body = document.body;
             const themeToggle = document.getElementById('themeToggle');
-
             body.classList.toggle('dark-theme');
-
             if (body.classList.contains('dark-theme')) {
                 themeToggle.innerHTML = '<i class="bi bi-sun-fill"></i> Claro';
                 localStorage.setItem('theme', 'dark');
@@ -1486,73 +1495,104 @@
         function changeFontSize(size) {
             const body = document.body;
             body.classList.remove('font-small', 'font-large', 'font-xlarge');
-
-            if (size !== 'normal') {
-                body.classList.add('font-' + size);
-            }
-
+            if (size !== 'normal') body.classList.add('font-' + size);
             localStorage.setItem('fontSize', size);
+        }
+
+        // ── TTS: obtener el texto más relevante de un elemento ──────
+        function getTTSText(el) {
+            if (!el) return '';
+            const ariaLabel = el.getAttribute('aria-label');
+            if (ariaLabel && ariaLabel.trim()) return ariaLabel.trim();
+            if (el.title && el.title.trim()) return el.title.trim();
+            if (el.placeholder && el.placeholder.trim()) return el.placeholder.trim();
+            if (el.tagName === 'IMG' && el.alt) return el.alt.trim();
+            if ((el.tagName === 'INPUT' || el.tagName === 'SELECT') && el.value)
+                return el.value.trim();
+            // Clonar y limpiar iconos para obtener texto limpio
+            const clone = el.cloneNode(true);
+            clone.querySelectorAll('i[class*="bi"], svg, script, style').forEach(n => n.remove());
+            return clone.textContent.replace(/\s+/g, ' ').trim();
+        }
+
+        // Tags que tienen contenido legible
+        const TTS_TAGS = new Set([
+            'BUTTON','A','H1','H2','H3','H4','H5','H6',
+            'P','LABEL','TD','TH','LI','SPAN','STRONG','EM',
+            'INPUT','SELECT','TEXTAREA','IMG','DIV','SMALL'
+        ]);
+
+        function findTTSTarget(el) {
+            let cur = el;
+            for (let i = 0; i < 5; i++) {
+                if (!cur || cur === document.body) break;
+                if (TTS_TAGS.has(cur.tagName)) {
+                    const text = getTTSText(cur);
+                    if (text.length > 1) return { el: cur, text };
+                }
+                cur = cur.parentElement;
+            }
+            return null;
+        }
+
+        function removeTTSHighlight() {
+            if (currentTTSElement) {
+                currentTTSElement.classList.remove('tts-reading');
+                currentTTSElement = null;
+            }
+        }
+
+        function speakText(text, targetEl) {
+            speechSynthesis.cancel();
+            removeTTSHighlight();
+            currentTTSElement = targetEl;
+            targetEl.classList.add('tts-reading');
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = 'es-ES';
+            currentUtterance.rate = 0.92;
+            currentUtterance.pitch = 1;
+            currentUtterance.onend = removeTTSHighlight;
+            currentUtterance.onerror = removeTTSHighlight;
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        function handleTTSHover(e) {
+            if (!ttsEnabled) return;
+            clearTimeout(ttsHoverTimer);
+            const target = findTTSTarget(e.target);
+            if (!target || target.el === currentTTSElement) return;
+            ttsHoverTimer = setTimeout(() => speakText(target.text, target.el), 350);
+        }
+
+        function handleTTSOut() {
+            clearTimeout(ttsHoverTimer);
+        }
+
+        function handleTTSFocus(e) {
+            if (!ttsEnabled) return;
+            const target = findTTSTarget(e.target);
+            if (!target) return;
+            speakText(target.text, target.el);
         }
 
         function toggleTTS() {
             const ttsToggle = document.getElementById('ttsToggle');
             ttsEnabled = !ttsEnabled;
-
             if (ttsEnabled) {
                 ttsToggle.innerHTML = '<i class="bi bi-volume-mute-fill"></i> Desactivar';
-                document.addEventListener('click', handleTTSClick);
+                document.addEventListener('mouseover', handleTTSHover);
+                document.addEventListener('mouseout',  handleTTSOut);
+                document.addEventListener('focusin',   handleTTSFocus);
             } else {
                 ttsToggle.innerHTML = '<i class="bi bi-volume-up-fill"></i> Activar';
-                document.removeEventListener('click', handleTTSClick);
-                if (currentUtterance) {
-                    speechSynthesis.cancel();
-                }
+                document.removeEventListener('mouseover', handleTTSHover);
+                document.removeEventListener('mouseout',  handleTTSOut);
+                document.removeEventListener('focusin',   handleTTSFocus);
+                clearTimeout(ttsHoverTimer);
+                speechSynthesis.cancel();
+                removeTTSHighlight();
             }
-
             localStorage.setItem('ttsEnabled', ttsEnabled);
-        }
-
-        // Footer functions
-        function showPrivacyPolicy() {
-            alert('Política de Privacidad\n\nEste sistema cumple con las normas de protección de datos personales establecidas por la ley colombiana.');
-        }
-
-        function showTerms() {
-            alert('Términos de Uso\n\nEste sistema es de uso exclusivo para personal autorizado del SENA.');
-        }
-
-        function showSupport() {
-            alert('Soporte Técnico\n\nPara ayuda técnica contacte:\nCorreo: soporte@sena.edu.co\nTeléfono: 57 (1) 5461500');
-        }
-
-        function handleTTSClick(event) {
-            if (!ttsEnabled) return;
-
-            const element = event.target;
-            let textToRead = '';
-
-            if (element.tagName === 'BUTTON') {
-                textToRead = element.textContent || element.title || element.getAttribute('aria-label');
-            } else if (element.tagName === 'A') {
-                textToRead = element.textContent;
-            } else if (['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(element.tagName)) {
-                textToRead = element.textContent;
-            } else if (element.tagName === 'P') {
-                textToRead = element.textContent;
-            } else if (element.classList.contains('card-title')) {
-                textToRead = element.textContent;
-            }
-
-            if (textToRead.trim()) {
-                if (currentUtterance) {
-                    speechSynthesis.cancel();
-                }
-
-                currentUtterance = new SpeechSynthesisUtterance(textToRead);
-                currentUtterance.lang = 'es-ES';
-                currentUtterance.rate = 0.8;
-                speechSynthesis.speak(currentUtterance);
-            }
         }
 
         // Cargar preferencias guardadas
@@ -1573,7 +1613,9 @@
             if (savedTTSEnabled) {
                 ttsEnabled = true;
                 document.getElementById('ttsToggle').innerHTML = '<i class="bi bi-volume-mute-fill"></i> Desactivar';
-                document.addEventListener('click', handleTTSClick);
+                document.addEventListener('mouseover', handleTTSHover);
+                document.addEventListener('mouseout',  handleTTSOut);
+                document.addEventListener('focusin',   handleTTSFocus);
             }
 
             // Restaurar estado del sidebar en desktop
