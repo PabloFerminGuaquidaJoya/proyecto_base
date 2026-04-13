@@ -77,7 +77,11 @@
                                 <select class="form-select" id="maquina" name="maquina" required onchange="loadMachineInfo()">
                                     <option value="">Seleccionar máquina...</option>
                                     {% for maquina in maquinas %}
-                                        <option value="{{ maquina.id }}" data-codigo="{{ maquina.codigo_inventario }}" data-ubicacion="{{ maquina.ubicacion }}" data-estado="{{ maquina.estado }}">
+                                        <option value="{{ maquina.id }}"
+                                            data-codigo="{{ maquina.codigo_inventario }}"
+                                            data-ubicacion="{{ maquina.ubicacion }}"
+                                            data-estado="{{ maquina.estado }}"
+                                            data-imagen="{% if maquina.imagen %}{{ maquina.imagen.url }}{% endif %}">
                                             {{ maquina.codigo_inventario }} - {{ maquina.nombre }} ({{ maquina.marca }} {{ maquina.modelo }})
                                         </option>
                                     {% endfor %}
@@ -86,12 +90,15 @@
 
                             <!-- Machine Info Preview -->
                             <div class="alert alert-sena d-none" id="machineInfo">
-                                <div class="d-flex align-items-center">
-                                    <img id="machineImage" src="" alt="Máquina" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div id="machineImageWrap" style="width:60px;height:60px;flex-shrink:0;border-radius:8px;overflow:hidden;background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
+                                        <img id="machineImage" src="" alt="Máquina" style="width:100%;height:100%;object-fit:cover;display:none;">
+                                        <i id="machineImageIcon" class="bi bi-gear fs-2 text-muted"></i>
+                                    </div>
                                     <div>
                                         <h6 class="mb-1" id="machineName"></h6>
                                         <small class="text-muted" id="machineLocation"></small>
-                                        <div>
+                                        <div class="mt-1">
                                             <span class="badge" id="machineStatus"></span>
                                         </div>
                                     </div>
@@ -528,8 +535,18 @@ function loadMachineInfo() {
         document.getElementById('machineStatus').textContent = statusInfo.text;
         document.getElementById('machineStatus').className = 'badge ' + statusInfo.class;
 
-        // Usar placeholder por ahora
-        document.getElementById('machineImage').src = '/static/images/machine-placeholder.png';
+        // Mostrar imagen real o ícono de fallback
+        const imagenUrl = selectedOption.getAttribute('data-imagen');
+        const imgEl  = document.getElementById('machineImage');
+        const iconEl = document.getElementById('machineImageIcon');
+        if (imagenUrl) {
+            imgEl.src = imagenUrl;
+            imgEl.style.display = 'block';
+            iconEl.style.display = 'none';
+        } else {
+            imgEl.style.display = 'none';
+            iconEl.style.display = 'block';
+        }
 
         machineInfo.classList.remove('d-none');
     } else {
