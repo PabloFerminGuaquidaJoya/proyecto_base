@@ -476,6 +476,7 @@
             left: var(--sidebar-width);
             right: 0;
             z-index: 998;
+            transition: left 0.3s ease;
         }
         .sena-footer-inner {
             display: flex;
@@ -492,37 +493,30 @@
         }
         .sena-footer-brand .text-muted { color: rgba(255,255,255,.65) !important; }
         .sena-footer-sep { color: rgba(255,255,255,.4); margin: 0 0.25rem; }
-        .sena-footer-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.25rem;
-        }
-        .sena-footer-links a {
-            color: rgba(255,255,255,.85);
-            text-decoration: none;
-            transition: color .2s;
-        }
-        .sena-footer-links a:hover { color: #fff; text-decoration: underline; }
         .sena-footer-copy { color: rgba(255,255,255,.65); }
 
         /* Footer — modo oscuro (mantiene el mismo degradado) */
         body.dark-theme .sena-footer { opacity: .92; }
 
+        /* Footer se expande cuando la sidebar está colapsada (desktop) */
+        body.sidebar-collapsed .sena-footer { left: 0; }
+
+        @media (max-width: 991px) {
+            .sena-footer { left: 0; }
+        }
+
         @media (max-width: 768px) {
             .sena-footer {
-                left: 0;
                 padding: 0.75rem 1rem;
                 font-size: 0.78rem;
             }
             .sena-footer-inner { flex-direction: column; text-align: center; gap: 0.4rem; }
-            .sena-footer-links { justify-content: center; gap: 0.75rem; }
         }
         @media (max-width: 480px) {
             .sena-footer {
                 padding: 0.5rem 0.75rem;
                 font-size: 0.72rem;
             }
-            .sena-footer-links { flex-direction: column; gap: 0.2rem; }
             .sena-footer-brand { justify-content: center; flex-wrap: wrap; }
         }
 
@@ -1423,12 +1417,6 @@
                     <span class="fw-bold">SENA Maquinaria</span>
                     <span class="sena-footer-sep">|</span>
                     <span class="text-muted">Sistema de Gestión</span>
-                </div>
-                <div class="sena-footer-links">
-                    <a href="{% url 'maquinaria:dashboard' %}">Panel Principal</a>
-                    <a href="{% url 'maquinaria:lista_maquinas' %}">Maquinaria</a>
-                    <a href="{% url 'documentos:repositorio' %}">Documentos</a>
-                    <a href="{% url 'reportes:dashboard' %}">Reportes</a>
                 </div>
                 <div class="sena-footer-copy">
                     &copy; {% now "Y" %} SENA &mdash; Servicio Nacional de Aprendizaje.

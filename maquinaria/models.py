@@ -311,6 +311,12 @@ class MantenimientoProgramado(models.Model):
         blank=True,
         related_name='mantenimientos_realizados'
     )
+    personal_adicional = models.ManyToManyField(
+        'usuarios.Usuario',
+        blank=True,
+        related_name='mantenimientos_adicionales',
+        verbose_name='Personal adicional'
+    )
 
     # Detalles técnicos
     componentes_revisar = models.JSONField(default=list, help_text="Lista de componentes a revisar")

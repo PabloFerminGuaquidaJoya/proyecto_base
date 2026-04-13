@@ -798,7 +798,8 @@ def programar_mantenimiento_view(request, pk=None):
             prioridad = request.POST.get('prioridad', 'media')
             fecha_programada = request.POST.get('fecha_programada')
             duracion_estimada = request.POST.get('duracion_estimada', '02:00:00')  # Default 2 horas
-            tecnico_asignado_id = request.POST.get('tecnico_asignado')
+            tecnico_asignado_id = request.POST.get('personal_asignado')
+            personal_adicional_ids = request.POST.getlist('personal_adicional_ids')
 
             # Obtener listas de componentes, herramientas y repuestos
             componentes = request.POST.getlist('componentes')
@@ -850,6 +851,11 @@ def programar_mantenimiento_view(request, pk=None):
                 procedimientos=procedimientos,
                 costo_estimado=float(costo_estimado) if costo_estimado else None
             )
+
+            # Personal adicional
+            if personal_adicional_ids:
+                adicionales = Usuario.objects.filter(pk__in=personal_adicional_ids)
+                mantenimiento.personal_adicional.set(adicionales)
 
             # Obtener usuario creador
             try:

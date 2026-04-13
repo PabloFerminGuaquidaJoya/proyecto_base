@@ -141,7 +141,7 @@
                             <th>Prioridad</th>
                             <th>Estado</th>
                             <th>Fecha Programada</th>
-                            <th>Técnico</th>
+                            <th>Personal Asignado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -198,7 +198,10 @@
                             </td>
                             <td>
                                 {% if m.tecnico_asignado %}
-                                    {{ m.tecnico_asignado.nombres }} {{ m.tecnico_asignado.apellidos }}
+                                    {{ m.tecnico_asignado.nombres }} {{ m.tecnico_asignado.apellidos }}<br>
+                                    {% for p in m.personal_adicional.all %}
+                                        <small class="text-muted">+ {{ p.nombres }} {{ p.apellidos }}</small><br>
+                                    {% endfor %}
                                 {% else %}
                                     <span class="text-muted">—</span>
                                 {% endif %}

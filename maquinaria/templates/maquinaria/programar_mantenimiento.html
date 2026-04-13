@@ -73,9 +73,11 @@
                                     <option value="">Seleccionar máquina...</option>
                                     {% for maquina in maquinas %}
                                         <option value="{{ maquina.id }}"
+                                                data-nombre="{{ maquina.nombre }}"
                                                 data-codigo="{{ maquina.codigo_inventario }}"
                                                 data-ubicacion="{{ maquina.ubicacion }}"
                                                 data-estado="{{ maquina.estado }}"
+                                                data-imagen="{% if maquina.imagen %}{{ maquina.imagen.url }}{% endif %}"
                                                 {% if maquina_seleccionada and maquina.id == maquina_seleccionada.id %}selected{% endif %}>
                                             {{ maquina.codigo_inventario }} - {{ maquina.nombre }}
                                         </option>
@@ -85,16 +87,17 @@
 
                             <!-- Machine Info -->
                             <div class="alert alert-sena d-none" id="machineInfo">
-                                <div class="row">
-                                    <div class="col-3">
-                                        <img id="machineImage" src="/static/images/machine-placeholder.png" alt="Máquina" class="img-fluid rounded">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-3 text-center">
+                                        <img id="machineImage" src="" alt="Máquina" class="img-fluid rounded d-none" style="max-height:80px;object-fit:cover;">
+                                        <i id="machineImageIcon" class="bi bi-gear text-sena-secondary d-none" style="font-size:3rem;"></i>
                                     </div>
                                     <div class="col-9">
-                                        <h6 id="machineName"></h6>
+                                        <h6 id="machineName" class="mb-1"></h6>
                                         <div class="small">
+                                            <div><strong>Código:</strong> <span id="machineCodigo"></span></div>
                                             <div><strong>Ubicación:</strong> <span id="machineLocation"></span></div>
-                                            <div><strong>Horas de Operación:</strong> <span id="machineHours"></span></div>
-                                            <div><strong>Último Mantenimiento:</strong> <span id="lastMaintenance"></span></div>
+                                            <div><strong>Estado:</strong> <span id="machineEstado"></span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -168,23 +171,15 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="tecnico_asignado" class="form-label">Técnico Asignado *</label>
-                                <select class="form-select" id="tecnico_asignado" name="tecnico_asignado">
-                                    <option value="">Asignar automáticamente</option>
-                                    {% for tecnico in usuarios_tecnicos %}
-                                        <option value="{{ tecnico.id }}">{{ tecnico.nombre_completo }} - {{ tecnico.cargo|default:"Técnico" }}</option>
+                                <label for="personal_asignado" class="form-label">Personal Asignado *</label>
+                                <select class="form-select" id="personal_asignado" name="personal_asignado" onchange="updatePreview()">
+                                    <option value="">Sin asignar</option>
+                                    {% for p in usuarios_tecnicos %}
+                                        <option value="{{ p.id }}">{{ p.nombres }} {{ p.apellidos }} - {{ p.cargo|default:"Personal" }}</option>
                                     {% empty %}
-                                        <option value="" disabled>No hay técnicos disponibles</option>
+                                        <option value="" disabled>No hay personal disponible</option>
                                     {% endfor %}
                                 </select>
-                            </div>
-
-                            <!-- Technician Availability -->
-                            <div class="alert alert-light d-none" id="technicianInfo">
-                                <h6>Disponibilidad del Técnico</h6>
-                                <div id="availabilityInfo">
-                                    <!-- Populated dynamically -->
-                                </div>
                             </div>
 
                             <div class="mb-3">
@@ -280,14 +275,24 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="personal_adicional" class="form-label">Personal Adicional</label>
-                                <select class="form-select" id="personal_adicional" name="personal_adicional" multiple>
-                                    <option value="1">Juan Carlos Pérez</option>
-                                    <option value="2">María González</option>
-                                    <option value="3">Roberto Silva</option>
-                                    <option value="4">Ana Rodríguez</option>
-                                </select>
-                                <div class="form-text">Mantén Ctrl presionado para seleccionar múltiples técnicos</div>
+                                <label class="form-label">Personal Adicional</label>
+                                <div class="input-group mb-2">
+                                    <select class="form-select form-select-sm" id="personal_adicional_select">
+                                        <option value="">Seleccionar personal...</option>
+                                        {% for p in usuarios_tecnicos %}
+                                            <option value="{{ p.id }}" data-nombre="{{ p.nombres }} {{ p.apellidos }}" data-cargo="{{ p.cargo|default:'Personal' }}">
+                                                {{ p.nombres }} {{ p.apellidos }} - {{ p.cargo|default:"Personal" }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn btn-outline-sena-primary btn-sm" type="button" onclick="addPersonal()">
+                                        <i class="bi bi-person-plus"></i> Agregar
+                                    </button>
+                                </div>
+                                <div id="personalAdicionalList" class="border rounded p-2 bg-light" style="min-height:60px;">
+                                    <small class="text-muted" id="personalAdicionalEmpty">El personal adicional agregado aparecerá aquí</small>
+                                </div>
+                                <div id="personalAdicionalInputs"></div>
                             </div>
 
                             <div class="mb-3">
@@ -311,7 +316,7 @@
                                     <div><strong>Fecha:</strong> <span id="preview-fecha">-</span></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div><strong>Técnico:</strong> <span id="preview-tecnico">-</span></div>
+                                    <div><strong>Personal Asignado:</strong> <span id="preview-tecnico">-</span></div>
                                     <div><strong>Duración:</strong> <span id="preview-duracion">-</span></div>
                                     <div><strong>Prioridad:</strong> <span id="preview-prioridad">-</span></div>
                                 </div>
@@ -480,31 +485,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadMachineInfo() {
-    const machineId = document.getElementById('maquina').value;
+    const sel = document.getElementById('maquina');
     const machineInfo = document.getElementById('machineInfo');
 
-    if (machineId) {
-        const machines = {
-            '1': {
-                name: 'Excavadora Caterpillar 320',
-                location: 'Sede Principal - Taller A',
-                hours: '1,250 hrs',
-                lastMaintenance: '15 Dic 2023'
-            },
-            '2': {
-                name: 'Bulldozer Komatsu D65',
-                location: 'Sede Norte - Campo B',
-                hours: '2,100 hrs',
-                lastMaintenance: '8 Ene 2024'
-            }
-        };
+    if (sel.value) {
+        const opt = sel.options[sel.selectedIndex];
+        const nombre    = opt.getAttribute('data-nombre')   || opt.textContent.trim();
+        const codigo    = opt.getAttribute('data-codigo')   || '';
+        const ubicacion = opt.getAttribute('data-ubicacion') || '—';
+        const estado    = opt.getAttribute('data-estado')   || '—';
+        const imagen    = opt.getAttribute('data-imagen')   || '';
 
-        const machine = machines[machineId] || machines['1'];
+        document.getElementById('machineName').textContent    = nombre;
+        document.getElementById('machineCodigo').textContent  = codigo;
+        document.getElementById('machineLocation').textContent = ubicacion;
+        document.getElementById('machineEstado').textContent  = estado;
 
-        document.getElementById('machineName').textContent = machine.name;
-        document.getElementById('machineLocation').textContent = machine.location;
-        document.getElementById('machineHours').textContent = machine.hours;
-        document.getElementById('lastMaintenance').textContent = machine.lastMaintenance;
+        const img  = document.getElementById('machineImage');
+        const icon = document.getElementById('machineImageIcon');
+        if (imagen) {
+            img.src = imagen;
+            img.classList.remove('d-none');
+            icon.classList.add('d-none');
+        } else {
+            img.classList.add('d-none');
+            icon.classList.remove('d-none');
+        }
 
         machineInfo.classList.remove('d-none');
     } else {
@@ -577,8 +583,8 @@ function updatePreview() {
         document.getElementById('preview-fecha').textContent = '-';
     }
 
-    // Update technician
-    const tecnicoSelect = document.getElementById('tecnico_asignado');
+    // Update personal asignado
+    const tecnicoSelect = document.getElementById('personal_asignado');
     document.getElementById('preview-tecnico').textContent = tecnicoSelect.selectedOptions[0] ? tecnicoSelect.selectedOptions[0].textContent.split(' - ')[0] : '-';
 
     // Update duration
@@ -630,5 +636,51 @@ document.getElementById('repuesto_item').addEventListener('keypress', function(e
         addPart();
     }
 });
+
+// ── Personal Adicional ──
+let personalAdicional = {}; // { id: nombre_cargo }
+
+function addPersonal() {
+    const sel = document.getElementById('personal_adicional_select');
+    const id = sel.value;
+    if (!id) return;
+    if (personalAdicional[id]) return; // ya agregado
+
+    const opt = sel.options[sel.selectedIndex];
+    const nombre = opt.getAttribute('data-nombre');
+    const cargo  = opt.getAttribute('data-cargo');
+    personalAdicional[id] = `${nombre} - ${cargo}`;
+    renderPersonal();
+    sel.value = '';
+}
+
+function removePersonal(id) {
+    delete personalAdicional[id];
+    renderPersonal();
+}
+
+function renderPersonal() {
+    const list   = document.getElementById('personalAdicionalList');
+    const inputs = document.getElementById('personalAdicionalInputs');
+    const empty  = document.getElementById('personalAdicionalEmpty');
+    const ids    = Object.keys(personalAdicional);
+
+    if (ids.length === 0) {
+        list.innerHTML = '<small class="text-muted" id="personalAdicionalEmpty">El personal adicional agregado aparecerá aquí</small>';
+        inputs.innerHTML = '';
+        return;
+    }
+
+    list.innerHTML = ids.map(id =>
+        `<span class="part-item">
+            <i class="bi bi-person me-1"></i>${personalAdicional[id]}
+            <button type="button" class="remove-part" onclick="removePersonal('${id}')">×</button>
+        </span>`
+    ).join('');
+
+    inputs.innerHTML = ids.map(id =>
+        `<input type="hidden" name="personal_adicional_ids" value="${id}">`
+    ).join('');
+}
 </script>
 {% endblock %}
