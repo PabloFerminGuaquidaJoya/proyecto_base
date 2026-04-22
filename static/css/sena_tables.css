@@ -176,7 +176,16 @@
 .badge-sena-estado {
     font-size: 0.78rem;
     padding: 0.4em 0.75em;
+    
     border-radius: 20px;
+}
+
+/* badge bg-info dentro de tablas: sin fondo de color, texto negro */
+table .badge.bg-info,
+table .badge.bg-info[class] {
+    background-color: transparent !important;
+    color: #000000 !important;
+    border: 1px solid #adb5bd;
 }
 
 /* ═══════════════════════════════════════════════

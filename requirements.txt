@@ -59,3 +59,4 @@ apscheduler             # Programación de tareas periódicas en segundo plano (
 # -----------------------------------------------------------------------------
 python-dateutil         # Manejo avanzado de fechas, zonas horarias y parsing de strings de fecha
 requests                # Realización de peticiones HTTP externas desde el servidor
+qrcode[pil]             # Generación de códigos QR en formato PNG para identificación de maquinaria

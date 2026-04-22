@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.urls import reverse
 from .models import Maquina, CategoriaMaquina, Proveedor, AlertaMaquina, HistorialMaquina, MantenimientoProgramado, UsoMaquinaria
 from .forms import UsoMaquinariaForm
 from usuarios.models import Usuario
@@ -914,11 +915,37 @@ def exportar_maquinas_view(request):
 # QR Codes
 @login_required
 def generar_qr_maquina(request, pk):
-    return JsonResponse({'qr_code': 'placeholder'})
+    import qrcode
+    import io
+
+    maquina = get_object_or_404(Maquina, pk=pk)
+    url = request.build_absolute_uri(
+        reverse('maquinaria:info_qr', kwargs={'codigo': maquina.codigo_inventario})
+    )
+
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color='black', back_color='white')
+
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.getvalue(), content_type='image/png')
+    response['Content-Disposition'] = f'inline; filename="QR_{maquina.codigo_inventario}.png"'
+    return response
 
 @login_required
 def info_qr_maquina(request, codigo):
-    return render(request, 'maquinaria/info_qr.html', {'title': 'Info QR'})
+    maquina = get_object_or_404(Maquina, codigo_inventario=codigo)
+    historial = HistorialMaquina.objects.filter(maquina=maquina).order_by('-fecha_evento')[:5]
+    context = {
+        'title': f'Info QR - {maquina.codigo_inventario}',
+        'maquina': maquina,
+        'historial': historial,
+    }
+    return render(request, 'maquinaria/info_qr.html', context)
 
 # API endpoints para AJAX
 @login_required

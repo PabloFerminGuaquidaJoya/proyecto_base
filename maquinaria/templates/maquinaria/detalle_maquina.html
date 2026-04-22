@@ -44,6 +44,9 @@
                             <a href="{% url 'maquinaria:programar_mantenimiento_maquina' pk=maquina.pk %}" class="btn btn-outline-success">
                                 <i class="bi bi-wrench"></i> Mantenimiento
                             </a>
+                            <a href="{% url 'maquinaria:info_qr' codigo=maquina.codigo_inventario %}" class="btn btn-outline-secondary" title="Ver código QR">
+                                <i class="bi bi-qr-code"></i> QR
+                            </a>
                         </div>
                     </div>
                 </div>
