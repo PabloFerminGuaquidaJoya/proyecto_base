@@ -289,7 +289,20 @@ Para más información, consulta:
 □ 7. Abrir http://127.0.0.1:8000/
 
 ================================================================================
-Última Actualización: 9 de Octubre 2025
-Versión: 0.1
+8. CONFIGURACION DE CORREO (Recuperacion de Contrasena)
+================================================================================
+
+Cuenta Gmail configurada para envio de correos del sistema:
+
+   Correo:              siscomasenaminero@gmail.com
+   Contrasena Gmail:    Siscoma2026
+   Contrasena App:      aknz itlf zerv kfpo
+
+La "Contrasena App" es la que usa Django en settings.py (EMAIL_HOST_PASSWORD).
+Se genera en: https://myaccount.google.com/apppasswords
+
+================================================================================
+Última Actualización: 24 de Abril 2026
+Versión: 2.0
 Estado: En Desarrollo
 ================================================================================
