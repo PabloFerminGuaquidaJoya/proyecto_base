@@ -231,9 +231,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ilesrebo.2007@gmail.com'  # CAMBIA ESTO por tu correo
-EMAIL_HOST_PASSWORD = 'yzqn tawa bkkc qymm'  # CAMBIA ESTO por tu contraseña de aplicación
-DEFAULT_FROM_EMAIL = 'SENA Maquinaria <ilesrebo.2007@gmail.com>'  # CAMBIA ESTO
+EMAIL_HOST_USER = 'siscomasenaminero@gmail.com'
+EMAIL_HOST_PASSWORD = 'aknz itlf zerv kfpo'  # 16 caracteres generados en myaccount.google.com/apppasswords
+DEFAULT_FROM_EMAIL = 'SENA Maquinaria <siscomasenaminero@gmail.com>'
 DEFAULT_CHARSET = 'utf-8'
 
 # INSTRUCCIONES PARA GMAIL:
