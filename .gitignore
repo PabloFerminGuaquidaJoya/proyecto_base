@@ -1,0 +1,119 @@
+# =============================================================================
+# .gitignore — Sistema de Gestión de Maquinaria SENA
+# =============================================================================
+
+
+# =============================================================================
+# PYTHON
+# =============================================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+
+# Entorno virtual
+venv/
+env/
+.venv/
+.env/
+
+# Distribución / empaquetado
+*.egg-info/
+dist/
+build/
+*.egg
+*.whl
+
+
+# =============================================================================
+# DJANGO
+# =============================================================================
+*.log
+local_settings.py
+.env
+
+# Base de datos SQLite (desarrollo)
+db.sqlite3
+db.sqlite3-journal
+*.sqlite3
+
+# Archivos estáticos recopilados (se regeneran con collectstatic)
+staticfiles/
+
+
+# =============================================================================
+# MEDIA — DOCUMENTOS E IMÁGENES DE LA BASE DE DATOS
+# (se ignoran porque son archivos subidos por usuarios, no código fuente)
+# =============================================================================
+
+# Respaldos de base de datos
+media/backups/
+
+# Documentos técnicos subidos
+media/documentos/
+
+# Imágenes de maquinaria
+media/maquinaria/
+
+# Fotos de piezas de inventario
+media/inventario/
+
+# Reportes generados (PDF, Excel, CSV, JSON)
+media/reportes/
+
+# ── EXCEPCIÓN: Fotos de perfil de staff y administradores ─────────────────────
+# media/usuarios/fotos/ NO se ignora — se conservan los perfiles del equipo
+# Agrega aquí patrones adicionales si hay subcarpetas de usuarios normales
+# que sí deban ignorarse:
+# media/usuarios/fotos/aprendiz_*
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+# =============================================================================
+# DOCUMENTACIÓN — EXCEPCIÓN EXPLÍCITA
+# El manual de usuario se incluye siempre en el repositorio
+# =============================================================================
+!MANUAL_USUARIO.md
+!MANUAL_USUARIO.pdf
+!proyecto_base/MANUAL_USUARIO.md
+!proyecto_base/MANUAL_USUARIO.pdf
+
+
+# =============================================================================
+# SISTEMA OPERATIVO
+# =============================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+
+# =============================================================================
+# EDITORES E IDEs
+# =============================================================================
+.vscode/
+.idea/
+.claude/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+
+# =============================================================================
+# AWS / DESPLIEGUE
+# =============================================================================
+.elasticbeanstalk/
+*.pem
+*.key
+
+
+# =============================================================================
+# MISCELÁNEOS
+# =============================================================================
+*.bak
+*.tmp
+*.temp
