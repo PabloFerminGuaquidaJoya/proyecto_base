@@ -28,11 +28,7 @@ def redirect_to_login(request):
 
 def descargar_manual(request):
     """Vista para descargar el manual de usuario"""
-    # Ruta al archivo del manual
-    # INSTRUCCIÓN: Coloca tu archivo PDF del manual en:
-    # C:\INFORMACION\Desktop\prototipo_0.1\myworld\app_prototipo\media\manuales\manual_usuario.pdf
-
-    file_path = os.path.join(settings.MEDIA_ROOT, 'manuales', 'manual_usuario.pdf')
+    file_path = os.path.join(settings.BASE_DIR, 'MANUAL_USUARIO.pdf')
 
     if os.path.exists(file_path):
         response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
