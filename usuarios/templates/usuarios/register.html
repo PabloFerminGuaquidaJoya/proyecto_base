@@ -15,9 +15,13 @@
             --sena-gradient:  linear-gradient(135deg, #00324d 0%, #39a900 100%);
         }
 
+        html {
+            zoom: 0.67;
+        }
+
         body {
             background: var(--sena-gradient);
-            min-height: 100vh;
+            min-height: calc(100vh / 0.67);
             padding: 2rem 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }

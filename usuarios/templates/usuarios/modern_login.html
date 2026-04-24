@@ -13,11 +13,16 @@
             --sena-primary: #39a900;
             --sena-secondary: #00324d;
             --sena-accent: #ff6b35;
+            --ui-zoom: 0.67;
+        }
+
+        html {
+            zoom: var(--ui-zoom);
         }
 
         body {
             background: linear-gradient(135deg, var(--sena-secondary) 0%, var(--sena-primary) 100%);
-            min-height: 100vh;
+            min-height: calc(100vh / var(--ui-zoom));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1137,11 +1142,11 @@
         }
 
         function showTerms() {
-            alert('Términos de Uso\n\nEste sistema es de uso exclusivo para personal autorizado del SENA.');
+            new bootstrap.Modal(document.getElementById('modalTerminos')).show();
         }
 
         function showSupport() {
-            alert('Soporte Técnico\n\nPara ayuda técnica contacte:\nCorreo: adsitoipae@gmail.com\nTeléfono: +57 322 8985923');
+            new bootstrap.Modal(document.getElementById('modalSoporte')).show();
         }
 
         // Cerrar menu de accesibilidad al hacer click fuera
@@ -1402,6 +1407,69 @@
             <a href="#" onclick="showSupport()">Soporte Técnico</a>
         </span>
     </footer>
+
+    <!-- Modal Términos de Uso -->
+    <div class="modal fade" id="modalTerminos" tabindex="-1" aria-labelledby="modalTerminosLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #00324d 0%, #39a900 100%); border: none;">
+                    <h5 class="modal-title fw-bold" id="modalTerminosLabel">
+                        <i class="bi bi-file-earmark-text me-2"></i>Términos de Uso
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-start p-3 rounded-3" style="background: #f0faf0;">
+                        <div class="me-3 fs-4 text-success"><i class="bi bi-shield-lock-fill"></i></div>
+                        <p class="mb-0" style="color: #00324d;">
+                            Este sistema es de uso <strong>exclusivo para personal autorizado del SENA</strong>. El acceso no autorizado está prohibido y puede ser objeto de acciones disciplinarias o legales.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn text-white px-4" style="background: linear-gradient(135deg, #00324d, #39a900); border-radius: 10px;" data-bs-dismiss="modal">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Soporte Técnico -->
+    <div class="modal fade" id="modalSoporte" tabindex="-1" aria-labelledby="modalSoporteLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #00324d 0%, #39a900 100%); border: none;">
+                    <h5 class="modal-title fw-bold" id="modalSoporteLabel">
+                        <i class="bi bi-headset me-2"></i>Soporte Técnico
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4">Para ayuda técnica comunícate con nosotros por cualquiera de los siguientes canales:</p>
+                    <div class="d-flex align-items-center mb-3 p-3 rounded-3" style="background: #f0faf0;">
+                        <div class="me-3 fs-4 text-success"><i class="bi bi-envelope-fill"></i></div>
+                        <div>
+                            <div class="text-muted small">Correo electrónico</div>
+                            <a href="mailto:adsitoipae@gmail.com" class="fw-semibold text-decoration-none" style="color: #00324d;">adsitoipae@gmail.com</a>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center p-3 rounded-3" style="background: #f0faf0;">
+                        <div class="me-3 fs-4 text-success"><i class="bi bi-telephone-fill"></i></div>
+                        <div>
+                            <div class="text-muted small">Teléfono</div>
+                            <a href="tel:+573228985923" class="fw-semibold text-decoration-none" style="color: #00324d;">+57 322 8985923</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn text-white px-4" style="background: linear-gradient(135deg, #00324d, #39a900); border-radius: 10px;" data-bs-dismiss="modal">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 
