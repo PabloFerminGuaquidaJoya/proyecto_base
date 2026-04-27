@@ -457,27 +457,133 @@
 </div>
 {% endblock %}
 
+<!-- Modal: Confirmar Resolución -->
+<div class="modal fade" id="modalResolver" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background:linear-gradient(135deg,#00324d,#39a900);">
+                <h5 class="modal-title text-white"><i class="bi bi-check-circle me-2"></i>Confirmar Resolución</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">¿Estás seguro de que quieres marcar esta alerta como <strong>resuelta</strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sena-resolve" onclick="confirmarResolucion()">
+                    <i class="bi bi-check-circle me-1"></i>Sí, marcar como resuelta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirmar Escalada -->
+<div class="modal fade" id="modalEscalar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background:linear-gradient(135deg,#cc4400,#ff6b35);">
+                <h5 class="modal-title text-white"><i class="bi bi-arrow-up-circle me-2"></i>Escalar Prioridad</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">¿Deseas escalar la prioridad de esta alerta? Esta acción notificará al coordinador inmediatamente.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sena-escalate" onclick="confirmarEscalada()">
+                    <i class="bi bi-arrow-up me-1"></i>Sí, escalar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Informativo genérico -->
+<div class="modal fade" id="modalInfo" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background:linear-gradient(135deg,#00324d,#39a900);">
+                <h5 class="modal-title text-white" id="modalInfoTitulo"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0" id="modalInfoMensaje"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sena-resolve" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Comentario vacío -->
+<div class="modal fade" id="modalComentarioVacio" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background:linear-gradient(135deg,#cc4400,#ff6b35);">
+                <h5 class="modal-title text-white"><i class="bi bi-exclamation-circle me-2"></i>Campo requerido</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Por favor, escribe un comentario antes de enviarlo.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sena-resolve" data-bs-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% block extra_js %}
 <script>
-function editAlert() { alert('Función de edición en desarrollo'); }
-function assignTechnician() { alert('Función de asignación en desarrollo'); }
+function mostrarInfo(titulo, mensaje) {
+    document.getElementById('modalInfoTitulo').innerHTML = titulo;
+    document.getElementById('modalInfoMensaje').innerHTML = mensaje;
+    new bootstrap.Modal(document.getElementById('modalInfo')).show();
+}
+
+function editAlert() {
+    mostrarInfo('<i class="bi bi-pencil me-2"></i>Editar Alerta', 'Función de edición en desarrollo.');
+}
+
+function assignTechnician() {
+    mostrarInfo('<i class="bi bi-person-plus me-2"></i>Asignar Técnico', 'Función de asignación en desarrollo.');
+}
+
 function resolveAlert() {
-    if (confirm('¿Estás seguro de que quieres marcar esta alerta como resuelta?')) {
-        alert('Alerta marcada como resuelta');
-    }
+    new bootstrap.Modal(document.getElementById('modalResolver')).show();
 }
+
+function confirmarResolucion() {
+    bootstrap.Modal.getInstance(document.getElementById('modalResolver')).hide();
+    mostrarInfo('<i class="bi bi-check-circle me-2"></i>Alerta Resuelta', 'La alerta ha sido marcada como <strong>resuelta</strong> exitosamente.');
+}
+
 function escalateAlert() {
-    if (confirm('¿Deseas escalar la prioridad de esta alerta?')) { alert('Alerta escalada'); }
+    new bootstrap.Modal(document.getElementById('modalEscalar')).show();
 }
-function reassignAlert() { alert('Función de reasignación en desarrollo'); }
-function generateReport() { alert('Generando reporte...'); }
+
+function confirmarEscalada() {
+    bootstrap.Modal.getInstance(document.getElementById('modalEscalar')).hide();
+    mostrarInfo('<i class="bi bi-arrow-up-circle me-2"></i>Alerta Escalada', 'La prioridad de la alerta ha sido escalada. El coordinador ha sido notificado.');
+}
+
+function reassignAlert() {
+    mostrarInfo('<i class="bi bi-person-gear me-2"></i>Reasignar Técnico', 'Función de reasignación en desarrollo.');
+}
+
+function generateReport() {
+    mostrarInfo('<i class="bi bi-file-earmark-text me-2"></i>Generar Reporte', 'El reporte está siendo generado. Estará disponible en unos momentos.');
+}
+
 function addComment() {
     const comentario = document.getElementById('nuevo_comentario').value.trim();
     if (comentario) {
-        alert('Comentario agregado');
         document.getElementById('nuevo_comentario').value = '';
+        mostrarInfo('<i class="bi bi-chat-dots me-2"></i>Comentario Agregado', 'Tu comentario ha sido registrado exitosamente.');
     } else {
-        alert('Por favor, escribe un comentario antes de enviarlo.');
+        new bootstrap.Modal(document.getElementById('modalComentarioVacio')).show();
     }
 }
 </script>
