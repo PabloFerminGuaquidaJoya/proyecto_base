@@ -3,6 +3,69 @@
 {% block title %}Detalle de Alerta - SENA{% endblock %}
 {% block page_title %}Detalle de Alerta{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ── Sensores ── */
+    .sensor-card { border-radius: 10px; padding: 1rem; text-align: center; color: white; }
+    .sensor-danger  { background: #cc4400; }
+    .sensor-warning { background: #ff6b35; }
+    .sensor-info    { background: #00324d; }
+    .sensor-neutral { background: #5a6474; }
+
+    /* ── Botones de acción ── */
+    .btn-sena-resolve  { background: #39a900; border-color: #39a900; color: white; }
+    .btn-sena-resolve:hover  { background: #2d7a00; border-color: #2d7a00; color: white; }
+    .btn-sena-escalate { background: #ff6b35; border-color: #ff6b35; color: white; }
+    .btn-sena-escalate:hover { background: #e05a28; border-color: #e05a28; color: white; }
+    .btn-sena-assign   { background: #00324d; border-color: #00324d; color: white; }
+    .btn-sena-assign:hover   { background: #002035; border-color: #002035; color: white; }
+    .btn-sena-report   { background: #5a6474; border-color: #5a6474; color: white; }
+    .btn-sena-report:hover   { background: #474f5d; border-color: #474f5d; color: white; }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; padding-left: 30px; }
+    .timeline::before {
+        content: ''; position: absolute; left: 15px;
+        top: 0; bottom: 0; width: 2px; background: #dee2e6;
+    }
+    .timeline-item { position: relative; margin-bottom: 2rem; }
+    .timeline-marker {
+        position: absolute; left: -22px;
+        width: 12px; height: 12px;
+        border-radius: 50%; border: 2px solid #fff; z-index: 1;
+    }
+    .timeline-content {
+        background: #f8f9fa; padding: 1rem;
+        border-radius: 8px; border: 1px solid #dee2e6;
+    }
+    .tm-danger  { background: #cc4400; }
+    .tm-warning { background: #ff6b35; }
+    .tm-info    { background: #00324d; }
+    .tm-primary { background: #39a900; }
+    .tm-neutral { background: #5a6474; }
+
+    /* ── Comentarios ── */
+    .comment { border-left: 4px solid #00324d; }
+    .avatar-primary { background: #39a900; }
+    .avatar-secondary { background: #00324d; }
+
+    /* ── Estadísticas ── */
+    .stat-value-green  { color: #39a900; }
+    .stat-value-orange { color: #ff6b35; }
+    .stat-value-navy   { color: #00324d; }
+    .stat-value-red    { color: #cc4400; }
+
+    /* ── Badges ── */
+    .badge-sena-info   { background: #00324d; color: white; }
+    .badge-sena-media  { background: #ff6b35; color: white; }
+
+    /* ── Progress bar ── */
+    .progress-bar-sena { background: #ff6b35; }
+
+    .badge.fs-6 { font-size: 0.9rem !important; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <!-- Header -->
@@ -17,7 +80,7 @@
                 </div>
                 <div>
                     <span class="badge bg-danger fs-6 me-2">CRÍTICA</span>
-                    <span class="badge bg-warning text-dark fs-6">ACTIVA</span>
+                    <span class="badge fs-6" style="background:#ff6b35;">ACTIVA</span>
                 </div>
             </div>
         </div>
@@ -50,7 +113,7 @@
                             <li><a class="dropdown-item" href="#" onclick="assignTechnician()"><i class="bi bi-person-plus me-2"></i>Asignar Técnico</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-success" href="#" onclick="resolveAlert()"><i class="bi bi-check-circle me-2"></i>Marcar como Resuelta</a></li>
-                            <li><a class="dropdown-item text-warning" href="#" onclick="escalateAlert()"><i class="bi bi-arrow-up me-2"></i>Escalar</a></li>
+                            <li><a class="dropdown-item" style="color:#ff6b35;" href="#" onclick="escalateAlert()"><i class="bi bi-arrow-up me-2"></i>Escalar</a></li>
                         </ul>
                     </div>
                 </div>
@@ -60,7 +123,8 @@
                             <div class="mb-3">
                                 <label class="form-label text-muted">Máquina Afectada</label>
                                 <div class="d-flex align-items-center">
-                                    <img src="/static/images/machine-placeholder.png" alt="Máquina" class="me-3" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                    <img src="/static/images/machine-placeholder.png" alt="Máquina" class="me-3"
+                                         style="width:50px;height:50px;object-fit:cover;border-radius:8px;">
                                     <div>
                                         <h6 class="mb-1">
                                             <a href="{% url 'maquinaria:detalle_maquina' pk=1 %}" class="text-decoration-none">
@@ -96,20 +160,15 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label text-muted">Fecha y Hora de Detección</label>
-                                <div>
-                                    <i class="bi bi-calendar-event me-2"></i>
-                                    <strong>25 de Enero, 2024</strong>
-                                </div>
-                                <div>
-                                    <i class="bi bi-clock me-2"></i>
-                                    <strong>14:30:25</strong>
-                                </div>
+                                <div><i class="bi bi-calendar-event me-2"></i><strong>25 de Enero, 2024</strong></div>
+                                <div><i class="bi bi-clock me-2"></i><strong>14:30:25</strong></div>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label text-muted">Técnico Asignado</label>
                                 <div class="d-flex align-items-center">
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                    <div class="avatar-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                         style="width:35px;height:35px;">
                                         <i class="bi bi-person"></i>
                                     </div>
                                     <div>
@@ -122,7 +181,7 @@
                             <div class="mb-3">
                                 <label class="form-label text-muted">Estado</label>
                                 <div>
-                                    <span class="badge bg-warning text-dark fs-6">
+                                    <span class="badge fs-6" style="background:#ff6b35;">
                                         <i class="bi bi-hourglass-split me-1"></i>EN PROCESO
                                     </span>
                                     <small class="text-muted ms-2">Desde hace 2 horas</small>
@@ -148,9 +207,9 @@
                     </div>
 
                     <!-- Sensors Data -->
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-md-3">
-                            <div class="text-center p-3 bg-danger text-white rounded">
+                            <div class="sensor-card sensor-danger">
                                 <i class="bi bi-speedometer2 fs-3"></i>
                                 <div class="mt-2">
                                     <strong>85 PSI</strong>
@@ -159,7 +218,7 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="text-center p-3 bg-warning text-dark rounded">
+                            <div class="sensor-card sensor-warning">
                                 <i class="bi bi-thermometer-high fs-3"></i>
                                 <div class="mt-2">
                                     <strong>78°C</strong>
@@ -168,7 +227,7 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="text-center p-3 bg-info text-white rounded">
+                            <div class="sensor-card sensor-info">
                                 <i class="bi bi-droplet fs-3"></i>
                                 <div class="mt-2">
                                     <strong>65%</strong>
@@ -177,7 +236,7 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="text-center p-3 bg-secondary text-white rounded">
+                            <div class="sensor-card sensor-neutral">
                                 <i class="bi bi-activity fs-3"></i>
                                 <div class="mt-2">
                                     <strong>1.2L/min</strong>
@@ -192,50 +251,44 @@
             <!-- Timeline -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-clock-history me-2"></i>Línea de Tiempo
-                    </h5>
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Línea de Tiempo</h5>
                 </div>
                 <div class="card-body">
                     <div class="timeline">
                         <div class="timeline-item">
-                            <div class="timeline-marker bg-danger"></div>
+                            <div class="timeline-marker tm-danger"></div>
                             <div class="timeline-content">
                                 <h6>Alerta Generada</h6>
                                 <p class="mb-1">Sistema detectó anomalía en presión hidráulica</p>
                                 <small class="text-muted">25 Ene 2024, 14:30 - Sistema Automático</small>
                             </div>
                         </div>
-
                         <div class="timeline-item">
-                            <div class="timeline-marker bg-warning"></div>
+                            <div class="timeline-marker tm-warning"></div>
                             <div class="timeline-content">
                                 <h6>Técnico Asignado</h6>
                                 <p class="mb-1">Juan Carlos Pérez fue asignado para la revisión</p>
                                 <small class="text-muted">25 Ene 2024, 14:45 - María González</small>
                             </div>
                         </div>
-
                         <div class="timeline-item">
-                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-marker tm-info"></div>
                             <div class="timeline-content">
                                 <h6>Inspección Inicial</h6>
                                 <p class="mb-1">Confirmada fuga en manguera principal del circuito hidráulico</p>
                                 <small class="text-muted">25 Ene 2024, 15:15 - Juan Carlos Pérez</small>
                             </div>
                         </div>
-
                         <div class="timeline-item">
-                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-marker tm-primary"></div>
                             <div class="timeline-content">
                                 <h6>Repuestos Solicitados</h6>
                                 <p class="mb-1">Manguera hidráulica CAT-HD-450 y sellos de repuesto</p>
                                 <small class="text-muted">25 Ene 2024, 15:45 - Juan Carlos Pérez</small>
                             </div>
                         </div>
-
                         <div class="timeline-item">
-                            <div class="timeline-marker bg-secondary"></div>
+                            <div class="timeline-marker tm-neutral"></div>
                             <div class="timeline-content">
                                 <h6>En Espera de Repuestos</h6>
                                 <p class="mb-1">Máquina fuera de servicio hasta recibir componentes</p>
@@ -249,50 +302,45 @@
             <!-- Comments Section -->
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-chat-dots me-2"></i>Comentarios y Notas
-                    </h5>
+                    <h5 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Comentarios y Notas</h5>
                 </div>
                 <div class="card-body">
-                    <!-- Add Comment Form -->
                     <form class="mb-4">
                         <div class="mb-3">
                             <label for="nuevo_comentario" class="form-label">Agregar Comentario</label>
-                            <textarea class="form-control" id="nuevo_comentario" rows="3" placeholder="Escribe tu comentario o actualización..."></textarea>
+                            <textarea class="form-control" id="nuevo_comentario" rows="3"
+                                      placeholder="Escribe tu comentario o actualización..."></textarea>
                         </div>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="addComment()">
+                        <button type="button" class="btn btn-sena-resolve btn-sm" onclick="addComment()">
                             <i class="bi bi-plus-circle me-2"></i>Agregar Comentario
                         </button>
                     </form>
 
-                    <!-- Existing Comments -->
                     <div class="comments-list">
                         <div class="comment mb-3 p-3 bg-light rounded">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="d-flex">
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <i class="bi bi-person"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1">Juan Carlos Pérez</h6>
-                                        <p class="mb-2">He identificado que la fuga está en la conexión principal. Necesitamos reemplazar toda la manguera ya que presenta desgaste avanzado. ETA de reparación: 4-6 horas una vez tengamos los repuestos.</p>
-                                        <small class="text-muted">Hace 1 hora</small>
-                                    </div>
+                            <div class="d-flex">
+                                <div class="avatar-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     style="width:40px;height:40px;flex-shrink:0;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Juan Carlos Pérez</h6>
+                                    <p class="mb-2">He identificado que la fuga está en la conexión principal. Necesitamos reemplazar toda la manguera ya que presenta desgaste avanzado. ETA de reparación: 4-6 horas una vez tengamos los repuestos.</p>
+                                    <small class="text-muted">Hace 1 hora</small>
                                 </div>
                             </div>
                         </div>
 
                         <div class="comment mb-3 p-3 bg-light rounded">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="d-flex">
-                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <i class="bi bi-person"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1">María González</h6>
-                                        <p class="mb-2">Los repuestos ya fueron solicitados al proveedor. Tiempo estimado de entrega: mañana por la mañana.</p>
-                                        <small class="text-muted">Hace 30 minutos</small>
-                                    </div>
+                            <div class="d-flex">
+                                <div class="avatar-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     style="width:40px;height:40px;flex-shrink:0;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">María González</h6>
+                                    <p class="mb-2">Los repuestos ya fueron solicitados al proveedor. Tiempo estimado de entrega: mañana por la mañana.</p>
+                                    <small class="text-muted">Hace 30 minutos</small>
                                 </div>
                             </div>
                         </div>
@@ -310,16 +358,16 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <button class="btn btn-success" onclick="resolveAlert()">
+                        <button class="btn btn-sena-resolve" onclick="resolveAlert()">
                             <i class="bi bi-check-circle me-2"></i>Marcar como Resuelta
                         </button>
-                        <button class="btn btn-warning" onclick="escalateAlert()">
+                        <button class="btn btn-sena-escalate" onclick="escalateAlert()">
                             <i class="bi bi-arrow-up me-2"></i>Escalar Prioridad
                         </button>
-                        <button class="btn btn-info" onclick="reassignAlert()">
+                        <button class="btn btn-sena-assign" onclick="reassignAlert()">
                             <i class="bi bi-person-gear me-2"></i>Reasignar Técnico
                         </button>
-                        <button class="btn btn-secondary" onclick="generateReport()">
+                        <button class="btn btn-sena-report" onclick="generateReport()">
                             <i class="bi bi-file-earmark-text me-2"></i>Generar Reporte
                         </button>
                     </div>
@@ -334,22 +382,22 @@
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6 border-end">
-                            <strong class="text-primary fs-5">2h 15m</strong>
+                            <strong class="stat-value-green fs-5">2h 15m</strong>
                             <small class="d-block text-muted">Tiempo Activa</small>
                         </div>
                         <div class="col-6">
-                            <strong class="text-warning fs-5">$2,450</strong>
+                            <strong class="stat-value-orange fs-5">$2,450</strong>
                             <small class="d-block text-muted">Costo Estimado</small>
                         </div>
                     </div>
                     <hr>
                     <div class="row text-center">
                         <div class="col-6 border-end">
-                            <strong class="text-danger fs-5">3</strong>
+                            <strong class="stat-value-red fs-5">3</strong>
                             <small class="d-block text-muted">Alertas Similares</small>
                         </div>
                         <div class="col-6">
-                            <strong class="text-info fs-5">85%</strong>
+                            <strong class="stat-value-navy fs-5">85%</strong>
                             <small class="d-block text-muted">Disponibilidad</small>
                         </div>
                     </div>
@@ -369,7 +417,7 @@
                                     <h6 class="mb-1">Mantenimiento Preventivo</h6>
                                     <small class="text-muted">Programado para la próxima semana</small>
                                 </div>
-                                <span class="badge bg-info">INFO</span>
+                                <span class="badge badge-sena-info">INFO</span>
                             </div>
                         </div>
                         <div class="list-group-item px-0">
@@ -378,7 +426,7 @@
                                     <h6 class="mb-1">Filtro de Aceite</h6>
                                     <small class="text-muted">Cambio requerido</small>
                                 </div>
-                                <span class="badge bg-warning text-dark">MEDIA</span>
+                                <span class="badge badge-sena-media">MEDIA</span>
                             </div>
                         </div>
                     </div>
@@ -395,10 +443,9 @@
                         <i class="bi bi-exclamation-triangle display-4 text-danger"></i>
                         <h5 class="mt-3 text-danger">FUERA DE SERVICIO</h5>
                         <p class="text-muted">Desde el 25 de Enero</p>
-
                         <div class="mt-4">
                             <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: 60%"></div>
+                                <div class="progress-bar progress-bar-sena" role="progressbar" style="width: 60%"></div>
                             </div>
                             <small class="text-muted">Reparación en progreso (60%)</small>
                         </div>
@@ -410,92 +457,25 @@
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    .timeline {
-        position: relative;
-        padding-left: 30px;
-    }
-
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 15px;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: #dee2e6;
-    }
-
-    .timeline-item {
-        position: relative;
-        margin-bottom: 2rem;
-    }
-
-    .timeline-marker {
-        position: absolute;
-        left: -22px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        border: 2px solid #fff;
-        z-index: 1;
-    }
-
-    .timeline-content {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
-    }
-
-    .comment {
-        border-left: 4px solid #0066cc;
-    }
-
-    .badge.fs-6 {
-        font-size: 0.9rem !important;
-    }
-</style>
-{% endblock %}
-
 {% block extra_js %}
 <script>
-function editAlert() {
-    alert('Función de edición en desarrollo');
-}
-
-function assignTechnician() {
-    alert('Función de asignación en desarrollo');
-}
-
+function editAlert() { alert('Función de edición en desarrollo'); }
+function assignTechnician() { alert('Función de asignación en desarrollo'); }
 function resolveAlert() {
     if (confirm('¿Estás seguro de que quieres marcar esta alerta como resuelta?')) {
         alert('Alerta marcada como resuelta');
-        // Redirect or update UI
     }
 }
-
 function escalateAlert() {
-    if (confirm('¿Deseas escalar la prioridad de esta alerta?')) {
-        alert('Alerta escalada');
-    }
+    if (confirm('¿Deseas escalar la prioridad de esta alerta?')) { alert('Alerta escalada'); }
 }
-
-function reassignAlert() {
-    alert('Función de reasignación en desarrollo');
-}
-
-function generateReport() {
-    alert('Generando reporte...');
-}
-
+function reassignAlert() { alert('Función de reasignación en desarrollo'); }
+function generateReport() { alert('Generando reporte...'); }
 function addComment() {
     const comentario = document.getElementById('nuevo_comentario').value.trim();
     if (comentario) {
         alert('Comentario agregado');
         document.getElementById('nuevo_comentario').value = '';
-        // Add comment to list
     } else {
         alert('Por favor, escribe un comentario antes de enviarlo.');
     }
