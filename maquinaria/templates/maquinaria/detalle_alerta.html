@@ -361,9 +361,10 @@
                             <i class="bi bi-person-gear me-2"></i>
                             {% if alerta.tecnico_asignado %}Cambiar Técnico{% else %}Asignar Técnico{% endif %}
                         </button>
-                        <button class="btn btn-sena-report" onclick="generateReport()">
-                            <i class="bi bi-file-earmark-text me-2"></i>Generar Reporte
-                        </button>
+                        <a href="{% url 'maquinaria:reporte_pdf_alerta' pk=alerta.pk %}"
+                           target="_blank" class="btn btn-sena-report">
+                            <i class="bi bi-file-earmark-pdf me-2"></i>Generar Reporte PDF
+                        </a>
                     </div>
                 </div>
             </div>

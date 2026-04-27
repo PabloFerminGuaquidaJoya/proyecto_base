@@ -30,6 +30,7 @@ urlpatterns = [
     path('alertas/crear/', views.crear_alerta_view, name='crear_alerta'),
     path('alertas/resolver/<int:pk>/', views.resolver_alerta, name='resolver_alerta'),
     path('alertas/detalle/<int:pk>/', views.detalle_alerta_view, name='detalle_alerta'),
+    path('alertas/reporte-pdf/<int:pk>/', views.reporte_pdf_alerta, name='reporte_pdf_alerta'),
 
     # Mantenimiento
     path('mantenimiento/', views.mantenimiento_dashboard_view, name='mantenimiento_dashboard'),

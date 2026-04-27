@@ -689,6 +689,196 @@ def resolver_alerta(request, pk):
     return JsonResponse({'success': False, 'message': 'Método no permitido'})
 
 @login_required
+@login_required
+def reporte_pdf_alerta(request, pk):
+    """Genera un PDF con el detalle completo de una alerta."""
+    from django.http import HttpResponse
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    import io
+
+    alerta = get_object_or_404(AlertaMaquina, pk=pk)
+
+    VERDE  = colors.HexColor('#39a900')
+    MARINO = colors.HexColor('#00324d')
+    NARANJA = colors.HexColor('#ff6b35')
+    ROJO   = colors.HexColor('#cc4400')
+    GRIS   = colors.HexColor('#f8f9fa')
+    GRIS_B = colors.HexColor('#dee2e6')
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4,
+                            leftMargin=2*cm, rightMargin=2*cm,
+                            topMargin=2*cm, bottomMargin=2*cm)
+
+    styles = getSampleStyleSheet()
+    estilo_titulo    = ParagraphStyle('t', fontSize=18, fontName='Helvetica-Bold', textColor=MARINO, spaceAfter=4)
+    estilo_subtitulo = ParagraphStyle('s', fontSize=11, fontName='Helvetica', textColor=colors.HexColor('#6c757d'), spaceAfter=12)
+    estilo_seccion   = ParagraphStyle('sec', fontSize=12, fontName='Helvetica-Bold', textColor=colors.white, spaceAfter=6)
+    estilo_normal    = ParagraphStyle('n', fontSize=10, fontName='Helvetica', spaceAfter=4, leading=14)
+    estilo_label     = ParagraphStyle('l', fontSize=9,  fontName='Helvetica-Bold', textColor=colors.HexColor('#6c757d'), spaceAfter=2)
+    estilo_valor     = ParagraphStyle('v', fontSize=10, fontName='Helvetica', spaceAfter=8, leading=13)
+
+    COLOR_PRIORIDAD = {'critica': ROJO, 'alta': ROJO, 'media': NARANJA, 'baja': VERDE}
+    color_prio = COLOR_PRIORIDAD.get(alerta.prioridad, MARINO)
+
+    COLOR_ESTADO = {'activa': NARANJA, 'en_proceso': MARINO, 'resuelta': VERDE, 'ignorada': colors.grey}
+    color_estado = COLOR_ESTADO.get(alerta.estado, MARINO)
+
+    def cabecera_seccion(texto, color=MARINO):
+        data = [[Paragraph(f'<font color="white"><b>{texto}</b></font>', estilo_seccion)]]
+        t = Table(data, colWidths=[17*cm])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), color),
+            ('ROWBACKGROUNDS', (0,0), (-1,-1), [color]),
+            ('TOPPADDING', (0,0), (-1,-1), 6),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+            ('LEFTPADDING', (0,0), (-1,-1), 10),
+        ]))
+        return t
+
+    def fila_dato(label, valor):
+        return [Paragraph(label, estilo_label), Paragraph(str(valor) if valor else '—', estilo_valor)]
+
+    story = []
+
+    # ── Encabezado ──────────────────────────────────────────────────────────
+    header_data = [[
+        Paragraph('SENA Maquinaria', ParagraphStyle('hb', fontSize=14, fontName='Helvetica-Bold', textColor=colors.white)),
+        Paragraph('REPORTE DE ALERTA', ParagraphStyle('hr', fontSize=14, fontName='Helvetica-Bold', textColor=colors.white, alignment=2)),
+    ]]
+    header_t = Table(header_data, colWidths=[8.5*cm, 8.5*cm])
+    header_t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), MARINO),
+        ('TOPPADDING', (0,0), (-1,-1), 12),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 12),
+        ('LEFTPADDING', (0,0), (-1,-1), 14),
+        ('RIGHTPADDING', (0,0), (-1,-1), 14),
+    ]))
+    story.append(header_t)
+    story.append(Spacer(1, 0.4*cm))
+
+    story.append(Paragraph(alerta.titulo, estilo_titulo))
+    story.append(Paragraph(
+        f'Alerta #{alerta.pk}  •  Máquina: {alerta.maquina.codigo_inventario}  •  '
+        f'Generada: {alerta.fecha_creacion.strftime("%d/%m/%Y %H:%M")}',
+        estilo_subtitulo))
+
+    # Badges prioridad / estado
+    badges_data = [[
+        Paragraph(f'<font color="white"><b> {alerta.get_prioridad_display().upper()} </b></font>',
+                  ParagraphStyle('b1', fontSize=10, fontName='Helvetica-Bold')),
+        Paragraph(f'<font color="white"><b> {alerta.get_estado_display().upper()} </b></font>',
+                  ParagraphStyle('b2', fontSize=10, fontName='Helvetica-Bold')),
+        Paragraph('', styles['Normal']),
+    ]]
+    bt = Table(badges_data, colWidths=[3.5*cm, 3.5*cm, 10*cm])
+    bt.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (0,0), color_prio),
+        ('BACKGROUND', (1,0), (1,0), color_estado),
+        ('BACKGROUND', (2,0), (2,0), colors.white),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ('ROUNDEDCORNERS', [4, 4, 4, 4]),
+    ]))
+    story.append(bt)
+    story.append(Spacer(1, 0.5*cm))
+
+    # ── Información de la Alerta ─────────────────────────────────────────────
+    story.append(cabecera_seccion('  Información de la Alerta'))
+    story.append(Spacer(1, 0.2*cm))
+
+    info_data = [
+        fila_dato('Máquina afectada', f'{alerta.maquina.nombre} ({alerta.maquina.codigo_inventario})'),
+        fila_dato('Tipo de alerta',   alerta.get_tipo_display()),
+        fila_dato('Prioridad',        alerta.get_prioridad_display()),
+        fila_dato('Estado',           alerta.get_estado_display()),
+        fila_dato('Fecha detección',  alerta.fecha_creacion.strftime('%d/%m/%Y %H:%M:%S')),
+        fila_dato('Registrada por',   f'{alerta.created_by.nombres} {alerta.created_by.apellidos}' if alerta.created_by else 'Sistema Automático'),
+    ]
+    info_t = Table(info_data, colWidths=[5*cm, 12*cm])
+    info_t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (0,-1), GRIS),
+        ('GRID', (0,0), (-1,-1), 0.5, GRIS_B),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+    ]))
+    story.append(info_t)
+    story.append(Spacer(1, 0.4*cm))
+
+    # ── Técnico Asignado ─────────────────────────────────────────────────────
+    story.append(cabecera_seccion('  Técnico Asignado', VERDE))
+    story.append(Spacer(1, 0.2*cm))
+    if alerta.tecnico_asignado:
+        tec = alerta.tecnico_asignado
+        tec_data = [
+            fila_dato('Nombre completo', f'{tec.nombres} {tec.apellidos}'),
+            fila_dato('Cargo',           tec.cargo),
+            fila_dato('Correo',          tec.email),
+            fila_dato('Teléfono',        tec.telefono if hasattr(tec, 'telefono') and tec.telefono else '—'),
+            fila_dato('Documento',       f'{tec.tipo_documento} {tec.numero_documento}'),
+        ]
+        tec_t = Table(tec_data, colWidths=[5*cm, 12*cm])
+        tec_t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (0,-1), GRIS),
+            ('GRID', (0,0), (-1,-1), 0.5, GRIS_B),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ]))
+        story.append(tec_t)
+    else:
+        story.append(Paragraph('<i>Sin técnico asignado al momento de generar el reporte.</i>', estilo_normal))
+    story.append(Spacer(1, 0.4*cm))
+
+    # ── Descripción ──────────────────────────────────────────────────────────
+    story.append(cabecera_seccion('  Descripción de la Alerta'))
+    story.append(Spacer(1, 0.2*cm))
+    story.append(Paragraph(alerta.descripcion.replace('\n', '<br/>'), estilo_normal))
+    story.append(Spacer(1, 0.4*cm))
+
+    # ── Resolución (si aplica) ───────────────────────────────────────────────
+    if alerta.estado == 'resuelta':
+        story.append(cabecera_seccion('  Resolución', VERDE))
+        story.append(Spacer(1, 0.2*cm))
+        res_data = [
+            fila_dato('Fecha resolución', alerta.fecha_resolucion.strftime('%d/%m/%Y %H:%M:%S') if alerta.fecha_resolucion else '—'),
+            fila_dato('Resuelto por', f'{alerta.resuelto_por.nombres} {alerta.resuelto_por.apellidos}' if alerta.resuelto_por else '—'),
+            fila_dato('Notas', alerta.notas_resolucion or '—'),
+        ]
+        res_t = Table(res_data, colWidths=[5*cm, 12*cm])
+        res_t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (0,-1), GRIS),
+            ('GRID', (0,0), (-1,-1), 0.5, GRIS_B),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ]))
+        story.append(res_t)
+        story.append(Spacer(1, 0.4*cm))
+
+    # ── Pie de página ────────────────────────────────────────────────────────
+    story.append(HRFlowable(width='100%', thickness=1, color=GRIS_B))
+    story.append(Spacer(1, 0.2*cm))
+    from django.utils import timezone
+    story.append(Paragraph(
+        f'<font color="#6c757d" size="8">Reporte generado el {timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")} '
+        f'por {request.user.get_full_name() or request.user.username} — SENA Sistema de Gestión de Maquinaria v2.0</font>',
+        styles['Normal']))
+
+    doc.build(story)
+    buf.seek(0)
+    response = HttpResponse(buf.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="Reporte_Alerta_{alerta.pk}_{alerta.maquina.codigo_inventario}.pdf"'
+    return response
+
+
+@login_required
 def detalle_alerta_view(request, pk):
     """Detalle de alerta específica"""
     from usuarios.models import Usuario
