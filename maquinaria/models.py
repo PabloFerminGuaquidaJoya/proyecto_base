@@ -192,6 +192,12 @@ class AlertaMaquina(models.Model):
         related_name='alertas_resueltas'
     )
 
+    tecnico_asignado = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='alertas_asignadas'
+    )
     notas_resolucion = models.TextField(blank=True)
     created_by = models.ForeignKey(
         'usuarios.Usuario',

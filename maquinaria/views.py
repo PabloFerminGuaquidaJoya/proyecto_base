@@ -691,11 +691,26 @@ def resolver_alerta(request, pk):
 @login_required
 def detalle_alerta_view(request, pk):
     """Detalle de alerta específica"""
+    from usuarios.models import Usuario
     alerta = get_object_or_404(AlertaMaquina, pk=pk)
+
+    # Técnicos disponibles para asignar (Personal de Mantenimiento activos)
+    tecnicos = Usuario.objects.filter(
+        cargo='Personal de Mantenimiento',
+        estado='activo'
+    ).order_by('nombres', 'apellidos')
+
+    # Manejo de asignación de técnico vía POST
+    if request.method == 'POST' and 'asignar_tecnico' in request.POST:
+        tecnico_id = request.POST.get('tecnico_id')
+        if tecnico_id:
+            alerta.tecnico_asignado = get_object_or_404(Usuario, pk=tecnico_id)
+            alerta.save(update_fields=['tecnico_asignado'])
 
     context = {
         'title': f'Alerta - {alerta.maquina.codigo_inventario}',
         'alerta': alerta,
+        'tecnicos': tecnicos,
     }
 
     return render(request, 'maquinaria/detalle_alerta.html', context)
